@@ -6,10 +6,22 @@ const User = require('../models/User');
 
 // Google OAuth Strategy with scope included
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  // Determine callback URL based on environment
+  let callbackURL;
+  if (process.env.NODE_ENV === 'production') {
+    callbackURL = process.env.GOOGLE_CALLBACK_URL_PRODUCTION || "https://reachroots.onrender.com/api/auth/google/callback";
+  } else if (process.env.CODESPACE_NAME) {
+    callbackURL = process.env.GOOGLE_CALLBACK_URL_CODESPACES;
+  } else {
+    callbackURL = process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback";
+  }
+  
+  console.log('🔧 Google OAuth callback URL:', callbackURL);
+  
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL_CODESPACES || process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
+    callbackURL: callbackURL,
     scope: ['profile', 'email']  // Added scope here to ensure it's always included
   }, async (accessToken, refreshToken, profile, done) => {
   try {

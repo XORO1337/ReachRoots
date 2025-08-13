@@ -32,6 +32,28 @@ router.post('/login', authLimit, validateUserLogin, AuthController.loginWithEmai
 router.get('/google', AuthController.initiateGoogleAuth);
 router.get('/google/callback', AuthController.handleGoogleCallback);
 
+// Debug route for testing OAuth setup
+router.get('/oauth-debug', (req, res) => {
+  res.json({
+    message: 'OAuth routes are working',
+    environment: process.env.NODE_ENV,
+    clientUrl: process.env.CLIENT_URL,
+    googleCallbackUrl: process.env.NODE_ENV === 'production' 
+      ? process.env.GOOGLE_CALLBACK_URL_PRODUCTION 
+      : process.env.GOOGLE_CALLBACK_URL_CODESPACES || process.env.GOOGLE_CALLBACK_URL,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Add a simple callback test route
+router.get('/callback', (req, res) => {
+  res.status(404).json({
+    error: 'This endpoint should not be called directly',
+    message: 'OAuth callbacks should go through /api/auth/google/callback',
+    receivedParams: req.query
+  });
+});
+
 // Debug route to check user role (temporary)
 router.get('/debug/user-role/:email', async (req, res) => {
   try {

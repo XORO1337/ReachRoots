@@ -151,6 +151,12 @@ class AuthController {
 
   // Google OAuth callback
   static async handleGoogleCallback(req, res, next) {
+    console.log('🔍 OAuth Callback - Environment check:');
+    console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+    console.log('🔍 CLIENT_URL:', process.env.CLIENT_URL);
+    console.log('🔍 Request URL:', req.url);
+    console.log('🔍 Request query params:', req.query);
+    
     passport.authenticate('google', { session: false }, async (err, user) => {
       if (err) {
         console.error('Google OAuth error:', err);
