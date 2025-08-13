@@ -1,38 +1,42 @@
-./node_modules
-.DS_Store
+# Dependencies
+node_modules/
+
+# Environment files
 .env
-dist
-coverage
-.vscode
-.idea
+.env.local
+.env.development
+.env.production
+
+# Build outputs
+dist/
+coverage/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.iml
+
+# Logs
+logs/
 *.log
+*.access.log
+*.audit.log
+
+# Temporary files
 *.tmp
 *.bak
 *.swp
 *.swo
 *.orig
-*.DS_Store
-*.vscode
-*.idea
-*.sublime-workspace
-*.sublime-project
-*.iml
 
-# Security logs (never commit)
-logs/
-logs/*
-access.log
-*.access.log
-audit.log
-*.audit.log
-node_modules/
-dist/
-coverage/
-.vscode/
-.idea/
-*.log
-*.tmp
-*.bak
-*.swp
-*.swo   
-.env.production
