@@ -35,3 +35,4 @@ coverage/
 *.bak
 *.swp
 *.swo   
+.env.production
