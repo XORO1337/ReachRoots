@@ -65,11 +65,11 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartToggle, filters, 
             <div className="hidden md:flex items-center space-x-6 text-sm">
               <span className="flex items-center hover:text-orange-200 cursor-pointer transition-colors">
                 <span className="mr-2">📞</span>
-                Support: 1800-ROOTS-1
+                Support: +91-9318422848
               </span>
               <span className="flex items-center hover:text-orange-200 cursor-pointer transition-colors">
                 <span className="mr-2">✉️</span>
-                help@rootsreach.com
+                gamerroyale441@gmail.com
               </span>
             </div>
           </div>

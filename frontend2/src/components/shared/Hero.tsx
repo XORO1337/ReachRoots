@@ -1,8 +1,39 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, MapPin, Award } from 'lucide-react';
+import { useHeroShowcase } from '../../hooks/useHeroShowcase';
 
 const Hero: React.FC = () => {
+  const { products, loading, error } = useHeroShowcase();
+
+  // Fallback images in case of no data or loading
+  const fallbackImages = [
+    "https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "https://images.pexels.com/photos/1081199/pexels-photo-1081199.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "https://images.pexels.com/photos/1927259/pexels-photo-1927259.jpeg?auto=compress&cs=tinysrgb&w=300"
+  ];
+
+  // Get images from products or use fallbacks
+  const getShowcaseImages = () => {
+    if (loading || error) return fallbackImages;
+    
+    const allProducts = [
+      ...products.textiles,
+      ...products.pottery,
+      ...products.wooden,
+      ...products.jewelry
+    ];
+    
+    if (allProducts.length === 0) return fallbackImages;
+    
+    return allProducts
+      .filter(product => product.images && product.images.length > 0)
+      .map(product => product.images[0])
+      .slice(0, 4);
+  };
+
+  const showcaseImages = getShowcaseImages();
   return (
     <section className="relative bg-gradient-to-r from-orange-50 to-amber-50 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,32 +88,106 @@ const Hero: React.FC = () => {
           
           {/* Image Content */}
           <div className="relative">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <img
-                  src="https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=300"
-                  alt="Traditional textiles"
-                  className="rounded-lg shadow-lg w-full h-48 object-cover"
-                />
-                <img
-                  src="https://images.pexels.com/photos/1081199/pexels-photo-1081199.jpeg?auto=compress&cs=tinysrgb&w=300"
-                  alt="Pottery crafts"
-                  className="rounded-lg shadow-lg w-full h-32 object-cover"
-                />
+            {loading ? (
+              // Loading skeleton
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-gray-200 animate-pulse w-full h-48"></div>
+                  <div className="rounded-lg bg-gray-200 animate-pulse w-full h-32"></div>
+                </div>
+                <div className="space-y-4 pt-8">
+                  <div className="rounded-lg bg-gray-200 animate-pulse w-full h-32"></div>
+                  <div className="rounded-lg bg-gray-200 animate-pulse w-full h-48"></div>
+                </div>
               </div>
-              <div className="space-y-4 pt-8">
-                <img
-                  src="https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300"
-                  alt="Wooden crafts"
-                  className="rounded-lg shadow-lg w-full h-32 object-cover"
-                />
-                <img
-                  src="https://images.pexels.com/photos/1927259/pexels-photo-1927259.jpeg?auto=compress&cs=tinysrgb&w=300"
-                  alt="Jewelry and accessories"
-                  className="rounded-lg shadow-lg w-full h-48 object-cover"
-                />
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="relative group">
+                    <img
+                      src={showcaseImages[0] || fallbackImages[0]}
+                      alt="Traditional textiles"
+                      className="rounded-lg shadow-lg w-full h-48 object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = fallbackImages[0];
+                      }}
+                    />
+                    {products.textiles.length > 0 && (
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-end">
+                        <div className="p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-sm font-semibold">{products.textiles[0]?.name}</p>
+                          <p className="text-xs">₹{products.textiles[0]?.price}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative group">
+                    <img
+                      src={showcaseImages[1] || fallbackImages[1]}
+                      alt="Pottery crafts"
+                      className="rounded-lg shadow-lg w-full h-32 object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = fallbackImages[1];
+                      }}
+                    />
+                    {products.pottery.length > 0 && (
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-end">
+                        <div className="p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-sm font-semibold">{products.pottery[0]?.name}</p>
+                          <p className="text-xs">₹{products.pottery[0]?.price}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-4 pt-8">
+                  <div className="relative group">
+                    <img
+                      src={showcaseImages[2] || fallbackImages[2]}
+                      alt="Wooden crafts"
+                      className="rounded-lg shadow-lg w-full h-32 object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = fallbackImages[2];
+                      }}
+                    />
+                    {products.wooden.length > 0 && (
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-end">
+                        <div className="p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-sm font-semibold">{products.wooden[0]?.name}</p>
+                          <p className="text-xs">₹{products.wooden[0]?.price}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative group">
+                    <img
+                      src={showcaseImages[3] || fallbackImages[3]}
+                      alt="Jewelry and accessories"
+                      className="rounded-lg shadow-lg w-full h-48 object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = fallbackImages[3];
+                      }}
+                    />
+                    {products.jewelry.length > 0 && (
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-end">
+                        <div className="p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-sm font-semibold">{products.jewelry[0]?.name}</p>
+                          <p className="text-xs">₹{products.jewelry[0]?.price}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
             
             {/* Floating Cards */}
             <div className="absolute -top-4 -left-4 bg-white p-4 rounded-lg shadow-lg">
