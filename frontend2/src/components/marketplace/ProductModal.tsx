@@ -1,7 +1,7 @@
 import React from 'react';
-import { Product } from '../types';
+import { Product } from '../../types';
 import { X, Star, MapPin, ShoppingCart, Heart, Share2 } from 'lucide-react';
-import { formatWeightUnit } from '../utils/formatters';
+import { formatWeightUnit } from '../../utils/formatters';
 
 interface ProductModalProps {
   product: Product | null;

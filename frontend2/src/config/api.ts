@@ -1,17 +1,23 @@
 // API Configuration with environment detection
 const getBaseUrl = (): string => {
+  // First check for environment variable (works for production)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
   // Check if we're in development environment (localhost)
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:5000';
   }
   
-  // For GitHub Codespaces, use the correct external URL
+  // For GitHub Codespaces, construct dynamic URL
   if (window.location.hostname.includes('app.github.dev')) {
-    return 'https://cautious-zebra-x5549r5475j6f979-5000.app.github.dev';
+    const codespaceName = window.location.hostname.split('-').slice(0, -1).join('-');
+    return `https://${codespaceName}-5000.app.github.dev`;
   }
   
-  // Fallback to the Codespaces URL
-  return 'https://cautious-zebra-x5549r5475j6f979-5000.app.github.dev';
+  // Fallback to localhost for development
+  return 'http://localhost:5000';
 };
 
 export const API_CONFIG = {

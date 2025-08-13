@@ -5,7 +5,7 @@ const otpService = require('../services/otpService');
 const passport = require('../config/passport');
 
 class AuthController {
-  // Register with email only (OTP sent to email)
+  // Email based Registration with OTP
   static async registerWithEmailOTP(req, res) {
     try {
       const { name, email, password, role, bio, region, skills, businessName, licenseNumber, distributionAreas } = req.body;

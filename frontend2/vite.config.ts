@@ -4,6 +4,19 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': '/src',
+      '@/components': '/src/components',
+      '@/pages': '/src/pages',
+      '@/services': '/src/services',
+      '@/utils': '/src/utils',
+      '@/types': '/src/types',
+      '@/hooks': '/src/hooks',
+      '@/config': '/src/config',
+      '@/contexts': '/src/contexts',
+    },
+  },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
@@ -12,7 +25,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api': {
-        target: 'https://cautious-zebra-x5549r5475j6f979-5000.app.github.dev',
+        target: 'https://ubiquitous-space-meme-g44p5x4pj4gwhwp7x-5000.app.github.dev',
         changeOrigin: true,
         secure: false,
         configure: (proxy, _options) => {

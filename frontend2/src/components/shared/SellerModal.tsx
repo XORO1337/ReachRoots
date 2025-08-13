@@ -1,6 +1,6 @@
 import React from 'react';
-import { Seller } from '../types';
-import { sellers } from '../data/mockData';
+import { Seller } from '../../types';
+import { sellers } from '../../data/mockData';
 import { X, MapPin, Star, Award, Calendar, Package } from 'lucide-react';
 
 interface SellerModalProps {

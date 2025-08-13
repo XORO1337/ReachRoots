@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Product } from '../types';
+import { Product } from '../../types';
 import { Star, MapPin, ShoppingCart, Eye, Heart } from 'lucide-react';
-import { formatWeightUnit } from '../utils/formatters';
-import { useWishlist } from '../contexts/WishlistContext';
+import { formatWeightUnit } from '../../utils/formatters';
+import { useWishlist } from '../../contexts/WishlistContext';
 
 interface ProductCardProps {
   product: Product;

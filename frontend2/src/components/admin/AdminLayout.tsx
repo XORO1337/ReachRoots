@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAdminAuth } from '../contexts';
+import { useAdminAuth } from '../../contexts';
 import {
   BarChart3,
   Users,

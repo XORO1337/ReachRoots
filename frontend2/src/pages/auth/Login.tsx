@@ -4,8 +4,8 @@ import { Eye, EyeOff, User, Palette, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl, buildGoogleOAuthUrl, API_CONFIG } from '../../config/api';
-import OTPVerification from '../../components/OTPVerification';
-import LanguageSelectionModal from '../../components/LanguageSelectionModal';
+import OTPVerification from '../../components/auth/OTPVerification';
+import LanguageSelectionModal from '../../components/shared/LanguageSelectionModal';
 import { useLanguageSelection } from '../../hooks/useLanguageSelection';
 
 const Login: React.FC = () => {

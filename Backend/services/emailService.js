@@ -26,7 +26,7 @@ class EmailService {
   async sendOTPEmail(email, otp, name) {
     try {
       const mailOptions = {
-        from: this.defaultFrom,
+        from: this.defaultFrom, // Sender Address
         to: email,
         subject: 'Your OTP for RootsReach',
         html: `

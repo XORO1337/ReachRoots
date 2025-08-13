@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_CONFIG, buildApiUrl } from '../config/api';
+import { API_CONFIG, buildApiUrl } from '../../config/api';
 
 interface OTPVerificationProps {
   email: string;

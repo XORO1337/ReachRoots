@@ -14,12 +14,12 @@ import {
   FilterX
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ProductCard from '../components/ProductCard';
-import Cart from '../components/Cart';
-import ProductModal from '../components/ProductModal';
-import SellerModal from '../components/SellerModal';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import ProductCard from '../components/marketplace/ProductCard';
+import Cart from '../components/marketplace/Cart';
+import ProductModal from '../components/marketplace/ProductModal';
+import SellerModal from '../components/shared/SellerModal';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import SearchService, { SearchFilters as ApiSearchFilters, ApiProduct as ServiceApiProduct } from '../services/searchService';

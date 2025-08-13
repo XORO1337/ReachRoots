@@ -57,7 +57,7 @@ const connectDualDB = async () => {
                 authSource: 'admin'
             };
 
-            await Promise.race([
+            await Promise.race([ // Connect to local MongoDB with timeout // WHy race? : To ensure we don't block if local is slow
                 mongoose.connect(localURI, localConfig),
                 new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('Local connection timeout')), timeout)

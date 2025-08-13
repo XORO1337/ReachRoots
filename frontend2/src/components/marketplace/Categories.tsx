@@ -1,6 +1,6 @@
 import React from 'react';
-import { Category } from '../types';
-import { categories } from '../data/mockData';
+import { Category } from '../../types';
+import { categories } from '../../data/mockData';
 import * as Icons from 'lucide-react';
 
 interface CategoriesProps {

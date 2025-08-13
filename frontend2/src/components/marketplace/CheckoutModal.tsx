@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { CartItem } from '../types';
+import { CartItem } from '../../types';
 import { X, MapPin, User, CreditCard } from 'lucide-react';
-import { formatWeightUnit } from '../utils/formatters';
+import { formatWeightUnit } from '../../utils/formatters';
 
 interface CheckoutModalProps {
   isOpen: boolean;

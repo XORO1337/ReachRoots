@@ -46,7 +46,7 @@ class ArtisanController {
     }
   }
 
-  // Get artisan by ID
+  // Get artisan by Artisan ID
   static async getArtisanById(req, res) {
     try {
       const artisan = await ArtisanService.getArtisanProfileById(req.params.id);

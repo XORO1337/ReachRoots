@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { CartItem } from '../types';
+import { CartItem } from '../../types';
 import { X, Minus, Plus, ShoppingBag, Truck } from 'lucide-react';
-import { formatWeightUnit } from '../utils/formatters';
-import OrderService from '../services/orderService';
+import { formatWeightUnit } from '../../utils/formatters';
+import OrderService from '../../services/orderService';
 import CheckoutModal from './CheckoutModal';
 import OrderConfirmationModal from './OrderConfirmationModal';
 

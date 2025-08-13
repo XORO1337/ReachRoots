@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Menu, X, Heart, User, LogOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { FilterState } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import { useWishlist } from '../contexts/WishlistContext';
-import LanguageSwitcher from './LanguageSwitcher';
+import { FilterState } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
+import { useWishlist } from '../../contexts/WishlistContext';
+import LanguageSwitcher from '../shared/LanguageSwitcher';
 
 interface HeaderProps {
   cartItemsCount: number;
