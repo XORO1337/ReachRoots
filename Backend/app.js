@@ -48,9 +48,12 @@ app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
 
-// CORS configuration
+// Load dynamic environment config
+const env = require('./config/environment');
+
+// CORS configuration (primary)
 app.use(cors({
-  origin: 'https://reachroots.onrender.com',
+  origin: env.CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
@@ -61,7 +64,7 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
 
 // Simple CORS configuration
 const corsOptions = {
-  origin: 'https://reachroots.onrender.com',
+  origin: env.CLIENT_URL,
   credentials: true
 };
 

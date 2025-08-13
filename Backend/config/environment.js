@@ -55,7 +55,7 @@ function getClientURL() {
   }
   
   // Production fallback - you'll need to set this manually
-  return 'https://reachroots.onrender.com';
+  return 'https://reachroots.onrender.com'; // Frontend production domain
 }
 
 // Function to get backend URL
@@ -79,7 +79,7 @@ function getBackendURL() {
   }
   
   // Production fallback
-  return 'https://your-backend-service.onrender.com';
+  return 'https://reachroots-backend.onrender.com'; // Backend production domain
 }
 
 // Export the configuration

@@ -16,8 +16,9 @@ const getBaseUrl = (): string => {
     return `https://${codespaceName}-5000.app.github.dev`;
   }
   
-  // Fallback to localhost for development
-  return 'http://localhost:5000';
+  // Production fallback (Render) - updated domains
+  // If frontend is on reachroots.onrender.com, backend lives at reachroots-backend.onrender.com
+  return 'https://reachroots-backend.onrender.com';
 };
 
 export const API_CONFIG = {
