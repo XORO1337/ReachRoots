@@ -9,7 +9,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   // Determine callback URL based on environment
   let callbackURL;
   if (process.env.NODE_ENV === 'production') {
-    callbackURL = process.env.GOOGLE_CALLBACK_URL_PRODUCTION || "https://reachroots.onrender.com/api/auth/google/callback";
+    callbackURL = process.env.GOOGLE_CALLBACK_URL_PRODUCTION || "https://reachroots-backend.onrender.com/api/auth/google/callback";
   } else if (process.env.CODESPACE_NAME) {
     callbackURL = process.env.GOOGLE_CALLBACK_URL_CODESPACES;
   } else {

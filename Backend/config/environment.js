@@ -55,7 +55,7 @@ function getClientURL() {
   }
   
   // Production fallback - you'll need to set this manually
-  return 'https://your-frontend-service.onrender.com';
+  return 'https://reachroots.onrender.com';
 }
 
 // Function to get backend URL
