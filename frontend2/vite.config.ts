@@ -25,7 +25,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api': {
-        target: 'https://ubiquitous-space-meme-g44p5x4pj4gwhwp7x-5000.app.github.dev',
+        target: 'https://reachroots-backend.onrender.com',
         changeOrigin: true,
         secure: false,
         configure: (proxy, _options) => {

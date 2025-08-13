@@ -50,7 +50,7 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://ubiquitous-space-meme-g44p5x4pj4gwhwp7x-5174.app.github.dev',
+  origin: 'https://reachroots.onrender.com',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
@@ -61,7 +61,7 @@ app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
 
 // Simple CORS configuration
 const corsOptions = {
-  origin: 'https://ubiquitous-space-meme-g44p5x4pj4gwhwp7x-5174.app.github.dev',
+  origin: 'https://reachroots.onrender.com',
   credentials: true
 };
 
