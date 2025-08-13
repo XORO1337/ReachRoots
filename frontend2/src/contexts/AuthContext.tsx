@@ -43,9 +43,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Set up axios base URL and interceptors first
-    axios.defaults.baseURL = window.location.origin;
+    // Set up axios base URL using env (supports separate frontend/backend domains)
+    const envBase = (import.meta as any).env?.VITE_API_URL;
+    const inferredOrigin = window.location.origin;
+    const chosenBase = envBase || inferredOrigin;
+    axios.defaults.baseURL = chosenBase;
     axios.defaults.withCredentials = true;
+    console.log('🔍 AuthContext Debug - Axios baseURL set to:', axios.defaults.baseURL, '(envBase:', envBase, ')');
     
     // Clear any existing interceptors to prevent duplicates
     axios.interceptors.request.clear();
@@ -140,10 +144,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           throw new Error('Invalid token response');
         }
       } catch (tokenError) {
-        console.warn('🔍 AuthContext Debug - Token validation failed:', tokenError.message);
+        const err: any = tokenError;
+        console.warn('🔍 AuthContext Debug - Token validation failed:', err?.message || err);
         
         // If it's a network error and we have localStorage data, try to use it temporarily
-        if (tokenError.code === 'NETWORK_ERROR' || tokenError.code === 'ERR_NETWORK') {
+        if (err?.code === 'NETWORK_ERROR' || err?.code === 'ERR_NETWORK') {
           const userRole = localStorage.getItem('userRole') as User['role'];
           const userName = localStorage.getItem('userName');
           const userEmail = localStorage.getItem('userEmail');
@@ -167,7 +172,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log('🔍 AuthContext Debug - No valid localStorage data, logging out');
             await logout();
           }
-        } else {
+  } else {
           console.log('🔍 AuthContext Debug - Token invalid, logging out');
           await logout();
         }
