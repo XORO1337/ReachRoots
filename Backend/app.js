@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 // Import routes
@@ -190,6 +191,29 @@ app.get('/', (req, res) => {
       materials: '/api/materials',
       inventory: '/api/inventory',
       health: '/api/health'
+    }
+  });
+});
+
+// Serve static files from the React app
+const frontendPath = path.join(__dirname, '..', 'frontend2', 'dist');
+console.log('Serving static files from:', frontendPath);
+app.use(express.static(frontendPath));
+
+// SPA fallback - all non-API routes should serve the React app
+app.get('*', (req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  res.sendFile(path.join(frontendPath, 'index.html'), (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Frontend files not found. Please build the frontend first.'
+      });
     }
   });
 });

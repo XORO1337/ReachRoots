@@ -2,9 +2,20 @@
   "name": "artisan-management-backend",
   "version": "1.0.0",
   "main": "app.js",
+  "bin": "app.js",
+  "pkg": {
+    "assets": [
+      "../frontend2/dist/**/*"
+    ],
+    "outputPath": "dist"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "build": "pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --output ../dist/reachroots",
+    "build:win": "pkg . --targets node18-win-x64 --output ../dist/reachroots-win.exe",
+    "build:linux": "pkg . --targets node18-linux-x64 --output ../dist/reachroots-linux",
+    "build:macos": "pkg . --targets node18-macos-x64 --output ../dist/reachroots-macos",
     "test": "jest --detectOpenHandles",
     "test:auth": "jest test-auth-system.js --detectOpenHandles",
     "test:security": "jest test-rbac-security.js --detectOpenHandles",
@@ -55,6 +66,7 @@
     "colors": "^1.4.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
+    "pkg": "^5.8.1",
     "supertest": "^6.3.3"
   }
 }
