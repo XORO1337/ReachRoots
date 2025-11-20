@@ -200,17 +200,16 @@ const frontendPath = path.join(__dirname, '..', 'frontend2', 'dist');
 console.log('Serving static files from:', frontendPath);
 app.use(express.static(frontendPath));
 
-// SPA fallback - all non-API routes should serve the React app
-app.get('*', (req, res, next) => {
-  // Skip API routes
-  if (req.path.startsWith('/api/')) {
+// SPA fallback - serve React for any non-API GET request
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) {
     return next();
   }
-  
+
   res.sendFile(path.join(frontendPath, 'index.html'), (err) => {
     if (err) {
       console.error('Error serving index.html:', err);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Frontend files not found. Please build the frontend first.'
       });
