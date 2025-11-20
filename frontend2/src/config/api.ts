@@ -61,8 +61,23 @@ export const buildApiUrl = (endpoint: string): string => {
 };
 
 // Helper function for Google OAuth with role
+const shouldUseHashRouting = (): boolean => {
+  if (import.meta.env.VITE_ROUTER_MODE === 'browser') {
+    return false;
+  }
+  return true;
+};
+
 export const buildGoogleOAuthUrl = (role: 'customer' | 'artisan' | 'distributor'): string => {
-  const redirect = typeof window !== 'undefined' ? encodeURIComponent(window.location.origin) : '';
-  const redirectParam = redirect ? `&redirect=${redirect}` : '';
-  return `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.GOOGLE_OAUTH}?role=${role}${redirectParam}`;
+  const params = new URLSearchParams({ role });
+
+  if (typeof window !== 'undefined') {
+    params.set('redirect', window.location.origin);
+  }
+
+  if (shouldUseHashRouting()) {
+    params.set('hashRouting', '1');
+  }
+
+  return `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.GOOGLE_OAUTH}?${params.toString()}`;
 };

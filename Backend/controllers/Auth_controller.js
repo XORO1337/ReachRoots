@@ -17,7 +17,7 @@ const normalizeRedirectUrl = (url) => {
 
   try {
     const parsed = new URL(trimmed);
-    return parsed.toString().replace(/\/$/, '');
+    return parsed.origin;
   } catch (error) {
     return null;
   }
@@ -205,8 +205,12 @@ class AuthController {
     req.session.oauthClientUrl = clientUrl;
     console.log('🌐 OAuth Initiation - Client URL resolved to:', clientUrl);
     
+    const useHashRouting = req.query.hashRouting === '1' || req.session.useHashRouting || false;
+    req.session.useHashRouting = useHashRouting;
+    console.log('🌐 OAuth Initiation - Hash routing enabled:', useHashRouting);
+    
     // Also include role and client URL in state parameter as fallback
-    const state = JSON.stringify({ role: req.session.selectedRole, clientUrl });
+    const state = JSON.stringify({ role: req.session.selectedRole, clientUrl, hashRouting: useHashRouting });
     
     passport.authenticate('google', {
       scope: ['profile', 'email'],
@@ -222,20 +226,35 @@ class AuthController {
     console.log('🔍 Request URL:', req.url);
     console.log('🔍 Request query params:', req.query);
     
+    const fallbackClientUrl = resolveClientUrl(req);
+    const fallbackNormalizedBase = normalizeRedirectUrl(fallbackClientUrl) 
+      || normalizeRedirectUrl(process.env.CLIENT_URL)
+      || getClientURL()
+      || 'http://localhost:5173';
+    const inferredHashRouting = req.session?.useHashRouting || req.query.hashRouting === '1';
+
+    const buildRedirectUrl = (baseCandidate, hashRouting, search = '') => {
+      const normalizedBase = normalizeRedirectUrl(baseCandidate) || fallbackNormalizedBase;
+      const trimmedBase = normalizedBase.replace(/\/$/, '');
+      const callbackPath = hashRouting ? '/#/auth/callback' : '/auth/callback';
+      return `${trimmedBase}${callbackPath}${search}`;
+    };
+    
     passport.authenticate('google', { session: false }, async (err, user) => {
       if (err) {
         console.error('Google OAuth error:', err);
-        return res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=oauth_failed`);
+        return res.redirect(buildRedirectUrl(fallbackClientUrl, inferredHashRouting, '?error=oauth_failed'));
       }
 
       if (!user) {
-        return res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=oauth_denied`);
+        return res.redirect(buildRedirectUrl(fallbackClientUrl, inferredHashRouting, '?error=oauth_denied'));
       }
 
       try {
         // Check if role was pre-selected during OAuth initiation
         let selectedRole = req.session?.selectedRole || 'customer';
-        let clientUrl = normalizeRedirectUrl(req.session?.oauthClientUrl);
+        let clientUrl = normalizeRedirectUrl(req.session?.oauthClientUrl) || fallbackClientUrl;
+        let useHashRouting = inferredHashRouting;
         
         // Also check state parameter as fallback for role and client URL
         if (req.query.state) {
@@ -252,14 +271,23 @@ class AuthController {
                 console.log('🌐 OAuth Callback - Client URL from state:', clientUrl);
               }
             }
+            if (typeof stateData.hashRouting !== 'undefined') {
+              useHashRouting = !!stateData.hashRouting;
+              console.log('🌐 OAuth Callback - Hash routing from state:', useHashRouting);
+            }
           } catch (e) {
             console.log('🎯 OAuth Callback - Could not parse state parameter');
           }
         }
 
         if (!clientUrl) {
-          clientUrl = resolveClientUrl(req);
-          console.log('🌐 OAuth Callback - Client URL resolved from request context:', clientUrl);
+          clientUrl = fallbackClientUrl;
+          console.log('🌐 OAuth Callback - Client URL resolved from fallback context:', clientUrl);
+        }
+        
+        if (!useHashRouting && req.query.hashRouting === '1') {
+          useHashRouting = true;
+          console.log('🌐 OAuth Callback - Hash routing enabled via query parameter');
         }
         
         console.log('🎯 OAuth Callback - Selected Role from session:', req.session?.selectedRole);
@@ -268,6 +296,7 @@ class AuthController {
         console.log('🎯 OAuth Callback - User is new:', user._isNewUser);
         console.log('🎯 OAuth Callback - Current user role:', user.role);
         console.log('🎯 OAuth Callback - Query params:', req.query);
+        console.log('🌐 OAuth Callback - Hash routing enabled:', useHashRouting);
         
         // Always try to create/verify role-specific profile
         if (selectedRole === 'artisan' || selectedRole === 'distributor') {
@@ -283,7 +312,7 @@ class AuthController {
           } catch (profileErr) {
             console.error('Failed to create role-specific profile:', profileErr);
             console.error('Profile error details:', profileErr.message);
-            return res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=profile_creation_failed`);
+            return res.redirect(buildRedirectUrl(clientUrl, useHashRouting, '?error=profile_creation_failed'));
           }
         }
         
@@ -367,14 +396,17 @@ class AuthController {
         console.log('🎯 Final user data being sent to frontend:', userData);
         console.log('🎯 User role before redirect:', userData.role);
         
-        const redirectBase = clientUrl.replace(/\/$/, '');
-        const callbackUrl = `${redirectBase}/auth/callback?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}&role=${freshUser.role}`;
+        const callbackUrl = buildRedirectUrl(
+          clientUrl,
+          useHashRouting,
+          `?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}&role=${freshUser.role}`
+        );
         console.log('🔗 Redirecting to:', callbackUrl);
         res.redirect(callbackUrl);
 
       } catch (error) {
         console.error('Google OAuth callback error:', error);
-        res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=oauth_failed`);
+        res.redirect(buildRedirectUrl(fallbackClientUrl, inferredHashRouting, '?error=oauth_failed'));
       }
     })(req, res, next);
   }
