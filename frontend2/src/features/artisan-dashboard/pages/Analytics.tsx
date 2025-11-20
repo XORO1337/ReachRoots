@@ -79,7 +79,7 @@ const AnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Revenue"
-          value={`$${totalRevenue.toLocaleString()}`}
+          value={`₹${totalRevenue.toLocaleString()}`}
           icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
         />
@@ -100,7 +100,7 @@ const AnalyticsPage: React.FC = () => {
         
         <StatCard
           title="Avg Order Value"
-          value={totalOrders > 0 ? `$${(totalRevenue / totalOrders).toFixed(2)}` : '$0.00'}
+          value={totalOrders > 0 ? `₹${(totalRevenue / totalOrders).toFixed(2)}` : '₹0.00'}
           icon={<Users className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
         />
@@ -126,7 +126,7 @@ const AnalyticsPage: React.FC = () => {
                     </div>
                   </div>
                   <span className="text-sm font-medium text-gray-900 w-20 text-right">
-                    ${item.sales.toLocaleString()}
+                    ₹{item.sales.toLocaleString()}
                   </span>
                 </div>
               );
@@ -150,7 +150,7 @@ const AnalyticsPage: React.FC = () => {
                     <span className="font-medium text-gray-900">{product.name}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">${product.revenue.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-gray-900">₹{product.revenue.toLocaleString()}</p>
                     <p className="text-xs text-gray-500">{product.sales} sales</p>
                   </div>
                 </div>

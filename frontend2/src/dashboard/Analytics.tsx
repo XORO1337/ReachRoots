@@ -47,7 +47,7 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Revenue"
-          value={`$${analytics.totalRevenue.toLocaleString()}`}
+          value={`₹${analytics.totalRevenue.toLocaleString()}`}
           change={analytics.revenueChange}
           icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
@@ -63,7 +63,7 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
         
         <StatCard
           title="Avg Order Value"
-          value={`$${analytics.avgOrderValue.toFixed(2)}`}
+          value={`₹${analytics.avgOrderValue.toFixed(2)}`}
           change={analytics.avgOrderChange}
           icon={<TrendingUp className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
@@ -92,7 +92,7 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
                       className="bg-orange-500 h-8 rounded-full flex items-center justify-end pr-2"
                       style={{ width: `${(earning / maxEarnings) * 100}%` }}
                     >
-                      <span className="text-white text-xs font-medium">${earning}</span>
+                      <span className="text-white text-xs font-medium">₹{earning}</span>
                     </div>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">${item.revenue.toLocaleString()}</div>
+                    <div className="text-sm font-medium text-gray-900">₹{item.revenue.toLocaleString()}</div>
                     <div className="text-xs text-gray-500">Revenue</div>
                   </div>
                 </div>

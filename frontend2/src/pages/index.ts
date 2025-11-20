@@ -5,6 +5,7 @@ export { default as Marketplace } from './Marketplace';
 export { default as NotFound } from './NotFound';
 export { default as SearchResults } from './SearchResults';
 export { default as WishlistPage } from './WishlistPage';
+export { default as TopArtisans } from './TopArtisans';
 
 // Dashboard Pages
 export * from './dashboard';

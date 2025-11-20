@@ -48,7 +48,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Current Month Earnings"
-          value={`$${stats.currentMonthEarnings.toFixed(2)}`}
+          value={`₹${stats.currentMonthEarnings.toFixed(2)}`}
           change={stats.earningsChange}
           icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
@@ -105,7 +105,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
                   <span className="font-medium text-gray-900">Handwoven Silk Scarf</span>
                 </td>
                 <td className="py-4 text-gray-600">Textiles</td>
-                <td className="py-4 text-gray-900">$85.00</td>
+                <td className="py-4 text-gray-900">₹85.00</td>
                 <td className="py-4 text-gray-900">12</td>
                 <td className="py-4">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
@@ -126,7 +126,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
                   <span className="font-medium text-gray-900">Ceramic Pottery Bowl</span>
                 </td>
                 <td className="py-4 text-gray-600">Ceramics</td>
-                <td className="py-4 text-gray-900">$45.00</td>
+                <td className="py-4 text-gray-900">₹45.00</td>
                 <td className="py-4 text-gray-900">8</td>
                 <td className="py-4">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
@@ -147,7 +147,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
                   <span className="font-medium text-gray-900">Wooden Jewelry Box</span>
                 </td>
                 <td className="py-4 text-gray-600">Woodwork</td>
-                <td className="py-4 text-gray-900">$120.00</td>
+                <td className="py-4 text-gray-900">₹120.00</td>
                 <td className="py-4 text-gray-900">5</td>
                 <td className="py-4">
                   <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">

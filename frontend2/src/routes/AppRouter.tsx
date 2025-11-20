@@ -2,6 +2,7 @@ import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Marketplace from '../pages/Marketplace';
+import TopArtisans from '../pages/TopArtisans';
 import SearchResults from '../pages/SearchResults';
 import WishlistPage from '../pages/WishlistPage';
 import ArtisanDashboard from '../features/artisan-dashboard';
@@ -61,6 +62,7 @@ const AppRouter: React.FC = () => {
               </ProtectedRoute>
             } />
             <Route path="/marketplace" element={<Navigate to="/" replace />} />
+            <Route path="/artisans/top" element={<TopArtisans />} />
             
             {/* Artisan Dashboard Routes */}
             <Route path="/artisan/*" element={

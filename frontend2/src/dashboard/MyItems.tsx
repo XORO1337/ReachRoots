@@ -131,9 +131,9 @@ const MyItems: React.FC<MyItemsProps> = ({ items }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.price.toFixed(2)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.cost.toFixed(2)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">${item.profit.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{item.price.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{item.cost.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">₹{item.profit.toFixed(2)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stock}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.sold}</td>
                   <td className="px-6 py-4 whitespace-nowrap">

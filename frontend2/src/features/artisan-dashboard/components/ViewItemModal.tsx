@@ -125,7 +125,7 @@ const ViewItemModal: React.FC<ViewItemModalProps> = ({
                     <div className="flex items-center mt-1">
                       <IndianRupee className="w-4 h-4 text-gray-400 mr-2" />
                       <p className="text-sm text-gray-900">
-                        ${item.price.toFixed(2)}/{formatWeightUnit(item.weightUnit)}
+                        ₹{item.price.toFixed(2)}/{formatWeightUnit(item.weightUnit)}
                       </p>
                     </div>
                   </div>

@@ -79,7 +79,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
               <IndianRupee className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-gray-900">${totalValue.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-gray-900">₹{totalValue.toFixed(2)}</div>
               <div className="text-sm text-gray-600">Total Value</div>
             </div>
           </div>
@@ -163,7 +163,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.items}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.total.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.total.toFixed(2)}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
                       {order.status}

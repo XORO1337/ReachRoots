@@ -64,9 +64,12 @@ const Hero: React.FC = () => {
                 Start Shopping
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <button className="border-2 border-orange-600 text-orange-600 px-8 py-4 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
+              <Link 
+                to="/artisans/top"
+                className="border-2 border-orange-600 text-orange-600 px-8 py-4 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-center"
+              >
                 Meet Our Artisans
-              </button>
+              </Link>
             </div>
             
             {/* Stats */}
