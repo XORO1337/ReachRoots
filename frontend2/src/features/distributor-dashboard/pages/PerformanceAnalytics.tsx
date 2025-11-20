@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingCart, Users } from 'lucide-react';
 
 interface PerformanceMetric {
   label: string;
@@ -30,7 +30,7 @@ const PerformanceAnalytics: React.FC = () => {
       label: 'Total Sales',
       value: '₹2,45,670',
       change: 12.5,
-      icon: <DollarSign className="w-6 h-6 text-orange-600" />,
+      icon: <IndianRupee className="w-6 h-6 text-orange-600" />,
       color: 'bg-orange-50'
     },
     {

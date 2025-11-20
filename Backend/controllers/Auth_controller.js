@@ -1,9 +1,30 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { generateAccessToken, generateRefreshToken } = require('../middleware/auth');
-const otpService = require('../services/otpService');
+let otpService;
+try {
+  otpService = require('../services/otpService');
+} catch (error) {
+  const fs = require('fs');
+  const path = require('path');
+  const diagnosticsPath = path.join(__dirname, '..', 'logs', 'otp-service-error.log');
+  try {
+    fs.writeFileSync(
+      diagnosticsPath,
+      `Failed to load OTP service at ${new Date().toISOString()}\n${error?.stack || error?.message || error}`,
+      { encoding: 'utf8' }
+    );
+  } catch (fileError) {
+    console.error('Failed to persist OTP service error diagnostics:', fileError);
+  }
+  console.error('Failed to load OTP service:', error);
+  throw error;
+}
 const passport = require('../config/passport');
 const { getClientURL } = require('../config/environment');
+
+const isEmailOtpEnforcedFlag = () => process.env.AUTH_REQUIRE_EMAIL_OTP !== 'false';
+const isOtpFallbackAllowedFlag = () => process.env.AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE !== 'false';
 
 const normalizeRedirectUrl = (url) => {
   if (!url || typeof url !== 'string') {
@@ -66,6 +87,54 @@ const resolveClientUrl = (req, extraCandidates = []) => {
 };
 
 class AuthController {
+  static isOtpEnforced() {
+    return isEmailOtpEnforcedFlag();
+  }
+
+  static isOtpFallbackAllowed() {
+    return isOtpFallbackAllowedFlag();
+  }
+
+  static formatUserPayload(user) {
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+      isPhoneVerified: user.isPhoneVerified,
+      isIdentityVerified: user.isIdentityVerified
+    };
+  }
+
+  static async finalizeLoginSession(user, res, { roleChanged = false, message = 'Login successful', meta = {} } = {}) {
+    const accessToken = generateAccessToken({ userId: user._id, role: user.role });
+    const refreshToken = generateRefreshToken({ userId: user._id });
+
+    user.refreshTokens.push({ token: refreshToken });
+    user.lastLogin = new Date();
+    await user.save();
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'strict'
+    });
+
+    return res.json({
+      success: true,
+      message,
+      data: {
+        user: AuthController.formatUserPayload(user),
+        accessToken,
+        roleChanged,
+        requiresOTP: false,
+        ...meta
+      }
+    });
+  }
+
   // Email based Registration with OTP
   static async registerWithEmailOTP(req, res) {
     try {
@@ -88,36 +157,26 @@ class AuthController {
       await user.save();
       await AuthController.createRoleSpecificProfile(user._id, role, { bio, region, skills, businessName, licenseNumber, distributionAreas });
       
-      // Send OTP to email
-      try {
-        const otpResult = await otpService.sendOTP(email);
-        res.status(201).json({
-          success: true,
-          message: 'User registered successfully. Please verify your email address with the OTP sent to your email.',
-          data: {
-            userId: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            isEmailVerified: user.isEmailVerified,
-            otpSent: true
-          }
-        });
-      } catch (otpError) {
-        console.error('OTP sending failed:', otpError);
-        res.status(201).json({
-          success: true,
-          message: 'User registered successfully, but OTP sending failed. Please try to resend OTP.',
-          data: {
-            userId: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            isEmailVerified: user.isEmailVerified,
-            otpSent: false
-          }
-        });
-      }
+      const otpResult = await otpService.sendOTP(email);
+      const otpSent = otpResult.emailSent;
+      const registrationMessage = otpSent
+        ? 'User registered successfully. Please verify your email address with the OTP sent to your email.'
+        : 'User registered successfully, but email delivery is currently unavailable. Please try resending the OTP or contact support.';
+
+      res.status(201).json({
+        success: true,
+        message: registrationMessage,
+        data: {
+          userId: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified,
+          otpSent,
+          otpExpires: otpResult.expiresAt,
+          otpDeliveryIssue: !otpSent
+        }
+      });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(400).json({ success: false, message: error.message || 'Registration failed' });
@@ -155,9 +214,49 @@ class AuthController {
         }
       }
       
-      // Send OTP to email for verification before completing login
+      const otpRequiredByConfig = AuthController.isOtpEnforced();
+      const emailDeliveryAvailable = otpService.isEmailDeliveryAvailable();
+
+      if (!otpRequiredByConfig) {
+        console.log('Email OTP requirement disabled via configuration. Completing login without OTP.');
+        return AuthController.finalizeLoginSession(user, res, { roleChanged });
+      }
+
+      if (otpRequiredByConfig && !emailDeliveryAvailable) {
+        console.warn('Email OTP required but email service is not configured or unavailable.');
+        if (AuthController.isOtpFallbackAllowed()) {
+          return AuthController.finalizeLoginSession(user, res, {
+            roleChanged,
+            message: 'Login successful (OTP temporarily disabled due to email configuration)',
+            meta: { otpDeliveryIssue: true }
+          });
+        }
+
+        return res.status(503).json({
+          success: false,
+          message: 'Email verification is temporarily unavailable. Please try again later.'
+        });
+      }
+
       try {
         const otpResult = await otpService.sendOTP(email);
+
+        if (!otpResult.emailSent) {
+          console.warn('OTP generated but email delivery failed.');
+          if (AuthController.isOtpFallbackAllowed()) {
+            return AuthController.finalizeLoginSession(user, res, {
+              roleChanged,
+              message: 'Login successful (OTP delivery unavailable, fallback applied)',
+              meta: { otpDeliveryIssue: true }
+            });
+          }
+
+          return res.status(503).json({
+            success: false,
+            message: 'Unable to send verification code. Please try again later.'
+          });
+        }
+
         res.json({
           success: true,
           message: 'Credentials verified. Please check your email for OTP to complete login.',
@@ -171,12 +270,22 @@ class AuthController {
             },
             roleChanged,
             otpSent: true,
-            requiresOTP: true
+            requiresOTP: true,
+            otpExpires: otpResult.expiresAt
           }
         });
       } catch (otpError) {
         console.error('OTP sending failed:', otpError);
-        res.status(500).json({ 
+
+        if (AuthController.isOtpFallbackAllowed()) {
+          return AuthController.finalizeLoginSession(user, res, {
+            roleChanged,
+            message: 'Login successful (OTP delivery failed, fallback applied)',
+            meta: { otpDeliveryIssue: true }
+          });
+        }
+
+        res.status(503).json({ 
           success: false, 
           message: 'Login verification failed. Please try again.' 
         });
@@ -430,7 +539,9 @@ class AuthController {
           expiresAt: result.expiresAt,
           sendCount: result.sendCount,
           maxSendsPerDay: result.maxSendsPerDay,
-          otpCode: result.otpCode
+          otpCode: result.otpCode,
+          emailSent: result.emailSent,
+          otpDeliveryIssue: !result.emailSent
         }
       });
     } catch (error) {
@@ -459,7 +570,9 @@ class AuthController {
           attemptsRemaining: result.attemptsRemaining,
           dailySendCount: result.dailySendCount,
           maxSendsPerDay: result.maxSendsPerDay,
-          otpCode: result.otpCode
+          otpCode: result.otpCode,
+          emailSent: result.emailSent,
+          otpDeliveryIssue: !result.emailSent
         }
       });
     } catch (error) {

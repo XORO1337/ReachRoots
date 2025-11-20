@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Eye, DollarSign, ShoppingBag, CheckCircle } from 'lucide-react';
+import { Search, Eye, IndianRupee, ShoppingBag, CheckCircle } from 'lucide-react';
 import { Order } from '../types/dashboard';
 
 interface OrdersProps {
@@ -40,7 +40,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="p-3 bg-orange-50 rounded-lg">
-              <DollarSign className="w-6 h-6 text-orange-600" />
+              <IndianRupee className="w-6 h-6 text-orange-600" />
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{totalOrders}</div>
@@ -76,7 +76,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="p-3 bg-green-50 rounded-lg">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <IndianRupee className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">${totalValue.toFixed(2)}</div>

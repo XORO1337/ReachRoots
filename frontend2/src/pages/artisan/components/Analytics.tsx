@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Users } from 'lucide-react';
 import { Analytics } from '../types/dashboard';
 
 interface AnalyticsProps {
@@ -49,7 +49,7 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
           title="Total Revenue"
           value={`$${analytics.totalRevenue.toLocaleString()}`}
           change={analytics.revenueChange}
-          icon={<DollarSign className="w-6 h-6 text-orange-600" />}
+          icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
         />
         

@@ -2,19 +2,33 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    // Initialize transporter with environment variables
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
+    this.isConfiguredFlag = Boolean(
+      process.env.SMTP_HOST &&
+      process.env.SMTP_PORT &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASS
+    );
 
-    // Default from address
+    if (this.isConfiguredFlag) {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        }
+      });
+    } else {
+      this.transporter = null;
+      console.warn('[EmailService] SMTP credentials missing. Email delivery is disabled.');
+    }
+
     this.defaultFrom = process.env.SMTP_FROM || 'RootsReach <no-reply@rootsreach.com>';
+  }
+
+  isConfigured() {
+    return this.isConfiguredFlag;
   }
 
   /**
@@ -25,6 +39,11 @@ class EmailService {
    */
   async sendOTPEmail(email, otp, name) {
     try {
+      if (!this.transporter) {
+        console.warn('[EmailService] Attempted to send OTP email without a configured transporter. Skipping send.');
+        return { skipped: true };
+      }
+
       const mailOptions = {
         from: this.defaultFrom, // Sender Address
         to: email,
@@ -48,7 +67,7 @@ class EmailService {
 
       const info = await this.transporter.sendMail(mailOptions);
       console.log('Email sent successfully:', info.messageId);
-      return true;
+      return { skipped: false, messageId: info.messageId };
     } catch (error) {
       console.error('Error sending email:', error);
       throw new Error('Failed to send email');
@@ -60,6 +79,11 @@ class EmailService {
    */
   async testConnection() {
     try {
+      if (!this.transporter) {
+        console.warn('[EmailService] Cannot verify transporter because it is not configured.');
+        return false;
+      }
+
       await this.transporter.verify();
       console.log('Email service is ready');
       return true;

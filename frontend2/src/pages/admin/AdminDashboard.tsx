@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Users, 
   ShoppingCart, 
-  DollarSign,
+  IndianRupee,
   ArrowUpRight,
   ArrowDownRight,
   Activity,
@@ -46,7 +46,7 @@ const AdminDashboard: React.FC = () => {
       value: '₹4,56,789',
       change: '-2.4%',
       changeType: 'decrease' as const,
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     }

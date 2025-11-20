@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, ShoppingCart, Users, Package, AlertTriangle, Loader2 } from 'lucide-react';
+import { IndianRupee, ShoppingCart, Users, Package, AlertTriangle, Loader2 } from 'lucide-react';
 import DistributorService, { 
   DistributorStats, 
   RecentOrder, 
@@ -195,7 +195,7 @@ const DashboardOverview: React.FC = () => {
           title="Monthly Sales"
           value={`₹${stats.monthlySales.toLocaleString()}`}
           change={stats.salesChange}
-          icon={<DollarSign className="w-6 h-6 text-green-600" />}
+          icon={<IndianRupee className="w-6 h-6 text-green-600" />}
           color="bg-green-50"
         />
         

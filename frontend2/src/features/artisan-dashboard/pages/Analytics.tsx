@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Users, Package } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Users, Package } from 'lucide-react';
 import { useArtisanDashboard } from '../../../hooks/useArtisanDashboard';
 
 const AnalyticsPage: React.FC = () => {
@@ -80,7 +80,7 @@ const AnalyticsPage: React.FC = () => {
         <StatCard
           title="Total Revenue"
           value={`$${totalRevenue.toLocaleString()}`}
-          icon={<DollarSign className="w-6 h-6 text-orange-600" />}
+          icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
         />
         

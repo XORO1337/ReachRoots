@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, ShoppingCart, HeadphonesIcon, TrendingUp, Users, DollarSign, AlertTriangle, Loader } from 'lucide-react';
+import { Package, ShoppingCart, HeadphonesIcon, TrendingUp, Users, IndianRupee, AlertTriangle, Loader } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import DistributorService, { 
   RecentOrder, 
@@ -236,7 +236,7 @@ const DistributorDashboard: React.FC = () => {
               <StatCard
                 title="Monthly Revenue"
                 value={`₹${stats.totalRevenue.toLocaleString()}`}
-                icon={<DollarSign size={24} />}
+                icon={<IndianRupee size={24} />}
                 color="#8B5CF6"
                 subtitle="Current month earnings"
               />

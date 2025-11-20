@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Clock, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Clock, Users } from 'lucide-react';
 import { DashboardStats } from '../types/dashboard';
 
 interface StatCardProps {
@@ -50,7 +50,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
           title="Current Month Earnings"
           value={`$${stats.currentMonthEarnings.toFixed(2)}`}
           change={stats.earningsChange}
-          icon={<DollarSign className="w-6 h-6 text-orange-600" />}
+          icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
         />
         
