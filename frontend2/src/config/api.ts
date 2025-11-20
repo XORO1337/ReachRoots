@@ -62,5 +62,7 @@ export const buildApiUrl = (endpoint: string): string => {
 
 // Helper function for Google OAuth with role
 export const buildGoogleOAuthUrl = (role: 'customer' | 'artisan' | 'distributor'): string => {
-  return `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.GOOGLE_OAUTH}?role=${role}`;
+  const redirect = typeof window !== 'undefined' ? encodeURIComponent(window.location.origin) : '';
+  const redirectParam = redirect ? `&redirect=${redirect}` : '';
+  return `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.GOOGLE_OAUTH}?role=${role}${redirectParam}`;
 };

@@ -3,6 +3,67 @@ const jwt = require('jsonwebtoken');
 const { generateAccessToken, generateRefreshToken } = require('../middleware/auth');
 const otpService = require('../services/otpService');
 const passport = require('../config/passport');
+const { getClientURL } = require('../config/environment');
+
+const normalizeRedirectUrl = (url) => {
+  if (!url || typeof url !== 'string') {
+    return null;
+  }
+
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.toString().replace(/\/$/, '');
+  } catch (error) {
+    return null;
+  }
+};
+
+const resolveClientUrl = (req, extraCandidates = []) => {
+  let redirectParam = null;
+  if (req.query?.redirect) {
+    try {
+      redirectParam = decodeURIComponent(req.query.redirect);
+    } catch (error) {
+      redirectParam = req.query.redirect;
+    }
+  }
+
+  const refererOrigin = (() => {
+    const referer = req.get('Referer');
+    if (!referer) return null;
+    try {
+      return new URL(referer).origin;
+    } catch (error) {
+      return null;
+    }
+  })();
+
+  const candidates = [
+    ...extraCandidates,
+    redirectParam,
+    req.query?.clientUrl,
+    req.session?.oauthClientUrl,
+    req.get('Origin'),
+    refererOrigin,
+    process.env.CLIENT_URL,
+    getClientURL(),
+    'http://localhost:5173'
+  ];
+
+  for (const candidate of candidates) {
+    const normalized = normalizeRedirectUrl(candidate);
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  return 'http://localhost:5173';
+};
 
 class AuthController {
   // Email based Registration with OTP
@@ -140,8 +201,12 @@ class AuthController {
       console.log('🎯 OAuth Initiation - Using default role: customer');
     }
     
-    // Also include role in state parameter as fallback
-    const state = JSON.stringify({ role: req.session.selectedRole });
+    const clientUrl = resolveClientUrl(req);
+    req.session.oauthClientUrl = clientUrl;
+    console.log('🌐 OAuth Initiation - Client URL resolved to:', clientUrl);
+    
+    // Also include role and client URL in state parameter as fallback
+    const state = JSON.stringify({ role: req.session.selectedRole, clientUrl });
     
     passport.authenticate('google', {
       scope: ['profile', 'email'],
@@ -170,8 +235,9 @@ class AuthController {
       try {
         // Check if role was pre-selected during OAuth initiation
         let selectedRole = req.session?.selectedRole || 'customer';
+        let clientUrl = normalizeRedirectUrl(req.session?.oauthClientUrl);
         
-        // Also check state parameter as fallback
+        // Also check state parameter as fallback for role and client URL
         if (req.query.state) {
           try {
             const stateData = JSON.parse(req.query.state);
@@ -179,9 +245,21 @@ class AuthController {
               selectedRole = stateData.role;
               console.log('🎯 OAuth Callback - Role found in state parameter:', selectedRole);
             }
+            if (stateData.clientUrl) {
+              const normalizedStateUrl = normalizeRedirectUrl(stateData.clientUrl);
+              if (normalizedStateUrl) {
+                clientUrl = normalizedStateUrl;
+                console.log('🌐 OAuth Callback - Client URL from state:', clientUrl);
+              }
+            }
           } catch (e) {
             console.log('🎯 OAuth Callback - Could not parse state parameter');
           }
+        }
+
+        if (!clientUrl) {
+          clientUrl = resolveClientUrl(req);
+          console.log('🌐 OAuth Callback - Client URL resolved from request context:', clientUrl);
         }
         
         console.log('🎯 OAuth Callback - Selected Role from session:', req.session?.selectedRole);
@@ -289,7 +367,8 @@ class AuthController {
         console.log('🎯 Final user data being sent to frontend:', userData);
         console.log('🎯 User role before redirect:', userData.role);
         
-        const callbackUrl = `${process.env.CLIENT_URL}/auth/callback?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}&role=${freshUser.role}`;
+        const redirectBase = clientUrl.replace(/\/$/, '');
+        const callbackUrl = `${redirectBase}/auth/callback?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}&role=${freshUser.role}`;
         console.log('🔗 Redirecting to:', callbackUrl);
         res.redirect(callbackUrl);
 
