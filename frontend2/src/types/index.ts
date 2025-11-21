@@ -1,4 +1,5 @@
 export * from './user';
+export * from './payment';
 
 export interface Product {
   id: string;

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { CartItem } from '../../types';
-import { X, MapPin, User, CreditCard } from 'lucide-react';
+import { X, MapPin, User, CreditCard, Wallet, QrCode, Banknote, Package } from 'lucide-react';
 import { formatWeightUnit } from '../../utils/formatters';
+import { CheckoutFormValues, PaymentMethod } from '../../types/payment';
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   items: CartItem[];
   totalAmount: number;
-  onSubmit: (shippingAddress: any) => Promise<void>;
+  onSubmit: (payload: CheckoutFormValues) => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -33,6 +34,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
     country: 'India',
     postalCode: ''
   });
+
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi');
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -63,11 +66,53 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
     if (!validateForm()) return;
 
     try {
-      await onSubmit(shippingAddress);
+      await onSubmit({
+        shippingAddress,
+        customerInfo,
+        paymentMethod
+      });
     } catch (error) {
       console.error('Checkout error:', error);
     }
   };
+
+  const paymentOptions: Array<{
+    id: PaymentMethod;
+    label: string;
+    description: string;
+    icon: React.ReactNode;
+  }> = [
+    {
+      id: 'upi',
+      label: 'UPI',
+      description: 'Google Pay, PhonePe, BHIM, Paytm UPI',
+      icon: <QrCode className="h-5 w-5" />
+    },
+    {
+      id: 'card',
+      label: 'Credit / Debit Card',
+      description: 'Visa, Mastercard, RuPay, Amex',
+      icon: <CreditCard className="h-5 w-5" />
+    },
+    {
+      id: 'netbanking',
+      label: 'Net Banking',
+      description: 'All major Indian banks supported',
+      icon: <Banknote className="h-5 w-5" />
+    },
+    {
+      id: 'wallet',
+      label: 'Wallets',
+      description: 'Paytm, Mobikwik, Freecharge and more',
+      icon: <Wallet className="h-5 w-5" />
+    },
+    {
+      id: 'cod',
+      label: 'Cash on Delivery',
+      description: 'Pay safely when your order arrives',
+      icon: <Package className="h-5 w-5" />
+    }
+  ];
 
   if (!isOpen) return null;
 
@@ -295,11 +340,46 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   {/* Payment Info */}
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-sm text-blue-800">
-                      💳 Cash on Delivery available
+                      Choose a payment method below. Online payments are processed securely via Razorpay.
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      Payment will be collected upon delivery
+                      Supports UPI, cards, net banking, wallets & cash on delivery.
                     </p>
+                  </div>
+                </div>
+
+                {/* Payment Methods */}
+                <div className="mt-6">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">
+                    Payment Options
+                  </h4>
+                  <div className="space-y-3">
+                    {paymentOptions.map((option) => (
+                      <button
+                        type="button"
+                        key={option.id}
+                        onClick={() => setPaymentMethod(option.id)}
+                        disabled={isProcessing}
+                        className={`w-full border rounded-lg p-4 text-left transition-colors flex items-start space-x-3 ${
+                          paymentMethod === option.id
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 hover:border-orange-200'
+                        } ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      >
+                        <div className={`p-2 rounded-full ${paymentMethod === option.id ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-600'}`}>
+                          {option.icon}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 flex items-center">
+                            {option.label}
+                            {option.id === paymentMethod && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">Selected</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">{option.description}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

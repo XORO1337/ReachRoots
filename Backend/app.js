@@ -22,6 +22,7 @@ const backupRoutes = require('./routes/Backup_route');
 const devLogsRoutes = require('./routes/DevLogs_route');
 const adminRoutes = require('./routes/Admin_route');
 const wishlistRoutes = require('./routes/Wishlist_route');
+const paymentRoutes = require('./routes/Payment_route');
 
 // Import middleware
 const { generalLimit } = require('./middleware/rateLimiting');
@@ -128,6 +129,9 @@ app.use('/api/products', productRoutes);
 
 console.log('Defining order routes...');
 app.use('/api/orders', orderRoutes);
+
+console.log('Defining payment routes...');
+app.use('/api/payments', paymentRoutes);
 
 console.log('Defining raw material routes...');
 app.use('/api/raw-material-orders', rawMaterialRoutes);

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import React from 'react';
-import axios from 'axios';
+import { api } from '../utils/api';
 
 // User type definition
 export interface User {
@@ -43,55 +43,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Set up axios base URL using env (supports separate frontend/backend domains)
-    const envBase = (import.meta as any).env?.VITE_API_URL;
-    const inferredOrigin = window.location.origin;
-    const chosenBase = envBase || inferredOrigin;
-    axios.defaults.baseURL = chosenBase;
-    axios.defaults.withCredentials = true;
-    console.log('🔍 AuthContext Debug - Axios baseURL set to:', axios.defaults.baseURL, '(envBase:', envBase, ')');
-    
-    // Clear any existing interceptors to prevent duplicates
-    axios.interceptors.request.clear();
-    axios.interceptors.response.clear();
-    
-    // Request interceptor to always include token
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
+    api.defaults.withCredentials = true;
 
-    // Response interceptor to handle token expiration
-    const responseInterceptor = axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        if (error.response?.status === 401 && isInitialized) {
-          console.log('🔍 AuthContext Debug - Token expired, logging out');
-          await logout();
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    // Initialize auth status
     const initializeAuth = async () => {
       await checkAuthStatus();
       setIsInitialized(true);
     };
-    
-    initializeAuth();
 
-    // Cleanup interceptors on unmount
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
-    };
+    initializeAuth();
   }, []);
 
   const checkAuthStatus = async () => {
@@ -108,10 +67,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('🔍 AuthContext Debug - Token found, validating with backend');
       
       try {
-        // Set up token in axios headers before making request
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        // Ensure API requests include token header
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
-        const response = await axios.get('/api/auth/profile');
+        const response = await api.get('/api/auth/profile');
         console.log('🔍 AuthContext Debug - Profile response:', response.data);
         
         if (response.data.success && response.data.data) {
@@ -235,8 +194,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('userBio');
     }
     
-    // Set token in axios defaults (synchronous)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // Set token in shared API instance (synchronous)
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     
     // Update state (synchronous)
     setUser(userData);
@@ -244,7 +203,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('🔍 AuthContext Debug - Data stored in localStorage');
     console.log('🔍 AuthContext Debug - Stored role:', localStorage.getItem('userRole'));
     console.log('🔍 AuthContext Debug - Auth state updated');
-    console.log('🔍 AuthContext Debug - Axios headers updated');
+    console.log('🔍 AuthContext Debug - API headers updated');
   };
 
   const logout = async () => {
@@ -257,14 +216,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         try {
           // Call backend logout endpoint
-          await axios.post('/api/auth/logout', {}, {
-            headers: { Authorization: `Bearer ${token}` },
-            // Skip interceptors for this request
-            transformRequest: [(data, headers) => {
-              delete headers.common?.Authorization;
-              headers.Authorization = `Bearer ${token}`;
-              return data;
-            }]
+          await api.post('/api/auth/logout', {}, {
+            headers: { Authorization: `Bearer ${token}` }
           });
           console.log('🔍 AuthContext Debug - Backend logout successful');
         } catch (logoutError) {
@@ -273,8 +226,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
       
-      // Clear axios default header
-      delete axios.defaults.headers.common['Authorization'];
+      // Clear API default header
+      delete api.defaults.headers.common['Authorization'];
       
       // Clear state
       setUser(null);

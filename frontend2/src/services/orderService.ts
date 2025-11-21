@@ -1,4 +1,5 @@
 import { api } from '../utils/api';
+import { CustomerInfo, PaymentMethod } from '../types/payment';
 
 export interface OrderItem {
   id: string;
@@ -19,12 +20,9 @@ export interface ShippingAddress {
 export interface CreateOrderData {
   items: OrderItem[];
   shippingAddress: ShippingAddress;
-  customerInfo?: {
-    name: string;
-    email: string;
-    phone: string;
-  };
+  customerInfo?: CustomerInfo;
   totalAmount: number;
+  paymentMethod: PaymentMethod;
 }
 
 export interface Order {
@@ -45,7 +43,19 @@ export interface Order {
   totalAmount: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   shippingAddress: ShippingAddress;
+  customerInfo?: CustomerInfo;
   paymentStatus: 'pending' | 'completed' | 'failed';
+  paymentMethod: PaymentMethod;
+  paymentDetails?: {
+    gateway?: string;
+    method?: PaymentMethod | string;
+    status?: string;
+    amountPaid?: number;
+    currency?: string;
+    wallet?: string;
+    bank?: string;
+    failureReason?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

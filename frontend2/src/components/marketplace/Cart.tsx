@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { CartItem } from '../../types';
 import { X, Minus, Plus, ShoppingBag, Truck } from 'lucide-react';
 import { formatWeightUnit } from '../../utils/formatters';
-import OrderService from '../../services/orderService';
+import OrderService, { Order } from '../../services/orderService';
 import CheckoutModal from './CheckoutModal';
 import OrderConfirmationModal from './OrderConfirmationModal';
+import toast from 'react-hot-toast';
+import PaymentService from '../../services/paymentService';
+import { loadScript } from '../../utils/loadScript';
+import { CheckoutFormValues } from '../../types/payment';
 
 interface CartProps {
   isOpen: boolean;
@@ -33,7 +37,14 @@ const Cart: React.FC<CartProps> = ({
     setShowCheckoutModal(true);
   };
 
-  const handleOrderSubmit = async (shippingAddress: any) => {
+  interface RazorpaySuccessResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+  }
+
+  const handleOrderSubmit = async (checkoutData: CheckoutFormValues) => {
+    let createdOrder: Order | null = null;
     try {
       setIsCheckingOut(true);
       
@@ -46,23 +57,90 @@ const Cart: React.FC<CartProps> = ({
           price: item.product.price
           // Remove artisanId - backend will fetch from product
         })),
-        shippingAddress,
+        shippingAddress: checkoutData.shippingAddress,
+        customerInfo: checkoutData.customerInfo,
+        paymentMethod: checkoutData.paymentMethod,
         totalAmount: total
       };
 
       // Create order
-      const order = await OrderService.createOrder(orderData);
-      
-      setOrderNumber(order.orderNumber);
-      setShowCheckoutModal(false);
-      setShowConfirmationModal(true);
-      
-      // Clear cart after successful order
-      items.forEach(item => onRemoveItem(item.product.id));
-      
+      createdOrder = await OrderService.createOrder(orderData);
+      if (!createdOrder) {
+        throw new Error('Unable to create order. Please try again.');
+      }
+
+      const finalizeSuccess = (message: string) => {
+        if (!createdOrder) return;
+        setOrderNumber(createdOrder.orderNumber);
+        setShowCheckoutModal(false);
+        setShowConfirmationModal(true);
+        items.forEach(item => onRemoveItem(item.product.id));
+        toast.success(message);
+      };
+
+      if (checkoutData.paymentMethod === 'cod') {
+        finalizeSuccess('Order placed with Cash on Delivery.');
+        return;
+      }
+
+      const scriptLoaded = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+      if (!scriptLoaded) {
+        throw new Error('Unable to load Razorpay checkout. Please check your connection and try again.');
+      }
+
+      const paymentConfig = await PaymentService.createRazorpayOrder({
+        orderId: createdOrder._id,
+        paymentMethod: checkoutData.paymentMethod
+      });
+
+      const paymentResponse = await new Promise<RazorpaySuccessResponse>((resolve, reject) => {
+        const options = {
+          key: paymentConfig.key,
+          amount: paymentConfig.amount,
+          currency: paymentConfig.currency,
+          name: paymentConfig.name,
+          description: paymentConfig.description,
+          order_id: paymentConfig.razorpayOrderId,
+          prefill: {
+            name: checkoutData.customerInfo.name,
+            email: checkoutData.customerInfo.email,
+            contact: checkoutData.customerInfo.phone
+          },
+          notes: {
+            rrOrderId: paymentConfig.orderId,
+            paymentMethod: checkoutData.paymentMethod
+          },
+          theme: { color: '#EA580C' },
+          method: { upi: true, card: true, netbanking: true, wallet: true },
+          handler: (response: RazorpaySuccessResponse) => resolve(response),
+          modal: {
+            ondismiss: () => reject(new Error('Payment cancelled'))
+          }
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.on('payment.failed', (event: any) => {
+          reject(new Error(event?.error?.description || 'Payment failed. Please try again.'));
+        });
+        razorpay.open();
+      });
+
+      await PaymentService.verifyRazorpayPayment({
+        orderId: createdOrder._id,
+        ...paymentResponse
+      });
+
+      finalizeSuccess('Payment successful! Your order is confirmed.');
     } catch (error) {
       console.error('Order creation failed:', error);
-      alert('Failed to place order. Please try again.');
+      const message = (error as Error)?.message || 'Failed to place order. Please try again.';
+      if (createdOrder && checkoutData.paymentMethod !== 'cod') {
+        await PaymentService.markPaymentFailed({
+          orderId: createdOrder._id,
+          reason: message
+        });
+      }
+      toast.error(message);
     } finally {
       setIsCheckingOut(false);
     }

@@ -5,7 +5,14 @@ class OrderService {
   // Create a new order
   static async createOrder(orderData) {
     try {
-      const { buyer, items, shippingAddress, status = 'pending' } = orderData;
+      const {
+        buyer,
+        items,
+        shippingAddress,
+        status = 'pending',
+        customerInfo,
+        paymentMethod = 'cod'
+      } = orderData;
 
       // First, get product details to ensure we have valid artisanId
       const itemsWithArtisans = [];
@@ -56,7 +63,9 @@ class OrderService {
           })),
           totalAmount,
           shippingAddress,
-          status
+          status,
+          customerInfo,
+          paymentMethod
         });
 
         const savedOrder = await order.save();

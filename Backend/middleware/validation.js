@@ -339,6 +339,32 @@ const validateOrderCreation = [
     .matches(/^\d{6}$/)
     .withMessage('Postal code must contain only digits'),
     
+  body('customerInfo')
+    .optional()
+    .isObject()
+    .withMessage('Customer info must be an object'),
+
+  body('customerInfo.name')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Customer name cannot be empty'),
+
+  body('customerInfo.email')
+    .optional()
+    .isEmail()
+    .withMessage('Please provide a valid email address for the customer'),
+
+  body('customerInfo.phone')
+    .optional()
+    .matches(/^[+]?\d{10,15}$/)
+    .withMessage('Please provide a valid phone number'),
+
+  body('paymentMethod')
+    .optional()
+    .isIn(['cod', 'upi', 'card', 'netbanking', 'wallet'])
+    .withMessage('Invalid payment method'),
+
   body('totalAmount')
     .isFloat({ min: 0 })
     .withMessage('Total amount must be a positive number'),

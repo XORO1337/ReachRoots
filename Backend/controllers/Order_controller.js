@@ -4,12 +4,20 @@ class OrderController {
   // Create new order
   static async createOrder(req, res) {
     try {
-      const { items = [], shippingAddress, status = 'pending' } = req.body;
+      const {
+        items = [],
+        shippingAddress,
+        status = 'pending',
+        customerInfo,
+        paymentMethod
+      } = req.body;
       const orderData = {
         buyer: req.user.id,
         items,
         shippingAddress,
-        status
+        status,
+        customerInfo,
+        paymentMethod
       };
 
       const order = await OrderService.createOrder(orderData);

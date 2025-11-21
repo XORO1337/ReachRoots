@@ -40,6 +40,11 @@ const orderSchema = new Schema({
     required: true,
     min: 0
   },
+  customerInfo: {
+    name: { type: String, trim: true },
+    email: { type: String, trim: true },
+    phone: { type: String, trim: true }
+  },
   status: {
     type: String,
     enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
@@ -69,6 +74,29 @@ const orderSchema = new Schema({
     type: String,
     enum: ['pending', 'completed', 'failed'],
     default: 'pending'
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['cod', 'upi', 'card', 'netbanking', 'wallet'],
+    default: 'cod'
+  },
+  paymentDetails: {
+    gateway: { type: String, trim: true },
+    razorpayOrderId: { type: String, trim: true },
+    razorpayPaymentId: { type: String, trim: true },
+    razorpaySignature: { type: String, trim: true },
+    status: { type: String, trim: true },
+    method: { type: String, trim: true },
+    preferredMethod: { type: String, trim: true },
+    amountPaid: Number,
+    currency: { type: String, trim: true },
+    wallet: { type: String, trim: true },
+    bank: { type: String, trim: true },
+    email: { type: String, trim: true },
+    contact: { type: String, trim: true },
+    upiId: { type: String, trim: true },
+    failureReason: { type: String, trim: true },
+    capturedAt: Date
   },
   trackingNumber: {
     type: String,
