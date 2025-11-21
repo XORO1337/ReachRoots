@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
             <User className="w-4 h-4 text-gray-600" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">John Doe</p>
+            <p className="text-sm font-medium text-gray-900"></p>
           </div>
         </div>
       </div>
