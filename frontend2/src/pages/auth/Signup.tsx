@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Palette, Package } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl, buildGoogleOAuthUrl, API_CONFIG } from '../../config/api';
 import OTPVerification from '../../components/auth/OTPVerification';
-import LanguageSelectionModal from '../../components/shared/LanguageSelectionModal';
-import { useLanguageSelection } from '../../hooks/useLanguageSelection';
 
 interface SignupFormData {
   fullName: string;
@@ -27,8 +24,6 @@ interface SignupFormData {
 const Signup: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { t } = useTranslation();
-  const { showLanguageModal, closeLanguageModal } = useLanguageSelection();
   const [formData, setFormData] = useState<SignupFormData>({
     fullName: '',
     email: '',
@@ -43,7 +38,6 @@ const Signup: React.FC = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [showOTPVerification, setShowOTPVerification] = useState(false);
-  const [pendingUserData, setPendingUserData] = useState<any>(null);
 
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
@@ -170,11 +164,17 @@ const Signup: React.FC = () => {
     setError('');
   };
 
-  const handleSignupSuccess = (userData: any) => {
-    console.log('🔍 Signup Debug - User data from backend:', userData);
-    const user = userData.user || userData;
+  const handleSignupSuccess = (payload: any) => {
+    console.log('🔍 Signup Debug - User data from backend:', payload);
+    const user = payload?.user || payload;
+    const accessToken = payload?.accessToken;
 
-    // Use the auth context to manage user state
+    if (!user || !accessToken) {
+      console.error('Signup success payload missing user or access token');
+      setError('Registration completed but authentication failed. Please try logging in.');
+      return;
+    }
+
     const userDataForAuth = {
       id: user.id || user.userId,
       name: user.name,
@@ -188,12 +188,10 @@ const Signup: React.FC = () => {
       isPhoneVerified: user.isPhoneVerified || false,
       isIdentityVerified: user.isIdentityVerified || false,
     };
-    };
-    login(userDataForAuth, userData.accessToken);
-    login(userDataForAuth, userData.accessToken);
 
-    // Redirect based on role
-    const role = userData.role;
+    login(userDataForAuth, accessToken);
+
+    const role = userDataForAuth.role || payload?.role;
     if (role === 'artisan') {
       navigate('/artisan');
     } else if (role === 'distributor') {
@@ -205,13 +203,11 @@ const Signup: React.FC = () => {
 
   const handleOTPVerified = (userData: any) => {
     setShowOTPVerification(false);
-    setPendingUserData(null);
     handleSignupSuccess(userData);
   };
 
   const handleOTPCancel = () => {
     setShowOTPVerification(false);
-    setPendingUserData(null);
     setError('Registration cancelled. Your account was created but not verified. Please log in to verify your email.');
   };
 
@@ -265,8 +261,6 @@ const Signup: React.FC = () => {
       if (data.success) {
         // Check if OTP was sent successfully
         if (data.data.otpSent) {
-          // Store user data and show OTP verification
-          setPendingUserData(data.data);
           setShowOTPVerification(true);
         } else {
           // Handle case where OTP sending failed but user was created
@@ -682,7 +676,7 @@ const Signup: React.FC = () => {
               />
               <path
                 fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.Andy07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
             Continue with Google
