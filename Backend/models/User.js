@@ -77,6 +77,16 @@ const userSchema = new Schema({
     trim: true,
     match: [/^[+]?[1-9]\d{1,14}$/, 'Please enter a valid phone number']
   },
+  location: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  bio: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   role: {
     type: String,
     enum: ['customer', 'artisan', 'distributor', 'admin'],
@@ -88,6 +98,12 @@ const userSchema = new Schema({
     type: String,
     enum: ['local', 'google'],
     default: 'local'
+  },
+  profileImage: {
+    url: { type: String, trim: true },
+    thumbnailUrl: { type: String, trim: true },
+    fileId: { type: String, trim: true },
+    uploadedAt: { type: Date }
   },
   googleId: {
     type: String,

@@ -122,7 +122,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             email: backendUserData.email,
             role: backendUserData.role,
             phone: backendUserData.phone,
-            photoURL: backendUserData.photoURL,
+            photoURL: backendUserData.photoURL || undefined,
+            location: backendUserData.location || undefined,
+            bio: backendUserData.bio || undefined,
             isEmailVerified: backendUserData.isEmailVerified || false,
             isPhoneVerified: backendUserData.isPhoneVerified || false,
             isIdentityVerified: backendUserData.isIdentityVerified || false
@@ -138,6 +140,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           localStorage.setItem('userId', userData.id);
           if (userData.photoURL) {
             localStorage.setItem('userPhoto', userData.photoURL);
+          } else {
+            localStorage.removeItem('userPhoto');
+          }
+          if (userData.location) {
+            localStorage.setItem('userLocation', userData.location);
+          } else {
+            localStorage.removeItem('userLocation');
+          }
+          if (userData.bio) {
+            localStorage.setItem('userBio', userData.bio);
+          } else {
+            localStorage.removeItem('userBio');
           }
         } else {
           console.log('🔍 AuthContext Debug - Invalid response from backend');
@@ -154,6 +168,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userEmail = localStorage.getItem('userEmail');
           const userId = localStorage.getItem('userId');
           const userPhoto = localStorage.getItem('userPhoto');
+          const userLocation = localStorage.getItem('userLocation');
+          const userBio = localStorage.getItem('userBio');
 
           if (userRole && userName && userEmail && userId) {
             console.log('🔍 AuthContext Debug - Using localStorage data due to network error, role:', userRole);
@@ -163,6 +179,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: userEmail,
               role: userRole,
               photoURL: userPhoto || undefined,
+              location: userLocation || undefined,
+              bio: userBio || undefined,
               isEmailVerified: true,
               isPhoneVerified: false,
               isIdentityVerified: false
@@ -203,6 +221,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('userId', userData.id);
     if (userData.photoURL) {
       localStorage.setItem('userPhoto', userData.photoURL);
+    } else {
+      localStorage.removeItem('userPhoto');
+    }
+    if (userData.location) {
+      localStorage.setItem('userLocation', userData.location);
+    } else {
+      localStorage.removeItem('userLocation');
+    }
+    if (userData.bio) {
+      localStorage.setItem('userBio', userData.bio);
+    } else {
+      localStorage.removeItem('userBio');
     }
     
     // Set token in axios defaults (synchronous)
@@ -256,6 +286,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('userEmail');
       localStorage.removeItem('userId');
       localStorage.removeItem('userPhoto');
+        localStorage.removeItem('userLocation');
+        localStorage.removeItem('userBio');
       
       // Clear any sessionStorage items
       sessionStorage.removeItem('selectedRole');
@@ -274,7 +306,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Update localStorage with new values
     if (userData.name) localStorage.setItem('userName', userData.name);
     if (userData.email) localStorage.setItem('userEmail', userData.email);
-    if (userData.photoURL) localStorage.setItem('userPhoto', userData.photoURL);
+    if (userData.photoURL) {
+      localStorage.setItem('userPhoto', userData.photoURL);
+    } else if (userData.photoURL === null) {
+      localStorage.removeItem('userPhoto');
+    }
+    if (typeof userData.location !== 'undefined') {
+      if (userData.location) {
+        localStorage.setItem('userLocation', userData.location);
+      } else {
+        localStorage.removeItem('userLocation');
+      }
+    }
+    if (typeof userData.bio !== 'undefined') {
+      if (userData.bio) {
+        localStorage.setItem('userBio', userData.bio);
+      } else {
+        localStorage.removeItem('userBio');
+      }
+    }
   };
 
   const updateUserData = (updatedUser: User) => {
@@ -285,6 +335,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('userEmail', updatedUser.email);
     if (updatedUser.photoURL) {
       localStorage.setItem('userPhoto', updatedUser.photoURL);
+    } else {
+      localStorage.removeItem('userPhoto');
+    }
+    if (updatedUser.location) {
+      localStorage.setItem('userLocation', updatedUser.location);
+    } else {
+      localStorage.removeItem('userLocation');
+    }
+    if (updatedUser.bio) {
+      localStorage.setItem('userBio', updatedUser.bio);
+    } else {
+      localStorage.removeItem('userBio');
     }
   };
 

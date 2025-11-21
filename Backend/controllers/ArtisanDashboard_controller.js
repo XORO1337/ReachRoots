@@ -7,6 +7,8 @@ const User = require('../models/User');
 const Order = require('../models/Orders');
 const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
+const ArtisanProfile = require('../models/Artisan');
+const AuthController = require('./Auth_controller');
 
 class ArtisanDashboardController {
   // Get comprehensive dashboard statistics
@@ -813,6 +815,199 @@ class ArtisanDashboardController {
         success: false,
         message: 'Failed to retrieve artisan deliveries',
         error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      });
+    }
+  }
+
+  static async getProfile(req, res) {
+    try {
+      const userId = req.user.id;
+      const user = await User.findById(userId).select('-password -refreshTokens');
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      let artisanProfile = await ArtisanService.getArtisanProfileByUserId(userId);
+      if (!artisanProfile) {
+        artisanProfile = await ArtisanService.createArtisanProfile({
+          userId,
+          region: user.location || 'Default Region',
+          bio: user.bio || '',
+          skills: []
+        });
+      }
+
+      const formattedUser = AuthController.formatUserPayload(user);
+
+      res.json({
+        success: true,
+        message: 'Profile retrieved successfully',
+        data: {
+          user: formattedUser,
+          profile: artisanProfile
+        }
+      });
+    } catch (error) {
+      console.error('Get artisan profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve artisan profile'
+      });
+    }
+  }
+
+  static async updateProfile(req, res) {
+    try {
+      const userId = req.user.id;
+      const { firstName, lastName, phone, location, bio } = req.body;
+
+      if (
+        !firstName &&
+        !lastName &&
+        typeof phone === 'undefined' &&
+        typeof location === 'undefined' &&
+        typeof bio === 'undefined'
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'No profile changes provided'
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      if (firstName || lastName) {
+        const composedName = `${firstName || ''} ${lastName || ''}`.replace(/\s+/g, ' ').trim();
+        if (composedName.length < 2) {
+          return res.status(400).json({
+            success: false,
+            message: 'Name must be at least 2 characters long'
+          });
+        }
+        user.name = composedName;
+      }
+
+      if (typeof phone === 'string') {
+        user.phone = phone.trim();
+      }
+
+      if (typeof location === 'string') {
+        user.location = location.trim();
+      }
+
+      if (typeof bio === 'string') {
+        user.bio = bio.trim();
+      }
+
+      await user.save();
+
+      const profileUpdates = {};
+      if (typeof bio === 'string') {
+        profileUpdates.bio = bio.trim();
+      }
+      if (typeof location === 'string') {
+        profileUpdates.region = location.trim();
+      }
+
+      let artisanProfile = await ArtisanProfile.findOne({ userId });
+      if (!artisanProfile) {
+        artisanProfile = new ArtisanProfile({
+          userId,
+          region: profileUpdates.region || user.location || 'Default Region',
+          bio: profileUpdates.bio || user.bio || '',
+          skills: []
+        });
+      } else if (Object.keys(profileUpdates).length > 0) {
+        Object.assign(artisanProfile, profileUpdates);
+      }
+
+      await artisanProfile.save();
+
+      const formattedUser = AuthController.formatUserPayload(user);
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        data: {
+          user: formattedUser,
+          profile: artisanProfile
+        }
+      });
+    } catch (error) {
+      console.error('Update artisan profile error:', error);
+      const statusCode = error?.code === 11000 ? 400 : 500;
+      const message = error?.code === 11000 ? 'Phone number already in use' : 'Failed to update profile';
+      res.status(statusCode).json({
+        success: false,
+        message
+      });
+    }
+  }
+
+  static async updateProfilePhoto(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No image provided'
+        });
+      }
+
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      const fileName = `artisan_${user._id}_${Date.now()}`;
+      const folder = `profiles/artisans/${user._id}`;
+
+      const uploadResult = await ImageKitService.uploadImage(req.file, fileName, folder);
+
+      if (user.profileImage?.fileId) {
+        try {
+          await ImageKitService.deleteImage(user.profileImage.fileId);
+        } catch (cleanupError) {
+          console.warn('Failed to delete previous profile image:', cleanupError.message);
+        }
+      }
+
+      user.profileImage = {
+        url: uploadResult.data.url,
+        thumbnailUrl: uploadResult.data.thumbnailUrl,
+        fileId: uploadResult.data.fileId,
+        uploadedAt: new Date()
+      };
+
+      await user.save();
+
+      const formattedUser = AuthController.formatUserPayload(user);
+
+      res.json({
+        success: true,
+        message: 'Profile photo updated successfully',
+        data: {
+          user: formattedUser
+        }
+      });
+    } catch (error) {
+      console.error('Update profile photo error:', error);
+      const statusCode = error.message?.includes('ImageKit') ? 503 : 500;
+      res.status(statusCode).json({
+        success: false,
+        message: error.message || 'Failed to update profile photo'
       });
     }
   }

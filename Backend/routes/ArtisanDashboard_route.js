@@ -2,7 +2,17 @@ const express = require('express');
 const router = express.Router();
 const ArtisanDashboardController = require('../controllers/ArtisanDashboard_controller');
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
-const { uploadMultiple, handleMulterError } = require('../middleware/imageUpload');
+const { upload, uploadMultiple, handleMulterError } = require('../middleware/imageUpload');
+
+const uploadProfilePhoto = (req, res, next) => {
+  const singleUpload = upload.single('photo');
+  singleUpload(req, res, (err) => {
+    if (err) {
+      return handleMulterError(err, req, res, next);
+    }
+    next();
+  });
+};
 
 // All routes require artisan authentication
 router.use(authenticateToken);
@@ -13,6 +23,11 @@ router.get('/stats', ArtisanDashboardController.getDashboardStats);
 
 // Analytics data
 router.get('/analytics', ArtisanDashboardController.getAnalytics);
+
+// Profile management
+router.get('/profile', ArtisanDashboardController.getProfile);
+router.put('/profile', ArtisanDashboardController.updateProfile);
+router.put('/profile/photo', uploadProfilePhoto, ArtisanDashboardController.updateProfilePhoto);
 
 // Image upload utilities
 router.get('/upload/auth', ArtisanDashboardController.getImageUploadAuth);

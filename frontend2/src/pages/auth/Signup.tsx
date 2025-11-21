@@ -172,18 +172,24 @@ const Signup: React.FC = () => {
 
   const handleSignupSuccess = (userData: any) => {
     console.log('🔍 Signup Debug - User data from backend:', userData);
-    
+    const user = userData.user || userData;
+
     // Use the auth context to manage user state
     const userDataForAuth = {
-      id: userData.userId || userData.id,
-      name: userData.name,
-      email: userData.email,
-      role: userData.role,
-      isEmailVerified: userData.isEmailVerified,
-      isPhoneVerified: userData.isPhoneVerified || false,
-      isIdentityVerified: userData.isIdentityVerified || false,
+      id: user.id || user.userId,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      photoURL: user.photoURL,
+      location: user.location,
+      bio: user.bio,
+      isEmailVerified: user.isEmailVerified,
+      isPhoneVerified: user.isPhoneVerified || false,
+      isIdentityVerified: user.isIdentityVerified || false,
     };
-
+    };
+    login(userDataForAuth, userData.accessToken);
     login(userDataForAuth, userData.accessToken);
 
     // Redirect based on role

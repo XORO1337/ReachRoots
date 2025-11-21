@@ -24,7 +24,7 @@ const passport = require('../config/passport');
 const { getClientURL } = require('../config/environment');
 
 const isEmailOtpEnforcedFlag = () => process.env.AUTH_REQUIRE_EMAIL_OTP !== 'false';
-const isOtpFallbackAllowedFlag = () => process.env.AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE !== 'false';
+const isOtpFallbackAllowedFlag = () => process.env.AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE === 'true';
 
 const normalizeRedirectUrl = (url) => {
   if (!url || typeof url !== 'string') {
@@ -100,7 +100,18 @@ class AuthController {
       id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       role: user.role,
+      photoURL: user.profileImage?.url || null,
+      profileImage: user.profileImage ? {
+        url: user.profileImage.url,
+        thumbnailUrl: user.profileImage.thumbnailUrl,
+        fileId: user.profileImage.fileId,
+        uploadedAt: user.profileImage.uploadedAt
+      } : null,
+      location: user.location || '',
+      bio: user.bio || '',
+      authProvider: user.authProvider,
       isEmailVerified: user.isEmailVerified,
       isPhoneVerified: user.isPhoneVerified,
       isIdentityVerified: user.isIdentityVerified
@@ -137,6 +148,7 @@ class AuthController {
 
   // Email based Registration with OTP
   static async registerWithEmailOTP(req, res) {
+    let createdUser = null;
     try {
       const { name, email, password, role, bio, region, skills, businessName, licenseNumber, distributionAreas } = req.body;
       if (!name || !password || !role || !email) {
@@ -155,30 +167,41 @@ class AuthController {
         isEmailVerified: false
       });
       await user.save();
+      createdUser = user;
+
       await AuthController.createRoleSpecificProfile(user._id, role, { bio, region, skills, businessName, licenseNumber, distributionAreas });
-      
+
+      const userPayload = AuthController.formatUserPayload(user);
+
       const otpResult = await otpService.sendOTP(email);
-      const otpSent = otpResult.emailSent;
-      const registrationMessage = otpSent
-        ? 'User registered successfully. Please verify your email address with the OTP sent to your email.'
-        : 'User registered successfully, but email delivery is currently unavailable. Please try resending the OTP or contact support.';
+      if (!otpResult.emailSent) {
+        await AuthController.rollbackFailedRegistration(user._id, user.role);
+        return res.status(503).json({
+          success: false,
+          message: 'Registration failed because we could not deliver the verification code. Please try again once email delivery is available.'
+        });
+      }
 
       res.status(201).json({
         success: true,
-        message: registrationMessage,
+        message: 'User registered successfully. Please verify your email address with the OTP sent to your email.',
         data: {
+          user: userPayload,
           userId: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
           isEmailVerified: user.isEmailVerified,
-          otpSent,
+          otpSent: true,
           otpExpires: otpResult.expiresAt,
-          otpDeliveryIssue: !otpSent
+          otpDeliveryIssue: false
         }
       });
     } catch (error) {
       console.error('Registration error:', error);
+      if (createdUser?._id) {
+        await AuthController.rollbackFailedRegistration(createdUser._id, createdUser.role);
+      }
       res.status(400).json({ success: false, message: error.message || 'Registration failed' });
     }
   }
@@ -257,17 +280,12 @@ class AuthController {
           });
         }
 
+        const userPayload = AuthController.formatUserPayload(user);
         res.json({
           success: true,
           message: 'Credentials verified. Please check your email for OTP to complete login.',
           data: {
-            user: {
-              id: user._id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-              isEmailVerified: user.isEmailVerified
-            },
+            user: userPayload,
             roleChanged,
             otpSent: true,
             requiresOTP: true,
@@ -608,7 +626,10 @@ class AuthController {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      const verification = await otpService.verifyOTP(email, otp);
+      const normalizedAction = action === 'login' ? 'login' : 'signup';
+      const verification = await otpService.verifyOTP(email, otp, {
+        skipEmailVerifiedCheck: normalizedAction === 'login'
+      });
       if (!verification.success) {
         return res.status(400).json({ 
           success: false, 
@@ -634,16 +655,14 @@ class AuthController {
         sameSite: 'strict'
       });
 
+      const formattedUser = AuthController.formatUserPayload(user);
+
       res.json({
         success: true,
-        message: `Email verified and ${action === 'login' ? 'login' : 'registration'} completed successfully`,
+        message: `Email verified and ${normalizedAction === 'login' ? 'login' : 'registration'} completed successfully`,
         data: {
-          userId: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
+          user: formattedUser,
           accessToken,
-          isEmailVerified: user.isEmailVerified,
           authProvider: user.authProvider
         }
       });
@@ -758,20 +777,14 @@ class AuthController {
   static async getProfile(req, res) {
     try {
       const user = req.user;
+      const formattedUser = AuthController.formatUserPayload(user);
 
       res.json({
         success: true,
         message: 'Profile retrieved successfully',
         data: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
+          ...formattedUser,
           addresses: user.addresses,
-          isEmailVerified: user.isEmailVerified,
-          isPhoneVerified: user.isPhoneVerified,
-          isIdentityVerified: user.isIdentityVerified,
           verificationDocuments: user.verificationDocuments,
           createdAt: user.createdAt
         }
@@ -898,18 +911,19 @@ class AuthController {
         sameSite: 'strict'
       });
 
+      const formattedUser = AuthController.formatUserPayload(user);
+
       res.status(201).json({
         success: true,
         message: 'User registered successfully',
         data: {
+          user: formattedUser,
           userId: user._id,
           name: user.name,
           email: user.email,
           phone: user.phone,
           role: user.role,
-          accessToken,
-          isEmailVerified: user.isEmailVerified,
-          isPhoneVerified: user.isPhoneVerified
+          accessToken
         }
       });
 
@@ -925,6 +939,25 @@ class AuthController {
           details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         }
       });
+    }
+  }
+
+  static async rollbackFailedRegistration(userId, role) {
+    try {
+      if (!userId) {
+        return;
+      }
+
+      await User.findByIdAndDelete(userId);
+
+      if (role === 'artisan' || role === 'distributor') {
+        const ArtisanProfile = require('../models/Artisan');
+        const Distributor = require('../models/Distributor');
+        const profileModel = role === 'artisan' ? ArtisanProfile : Distributor;
+        await profileModel.deleteOne({ userId });
+      }
+    } catch (cleanupError) {
+      console.error('Failed to rollback user creation after OTP failure:', cleanupError);
     }
   }
 

@@ -192,14 +192,15 @@ class OTPService {
     }
   }
 
-  async verifyOTP(email, otpCode) {
+  async verifyOTP(email, otpCode, options = {}) {
     try {
+      const { skipEmailVerifiedCheck = false } = options;
       const user = await User.findOne({ email });
       if (!user) {
         return { success: false, message: 'User not found' };
       }
 
-      if (user.isEmailVerified) {
+      if (user.isEmailVerified && !skipEmailVerifiedCheck) {
         return { success: false, message: 'Email is already verified' };
       }
 

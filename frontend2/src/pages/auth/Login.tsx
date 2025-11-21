@@ -104,6 +104,10 @@ const Login: React.FC = () => {
       name: user.name,
       email: user.email,
       role: user.role,
+      phone: user.phone,
+      photoURL: user.photoURL,
+      location: user.location,
+      bio: user.bio,
       isEmailVerified: user.isEmailVerified,
       isPhoneVerified: user.isPhoneVerified,
       isIdentityVerified: user.isIdentityVerified

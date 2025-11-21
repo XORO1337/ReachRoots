@@ -1,1 +1,340 @@
-import React, { useState, useEffect, useRef } from 'react';import { Camera, Save, Loader2 } from 'lucide-react';import { useAuth } from '../../../contexts/AuthContext';import { updateProfile, uploadProfilePhoto } from '../../../services/profile';import { toast } from 'react-hot-toast';const Settings: React.FC = () => {  const { user, updateUserData } = useAuth();  const [activeTab, setActiveTab] = useState('Profile');  const [isLoading, setIsLoading] = useState(false);  const fileInputRef = useRef<HTMLInputElement>(null);  const [formData, setFormData] = useState({    firstName: '',    lastName: '',    email: '',    phone: '',    location: '',    bio: 'Tell us about yourself and your craft...'  });  useEffect(() => {    if (user) {      const [firstName, ...lastNameParts] = user.name.split(' ');      setFormData(prev => ({        ...prev,        firstName: firstName || '',        lastName: lastNameParts.join(' ') || '',        email: user.email || '',        phone: user.phone || '',        location: user.location || '',        bio: user.bio || prev.bio      }));    }  }, [user]);  const tabs = ['Profile', 'Business', 'Notifications', 'Payments', 'Security'];  const handleInputChange = (field: string, value: string) => {    setFormData(prev => ({ ...prev, [field]: value }));  };  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {    const file = event.target.files?.[0];    if (!file) return;    try {      setIsLoading(true);      const updatedUser = await uploadProfilePhoto(file);      updateUserData(updatedUser);      toast.success('Profile photo updated successfully');    } catch (error) {      toast.error('Failed to update profile photo');      console.error('Error uploading photo:', error);    } finally {      setIsLoading(false);    }  };  const handleSaveChanges = async () => {    try {      setIsLoading(true);      const updatedData = {        firstName: formData.firstName,        lastName: formData.lastName,        phone: formData.phone,        location: formData.location,        bio: formData.bio      };      const updatedUser = await updateProfile(updatedData);      updateUserData(updatedUser);      toast.success('Profile updated successfully');    } catch (error) {      toast.error('Failed to update profile');      console.error('Error updating profile:', error);    } finally {      setIsLoading(false);    }  };  const renderProfileTab = () => (    <div>      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">        👤 Personal Information      </h3>            {/* Profile Photo */}      <div className="mb-8">        <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>        <div className="flex items-center space-x-4">          {user?.photoURL ? (            <img              src={user.photoURL}              alt={formData.firstName}              className="w-20 h-20 rounded-full object-cover"            />          ) : (            <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">              <span className="text-orange-600 text-xl font-medium">                {formData.firstName.charAt(0).toUpperCase()}                {formData.lastName.charAt(0).toUpperCase()}              </span>            </div>          )}          <input            type="file"            ref={fileInputRef}            className="hidden"            accept="image/*"            onChange={handleFileSelect}          />          <button            onClick={() => fileInputRef.current?.click()}            disabled={isLoading}            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 disabled:opacity-50"          >            {isLoading ? (              <Loader2 className="w-4 h-4 animate-spin" />            ) : (              <Camera className="w-4 h-4" />            )}            <span>{isLoading ? 'Uploading...' : 'Change Photo'}</span>          </button>          <p className="text-sm text-gray-500">JPG, GIF or PNG. 1MB max</p>        </div>      </div>      {/* Form Fields */}      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">        <div>          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="firstName">            First Name          </label>          <input            id="firstName"            type="text"            value={formData.firstName}            onChange={(e) => handleInputChange('firstName', e.target.value)}            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"            placeholder="Enter your first name"          />        </div>        <div>          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="lastName">            Last Name          </label>          <input            id="lastName"            type="text"            value={formData.lastName}            onChange={(e) => handleInputChange('lastName', e.target.value)}            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"            placeholder="Enter your last name"          />        </div>        <div>          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">            Email Address          </label>          <input            id="email"            type="email"            value={formData.email}            disabled            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"            placeholder="Your email address"          />          <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>        </div>        <div>          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">            Phone Number          </label>          <input            id="phone"            type="tel"            value={formData.phone}            onChange={(e) => handleInputChange('phone', e.target.value)}            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"            placeholder="Enter your phone number"          />        </div>        <div className="md:col-span-2">          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="location">            Location          </label>          <input            id="location"            type="text"            value={formData.location}            onChange={(e) => handleInputChange('location', e.target.value)}            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"            placeholder="Enter your location"          />        </div>        <div className="md:col-span-2">          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="bio">            Bio          </label>          <textarea            id="bio"            rows={4}            value={formData.bio}            onChange={(e) => handleInputChange('bio', e.target.value)}            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"            placeholder="Tell us about yourself and your craft..."          />        </div>      </div>    </div>  );  const renderPlaceholderTab = (tabName: string) => (    <div className="flex items-center justify-center h-64">      <p className="text-gray-500">{tabName} settings coming soon...</p>    </div>  );  return (    <div className="max-w-4xl mx-auto p-6">      {/* Tab Navigation */}      <div className="border-b border-gray-200 mb-8">        <nav className="flex space-x-8">          {tabs.map((tab) => (            <button              key={tab}              onClick={() => setActiveTab(tab)}              className={`py-2 px-1 border-b-2 font-medium text-sm ${                activeTab === tab                  ? 'border-orange-500 text-orange-600'                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'              }`}            >              {tab}            </button>          ))}        </nav>      </div>      {/* Tab Content */}      <div className="bg-white">        {activeTab === 'Profile' && renderProfileTab()}        {activeTab !== 'Profile' && renderPlaceholderTab(activeTab)}      </div>            {/* Save Button - Only show for Profile tab */}      {activeTab === 'Profile' && (        <div className="mt-8 flex justify-end">          <button            onClick={handleSaveChanges}            disabled={isLoading}            className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 disabled:opacity-50"          >            {isLoading ? (              <Loader2 className="w-4 h-4 animate-spin" />            ) : (              <Save className="w-4 h-4" />            )}            <span>{isLoading ? 'Saving...' : 'Save Changes'}</span>          </button>        </div>      )}    </div>  );};export default Settings;
+import React, { useEffect, useRef, useState } from 'react';
+import { Camera, Save, Loader2, ShieldCheck } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useAuth } from '../../../contexts/AuthContext';
+import {
+	updateProfile,
+	uploadProfilePhoto,
+	changePassword,
+	UpdateProfileData,
+	ChangePasswordPayload
+} from '../../../services/profile';
+
+const DEFAULT_BIO = 'Tell us about yourself and your craft...';
+
+const Settings: React.FC = () => {
+	const { user, updateUserData } = useAuth();
+	const [activeTab, setActiveTab] = useState('Profile');
+	const [isSavingProfile, setIsSavingProfile] = useState(false);
+	const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+	const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const [formData, setFormData] = useState({
+		firstName: '',
+		lastName: '',
+		email: '',
+		phone: '',
+		location: '',
+		bio: DEFAULT_BIO
+	});
+
+	const [passwordForm, setPasswordForm] = useState({
+		currentPassword: '',
+		newPassword: '',
+		confirmPassword: ''
+	});
+
+	useEffect(() => {
+		if (user) {
+			const [firstName, ...lastNameParts] = (user.name || '').split(' ');
+			setFormData({
+				firstName: firstName || '',
+				lastName: lastNameParts.join(' ') || '',
+				email: user.email || '',
+				phone: user.phone || '',
+				location: user.location || '',
+				bio: user.bio || DEFAULT_BIO
+			});
+		}
+	}, [user]);
+
+	const tabs = ['Profile', 'Business', 'Notifications', 'Payments', 'Security'];
+
+	const handleInputChange = (field: keyof UpdateProfileData | 'email', value: string) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handlePasswordInputChange = (field: keyof ChangePasswordPayload, value: string) => {
+		setPasswordForm((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		try {
+			setIsUploadingPhoto(true);
+			const updatedUser = await uploadProfilePhoto(file);
+			if (updatedUser) {
+				updateUserData(updatedUser);
+				toast.success('Profile photo updated successfully');
+			}
+		} catch (error) {
+			console.error('Error uploading photo:', error);
+			toast.error('Failed to update profile photo');
+		} finally {
+			setIsUploadingPhoto(false);
+			if (fileInputRef.current) {
+				fileInputRef.current.value = '';
+			}
+		}
+	};
+
+	const handleSaveChanges = async () => {
+		try {
+			setIsSavingProfile(true);
+			const payload: UpdateProfileData = {
+				firstName: formData.firstName,
+				lastName: formData.lastName,
+				phone: formData.phone,
+				location: formData.location,
+				bio: formData.bio
+			};
+
+			const updatedUser = await updateProfile(payload);
+			if (updatedUser) {
+				updateUserData(updatedUser);
+				toast.success('Profile updated successfully');
+			}
+		} catch (error) {
+			console.error('Error updating profile:', error);
+			toast.error('Failed to update profile');
+		} finally {
+			setIsSavingProfile(false);
+		}
+	};
+
+	const handlePasswordChange = async () => {
+		if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+			toast.error('Please fill out all password fields');
+			return;
+		}
+
+		try {
+			setIsUpdatingPassword(true);
+			await changePassword(passwordForm);
+			toast.success('Password updated successfully');
+			setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+		} catch (error: any) {
+			console.error('Error updating password:', error);
+			const errorMessage = error?.response?.data?.message || 'Failed to update password';
+			toast.error(errorMessage);
+		} finally {
+			setIsUpdatingPassword(false);
+		}
+	};
+
+	const renderProfileTab = () => (
+		<div>
+			<h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">👤 Personal Information</h3>
+
+			<div className="mb-8">
+				<label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+				<div className="flex items-center space-x-4">
+					{user?.photoURL ? (
+						<img src={user.photoURL} alt={formData.firstName || 'Profile'} className="w-20 h-20 rounded-full object-cover" />
+					) : (
+						<div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+							<span className="text-orange-600 text-xl font-medium">
+								{(formData.firstName[0] || 'A').toUpperCase()}
+								{(formData.lastName[0] || 'R').toUpperCase()}
+							</span>
+						</div>
+					)}
+					<input
+						type="file"
+						ref={fileInputRef}
+						className="hidden"
+						accept="image/*"
+						onChange={handleFileSelect}
+					/>
+					<button
+						onClick={() => fileInputRef.current?.click()}
+						disabled={isUploadingPhoto}
+						className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 disabled:opacity-50"
+					>
+						{isUploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+						<span>{isUploadingPhoto ? 'Uploading...' : 'Change Photo'}</span>
+					</button>
+					<p className="text-sm text-gray-500">JPG, PNG, or GIF up to 5MB.</p>
+				</div>
+			</div>
+
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="firstName">First Name</label>
+					<input
+						id="firstName"
+						type="text"
+						value={formData.firstName}
+						onChange={(e) => handleInputChange('firstName', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Enter your first name"
+					/>
+				</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="lastName">Last Name</label>
+					<input
+						id="lastName"
+						type="text"
+						value={formData.lastName}
+						onChange={(e) => handleInputChange('lastName', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Enter your last name"
+					/>
+				</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+					<input
+						type="email"
+						value={formData.email}
+						disabled
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+					/>
+					<p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+				</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">Phone Number</label>
+					<input
+						id="phone"
+						type="tel"
+						value={formData.phone}
+						onChange={(e) => handleInputChange('phone', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Enter your phone number"
+					/>
+				</div>
+				<div className="md:col-span-2">
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="location">Location</label>
+					<input
+						id="location"
+						type="text"
+						value={formData.location}
+						onChange={(e) => handleInputChange('location', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="City, state or region"
+					/>
+				</div>
+				<div className="md:col-span-2">
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="bio">Bio</label>
+					<textarea
+						id="bio"
+						rows={4}
+						value={formData.bio}
+						onChange={(e) => handleInputChange('bio', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Tell us about yourself and your craft..."
+					/>
+				</div>
+			</div>
+		</div>
+	);
+
+	const renderSecurityTab = () => (
+		<div>
+			<h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
+				<ShieldCheck className="w-5 h-5 text-orange-500" />
+				<span>Security Settings</span>
+			</h3>
+			<div className="grid grid-cols-1 gap-6 max-w-xl">
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="currentPassword">Current Password</label>
+					<input
+						id="currentPassword"
+						type="password"
+						value={passwordForm.currentPassword}
+						onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Enter current password"
+					/>
+				</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="newPassword">New Password</label>
+					<input
+						id="newPassword"
+						type="password"
+						value={passwordForm.newPassword}
+						onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Enter new password"
+					/>
+					<p className="text-xs text-gray-500 mt-1">Must include uppercase, lowercase, number, and symbol.</p>
+				</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="confirmPassword">Confirm New Password</label>
+					<input
+						id="confirmPassword"
+						type="password"
+						value={passwordForm.confirmPassword}
+						onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
+						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+						placeholder="Re-enter new password"
+					/>
+				</div>
+			</div>
+		</div>
+	);
+
+	const renderPlaceholderTab = (tabName: string) => (
+		<div className="flex items-center justify-center h-64">
+			<p className="text-gray-500">{tabName} settings coming soon...</p>
+		</div>
+	);
+
+	return (
+		<div className="max-w-4xl mx-auto p-6">
+			<div className="border-b border-gray-200 mb-8">
+				<nav className="flex space-x-8">
+					{tabs.map((tab) => (
+						<button
+							key={tab}
+							onClick={() => setActiveTab(tab)}
+							className={`py-2 px-1 border-b-2 font-medium text-sm ${
+								activeTab === tab
+									? 'border-orange-500 text-orange-600'
+									: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+							}`}
+						>
+							{tab}
+						</button>
+					))}
+				</nav>
+			</div>
+
+			<div className="bg-white rounded-lg border border-gray-200 p-6">
+				{activeTab === 'Profile' && renderProfileTab()}
+				{activeTab === 'Security' && renderSecurityTab()}
+				{activeTab !== 'Profile' && activeTab !== 'Security' && renderPlaceholderTab(activeTab)}
+			</div>
+
+			{activeTab === 'Profile' && (
+				<div className="mt-6 flex justify-end">
+					<button
+						onClick={handleSaveChanges}
+						disabled={isSavingProfile}
+						className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 disabled:opacity-50"
+					>
+						{isSavingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+						<span>{isSavingProfile ? 'Saving...' : 'Save Changes'}</span>
+					</button>
+				</div>
+			)}
+
+			{activeTab === 'Security' && (
+				<div className="mt-6 flex justify-end">
+					<button
+						onClick={handlePasswordChange}
+						disabled={isUpdatingPassword}
+						className="bg-slate-900 text-white px-6 py-2 rounded-lg hover:bg-slate-800 transition-colors flex items-center space-x-2 disabled:opacity-50"
+					>
+						{isUpdatingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+						<span>{isUpdatingPassword ? 'Updating...' : 'Update Password'}</span>
+					</button>
+				</div>
+			)}
+		</div>
+	);
+};
+
+export default Settings;
