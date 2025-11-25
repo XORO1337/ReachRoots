@@ -6,13 +6,15 @@ interface OTPVerificationProps {
   action: 'login' | 'signup';
   onVerified: (userData: any) => void;
   onCancel: () => void;
+  devOtpCode?: string;
 }
 
 const OTPVerification: React.FC<OTPVerificationProps> = ({
   email,
   action,
   onVerified,
-  onCancel
+  onCancel,
+  devOtpCode
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -148,6 +150,13 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
           </p>
           <p className="font-medium text-gray-900">{email}</p>
         </div>
+
+        {devOtpCode && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+            <p className="text-yellow-800 text-sm font-medium">Development Mode OTP: <span className="font-bold text-lg">{devOtpCode}</span></p>
+            <p className="text-xs text-yellow-600 mt-1">Use this code to verify (Emails are simulated)</p>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">

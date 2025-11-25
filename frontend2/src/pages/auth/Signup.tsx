@@ -38,6 +38,7 @@ const Signup: React.FC = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [pendingUserData, setPendingUserData] = useState<any>(null);
 
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
@@ -261,6 +262,7 @@ const Signup: React.FC = () => {
       if (data.success) {
         // Check if OTP was sent successfully
         if (data.data.otpSent) {
+          setPendingUserData(data.data);
           setShowOTPVerification(true);
         } else {
           // Handle case where OTP sending failed but user was created
@@ -701,6 +703,7 @@ const Signup: React.FC = () => {
           action="signup"
           onVerified={handleOTPVerified}
           onCancel={handleOTPCancel}
+          devOtpCode={pendingUserData?.devOtpCode}
         />
       )}
     </div>

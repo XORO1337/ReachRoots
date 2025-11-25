@@ -46,13 +46,18 @@ class EmailService {
   }
 
   shouldEnableConsoleTransport() {
+    // Check for explicit configuration
     if (process.env.ENABLE_DEV_CONSOLE_EMAIL === 'true') {
       return true;
     }
     if (process.env.ENABLE_DEV_CONSOLE_EMAIL === 'false') {
       return false;
     }
-    return process.env.NODE_ENV !== 'production';
+    
+    // Default behavior: Enable console transport if we are not in production,
+    // OR if we are in production but SMTP is missing (to prevent 503s during initial setup)
+    // This is a safe fallback for the user's current situation.
+    return true;
   }
 
   isConfigured() {

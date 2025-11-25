@@ -427,6 +427,7 @@ const Login: React.FC = () => {
           action="login"
           onVerified={handleOTPVerified}
           onCancel={handleOTPCancel}
+          devOtpCode={pendingUserData?.devOtpCode}
         />
       )}
 

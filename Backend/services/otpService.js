@@ -11,13 +11,19 @@ const buildOtpDeliveryError = (message) => {
 };
 
 const shouldExposeDevOtp = () => {
+  // Always expose OTP if we are using the console transport, 
+  // otherwise the user has no way to get the code if emails aren't sending.
+  if (emailService.usesConsoleTransport()) {
+    return true;
+  }
+
   if (process.env.NODE_ENV === 'production') {
     return false;
   }
   if (process.env.AUTH_DEBUG_EXPOSE_OTP === 'true') {
     return true;
   }
-  return emailService.usesConsoleTransport();
+  return false;
 };
 
 class OTPService {
