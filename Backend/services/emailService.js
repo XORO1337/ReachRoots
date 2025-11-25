@@ -2,14 +2,18 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    this.isConfiguredFlag = Boolean(
+    this.usingConsoleTransport = false;
+    this.transporter = null;
+    this.defaultFrom = process.env.SMTP_FROM || 'RootsReach <no-reply@rootsreach.com>';
+
+    const hasSmtpCreds = Boolean(
       process.env.SMTP_HOST &&
       process.env.SMTP_PORT &&
       process.env.SMTP_USER &&
       process.env.SMTP_PASS
     );
 
-    if (this.isConfiguredFlag) {
+    if (hasSmtpCreds) {
       this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: Number(process.env.SMTP_PORT),
@@ -19,16 +23,44 @@ class EmailService {
           pass: process.env.SMTP_PASS
         }
       });
-    } else {
-      this.transporter = null;
-      console.warn('[EmailService] SMTP credentials missing. Email delivery is disabled.');
+      this.isConfiguredFlag = true;
+      console.log('[EmailService] SMTP transporter configured.');
+      return;
     }
 
-    this.defaultFrom = process.env.SMTP_FROM || 'RootsReach <no-reply@rootsreach.com>';
+    const devConsoleEnabled = this.shouldEnableConsoleTransport();
+    if (devConsoleEnabled) {
+      this.transporter = nodemailer.createTransport({
+        streamTransport: true,
+        newline: 'unix',
+        buffer: true
+      });
+      this.isConfiguredFlag = true;
+      this.usingConsoleTransport = true;
+      console.warn('[EmailService] SMTP credentials missing. Falling back to console transport (development mode). OTP emails will be logged to the server console.');
+      return;
+    }
+
+    this.isConfiguredFlag = false;
+    console.warn('[EmailService] SMTP credentials missing and console transport disabled. Email delivery is unavailable.');
+  }
+
+  shouldEnableConsoleTransport() {
+    if (process.env.ENABLE_DEV_CONSOLE_EMAIL === 'true') {
+      return true;
+    }
+    if (process.env.ENABLE_DEV_CONSOLE_EMAIL === 'false') {
+      return false;
+    }
+    return process.env.NODE_ENV !== 'production';
   }
 
   isConfigured() {
     return this.isConfiguredFlag;
+  }
+
+  usesConsoleTransport() {
+    return this.usingConsoleTransport;
   }
 
   /**
@@ -40,8 +72,7 @@ class EmailService {
   async sendOTPEmail(email, otp, name) {
     try {
       if (!this.transporter) {
-        console.warn('[EmailService] Attempted to send OTP email without a configured transporter. Skipping send.');
-        return { skipped: true };
+        throw new Error('Email transporter is not configured.');
       }
 
       const mailOptions = {
@@ -66,8 +97,15 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', info.messageId);
-      return { skipped: false, messageId: info.messageId };
+
+      if (this.usingConsoleTransport) {
+        const preview = info.message ? info.message.toString() : '(no preview available)';
+        console.log(`\n[EmailService][Console] OTP email to ${email}:\n${preview}\n`);
+      } else {
+        console.log('Email sent successfully:', info.messageId);
+      }
+
+      return { skipped: false, messageId: info.messageId || 'dev-console' };
     } catch (error) {
       console.error('Error sending email:', error);
       throw new Error('Failed to send email');

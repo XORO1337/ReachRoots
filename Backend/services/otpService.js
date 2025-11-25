@@ -10,6 +10,16 @@ const buildOtpDeliveryError = (message) => {
   return error;
 };
 
+const shouldExposeDevOtp = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return false;
+  }
+  if (process.env.AUTH_DEBUG_EXPOSE_OTP === 'true') {
+    return true;
+  }
+  return emailService.usesConsoleTransport();
+};
+
 class OTPService {
   constructor() {
     this.OTP_LENGTH = 6;
@@ -88,7 +98,8 @@ class OTPService {
         emailSent: true,
         expiresAt,
         sendCount: nextSendCount,
-        maxSendsPerDay: this.MAX_DAILY_SENDS
+        maxSendsPerDay: this.MAX_DAILY_SENDS,
+        devOtpCode: shouldExposeDevOtp() ? otp : undefined
       };
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -175,7 +186,8 @@ class OTPService {
         expiresAt,
         attemptsRemaining: this.MAX_RESEND_ATTEMPTS - nextResendCount,
         dailySendCount: nextSendCount,
-        maxSendsPerDay: this.MAX_DAILY_SENDS
+        maxSendsPerDay: this.MAX_DAILY_SENDS,
+        devOtpCode: shouldExposeDevOtp() ? otp : undefined
       };
     } catch (error) {
       console.error('Error resending OTP:', error);
