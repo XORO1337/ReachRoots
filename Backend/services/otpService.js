@@ -2,6 +2,14 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const emailService = require('./emailService');
 
+const buildOtpDeliveryError = (message) => {
+  const error = new Error(message);
+  error.code = 'OTP_DELIVERY_FAILED';
+  error.statusCode = 503;
+  error.otpDeliveryFailure = true;
+  return error;
+};
+
 class OTPService {
   constructor() {
     this.OTP_LENGTH = 6;
@@ -24,11 +32,8 @@ class OTPService {
 
   async sendOTP(email, userId = null) {
     try {
-      const otp = this.generateOTP();
-      const expiresAt = new Date(Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000);
       const currentTime = new Date();
       const user = userId ? await User.findById(userId) : await User.findOne({ email });
-
       if (!user) {
         throw new Error('User not found');
       }
@@ -47,9 +52,22 @@ class OTPService {
       }
 
       const nextSendCount = (user.otpSendCount || 0) + 1;
-
       if (nextSendCount > this.MAX_DAILY_SENDS) {
         throw new Error(`Daily OTP limit (${this.MAX_DAILY_SENDS}) reached. Please try again tomorrow.`);
+      }
+
+      if (!this.isEmailDeliveryAvailable()) {
+        throw buildOtpDeliveryError('Email delivery service is not configured. Unable to send verification code.');
+      }
+
+      const otp = this.generateOTP();
+      const expiresAt = new Date(Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000);
+
+      try {
+        await emailService.sendOTPEmail(email, otp, user.name);
+      } catch (error) {
+        console.error('Error sending OTP email:', error);
+        throw buildOtpDeliveryError('Failed to send verification code. Please try again later.');
       }
 
       await User.findByIdAndUpdate(user._id, {
@@ -62,31 +80,12 @@ class OTPService {
         $unset: { otpLockUntil: 1 }
       });
 
-      let emailSent = false;
-      let emailError = null;
-
-      if (this.isEmailDeliveryAvailable()) {
-        try {
-          await emailService.sendOTPEmail(email, otp, user.name);
-          emailSent = true;
-        } catch (error) {
-          emailError = error;
-          console.error('Error sending OTP email:', error);
-        }
-      } else {
-        console.warn('[OTPService] Email service not configured. Skipping OTP email delivery.');
-      }
-
-      console.log(`OTP generated for ${email}. Email sent: ${emailSent}`);
+      console.log(`OTP generated and sent to ${email}.`);
 
       return {
         success: true,
-        message: emailSent
-          ? 'OTP sent successfully to your email address'
-          : 'OTP generated but email delivery is currently unavailable',
-        emailSent,
-        emailError: emailError ? (emailError.message || 'Email delivery failed') : null,
-        otpCode: process.env.NODE_ENV === 'development' ? otp : undefined,
+        message: 'OTP sent successfully to your email address.',
+        emailSent: true,
         expiresAt,
         sendCount: nextSendCount,
         maxSendsPerDay: this.MAX_DAILY_SENDS
@@ -141,8 +140,19 @@ class OTPService {
         throw new Error(`Maximum resend attempts (${this.MAX_RESEND_ATTEMPTS}) reached for today. Please try again tomorrow.`);
       }
 
+      if (!this.isEmailDeliveryAvailable()) {
+        throw buildOtpDeliveryError('Email delivery service is not configured. Unable to resend verification code.');
+      }
+
       const otp = this.generateOTP();
       const expiresAt = new Date(Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000);
+
+      try {
+        await emailService.sendOTPEmail(user.email, otp, user.name);
+      } catch (error) {
+        console.error('Error resending OTP email:', error);
+        throw buildOtpDeliveryError('Failed to resend verification code. Please try again later.');
+      }
 
       await User.findByIdAndUpdate(user._id, {
         otpCode: otp,
@@ -156,31 +166,12 @@ class OTPService {
         $unset: { otpLockUntil: 1 }
       });
 
-      let emailSent = false;
-      let emailError = null;
-
-      if (this.isEmailDeliveryAvailable()) {
-        try {
-          await emailService.sendOTPEmail(user.email, otp, user.name);
-          emailSent = true;
-        } catch (error) {
-          emailError = error;
-          console.error('Error resending OTP email:', error);
-        }
-      } else {
-        console.warn('[OTPService] Email service not configured. Skipping OTP resend email delivery.');
-      }
-
-      console.log(`OTP resent for ${user.email}. Email sent: ${emailSent}`);
+      console.log(`OTP resent for ${user.email}.`);
 
       return {
         success: true,
-        message: emailSent
-          ? 'OTP resent successfully'
-          : 'OTP regenerated but email delivery is currently unavailable',
-        emailSent,
-        emailError: emailError ? (emailError.message || 'Email delivery failed') : null,
-        otpCode: process.env.NODE_ENV === 'development' ? otp : undefined,
+        message: 'OTP resent successfully.',
+        emailSent: true,
         expiresAt,
         attemptsRemaining: this.MAX_RESEND_ATTEMPTS - nextResendCount,
         dailySendCount: nextSendCount,

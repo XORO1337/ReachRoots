@@ -179,15 +179,13 @@ const Login: React.FC = () => {
       console.log('🔍 Login Debug - Backend response:', data);
 
       if (data.success) {
-        // Check if OTP is required
-        if (data.data.requiresOTP) {
-          // Store user data and show OTP verification
-          setPendingUserData(data.data);
-          setShowOTPVerification(true);
-        } else {
-          // Handle old flow if no OTP required (shouldn't happen with new backend)
-          handleLoginSuccess(data.data);
+        if (!data.data || !data.data.requiresOTP) {
+          setError('OTP verification is mandatory to complete login. Please try again.');
+          return;
         }
+
+        setPendingUserData(data.data);
+        setShowOTPVerification(true);
       } else {
         const errorMessage = parseBackendError(data.message || 'Login failed. Please check your credentials.');
         setError(errorMessage);
