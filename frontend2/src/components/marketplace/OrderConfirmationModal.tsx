@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { redirectToAppRoute } from '../../utils/navigation';
 import { CheckCircle, X, Copy, Package } from 'lucide-react';
 
 interface OrderConfirmationModalProps {
@@ -17,7 +17,6 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   totalAmount,
   estimatedDelivery = '5-7 business days'
 }) => {
-  const navigate = useNavigate();
   const copyOrderNumber = () => {
     navigator.clipboard.writeText(orderNumber);
     // You could add a toast notification here
@@ -111,7 +110,7 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
               Continue Shopping
             </button>
             <button
-              onClick={() => navigate('/orders')}
+              onClick={() => redirectToAppRoute('/orders')}
               className="flex-1 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors"
             >
               View Orders

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { redirectToAppRoute } from '../../utils/navigation';
 
 const OAuthCallback: React.FC = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -23,14 +23,14 @@ const OAuthCallback: React.FC = () => {
           console.error('OAuth error:', error);
           setStatus('error');
           setMessage('Authentication failed. Please try again.');
-          setTimeout(() => navigate('/login?error=oauth_failed'), 3000);
+          setTimeout(() => redirectToAppRoute('/login?error=oauth_failed'), 3000);
           return;
         }
 
         if (!token || !userDataStr) {
           setStatus('error');
           setMessage('Invalid authentication response.');
-          setTimeout(() => navigate('/login?error=missing_data'), 3000);
+          setTimeout(() => redirectToAppRoute('/login?error=missing_data'), 3000);
           return;
         }
 
@@ -87,15 +87,15 @@ const OAuthCallback: React.FC = () => {
           switch (userData.role) {
             case 'artisan':
               console.log('🔍 OAuth Debug - Redirecting to /artisan');
-              navigate('/artisan', { replace: true });
+              redirectToAppRoute('/artisan');
               break;
             case 'distributor':
               console.log('🔍 OAuth Debug - Redirecting to /distributor');
-              navigate('/distributor', { replace: true });
+              redirectToAppRoute('/distributor');
               break;
             default:
               console.log('🔍 OAuth Debug - Redirecting to / (customer or default)');
-              navigate('/', { replace: true });
+              redirectToAppRoute('/');
           }
         }, 1000);
 
@@ -103,12 +103,12 @@ const OAuthCallback: React.FC = () => {
         console.error('Error processing OAuth callback:', error);
         setStatus('error');
         setMessage('Failed to process authentication. Please try again.');
-        setTimeout(() => navigate('/login?error=processing_failed'), 3000);
+        setTimeout(() => redirectToAppRoute('/login?error=processing_failed'), 3000);
       }
     };
 
     handleCallback();
-  }, [navigate, searchParams, login]);
+  }, [searchParams, login]);
 
   const getIcon = () => {
     switch (status) {
@@ -165,7 +165,7 @@ const OAuthCallback: React.FC = () => {
         
         {status === 'error' && (
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => redirectToAppRoute('/login')}
             className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
           >
             Back to Login
