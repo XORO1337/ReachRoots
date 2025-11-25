@@ -110,6 +110,8 @@ export const products: Product[] = [
     craftType: 'Block Printing',
     rating: 4.8,
     reviews: 24,
+    averageRating: 4.8,
+    reviewCount: 24,
     inStock: true,
     minOrder: 5
   },
@@ -126,6 +128,8 @@ export const products: Product[] = [
     craftType: 'Pottery',
     rating: 4.9,
     reviews: 18,
+    averageRating: 4.9,
+    reviewCount: 18,
     inStock: true,
     minOrder: 2
   },
@@ -141,6 +145,8 @@ export const products: Product[] = [
     craftType: 'Wood Carving',
     rating: 4.7,
     reviews: 32,
+    averageRating: 4.7,
+    reviewCount: 32,
     inStock: true,
     minOrder: 10
   },
@@ -157,6 +163,8 @@ export const products: Product[] = [
     craftType: 'Mirror Work',
     rating: 4.8,
     reviews: 15,
+    averageRating: 4.8,
+    reviewCount: 15,
     inStock: true,
     minOrder: 3
   },
@@ -173,6 +181,8 @@ export const products: Product[] = [
     craftType: 'Handloom Weaving',
     rating: 4.6,
     reviews: 28,
+    averageRating: 4.6,
+    reviewCount: 28,
     inStock: true,
     minOrder: 8
   },
@@ -188,6 +198,8 @@ export const products: Product[] = [
     craftType: 'Pottery',
     rating: 4.5,
     reviews: 21,
+    averageRating: 4.5,
+    reviewCount: 21,
     inStock: true,
     minOrder: 6
   },
@@ -203,6 +215,8 @@ export const products: Product[] = [
     craftType: 'Metal Engraving',
     rating: 4.7,
     reviews: 19,
+    averageRating: 4.7,
+    reviewCount: 19,
     inStock: true,
     minOrder: 4
   },
@@ -219,6 +233,8 @@ export const products: Product[] = [
     craftType: 'Textile Craft',
     rating: 4.4,
     reviews: 42,
+    averageRating: 4.4,
+    reviewCount: 42,
     inStock: true,
     minOrder: 12
   }

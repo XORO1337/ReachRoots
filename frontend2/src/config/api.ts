@@ -42,6 +42,7 @@ export const API_CONFIG = {
       BY_CATEGORY: '/api/products/by-category',
       BY_ARTISAN: '/api/products/by-artisan',
       FEATURED: '/api/products/featured',
+      REVIEWS: (productId: string) => `/api/products/${productId}/reviews`,
     },
     ARTISANS: {
       BASE: '/api/artisans',

@@ -328,6 +328,64 @@ const removeProductImage = async (req, res) => {
   }
 };
 
+// Add or update a product review
+const addProductReview = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required to submit reviews'
+      });
+    }
+
+    const { rating, comment } = req.body;
+    if (rating === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Rating is required'
+      });
+    }
+
+    const product = await ProductService.addProductReview(req.params.id, req.user, { rating, comment });
+    res.status(201).json({
+      success: true,
+      message: 'Review submitted successfully',
+      data: {
+        averageRating: product.averageRating,
+        reviewCount: product.reviewCount,
+        reviews: product.reviews
+      }
+    });
+  } catch (error) {
+    const statusCode = error.statusCode || (error.message.includes('not found') ? 404 : 400);
+    res.status(statusCode).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Get product reviews with pagination
+const getProductReviews = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const reviewData = await ProductService.getProductReviews(req.params.id, page, limit);
+    res.status(200).json({
+      success: true,
+      message: 'Product reviews retrieved successfully',
+      data: reviewData
+    });
+  } catch (error) {
+    const statusCode = error.statusCode || (error.message.includes('not found') ? 404 : 400);
+    res.status(statusCode).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 // Get popular products
 const getPopularProducts = async (req, res) => {
   try {
@@ -511,5 +569,7 @@ module.exports = {
   updateProductStatus,
   getProductsByPriceRange,
   getProductStatistics,
-  getLowStockAlert
+  getLowStockAlert,
+  addProductReview,
+  getProductReviews
 };

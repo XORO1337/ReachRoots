@@ -80,6 +80,35 @@ class OrderService {
     }
   }
 
+  // Check if a user has completed and paid for a specific product
+  static async getCompletedOrderForProduct(buyerId, productId) {
+    try {
+      if (!buyerId || !productId) {
+        return { hasPurchase: false, orderId: null };
+      }
+
+      const order = await Order.findOne({
+        buyerId,
+        'items.productId': productId,
+        $or: [
+          { paymentStatus: 'completed' },
+          { status: { $in: ['delivered'] } }
+        ]
+      })
+        .select('_id paymentStatus status createdAt')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      if (!order) {
+        return { hasPurchase: false, orderId: null };
+      }
+
+      return { hasPurchase: true, orderId: order._id };
+    } catch (error) {
+      throw new Error(`Error verifying purchase: ${error.message}`);
+    }
+  }
+
   // Get all orders with pagination
   static async getAllOrders(page = 1, limit = 10, filters = {}) {
     try {

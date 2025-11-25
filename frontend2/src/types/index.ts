@@ -1,13 +1,34 @@
 export * from './user';
 export * from './payment';
 
+export interface ProductReview {
+  _id?: string;
+  userName?: string;
+  userId?: string;
+  user?: {
+    _id: string;
+    name?: string;
+    profileImage?: {
+      url?: string;
+      thumbnailUrl?: string;
+    };
+  };
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+  lastEditedAt?: string;
+  verifiedPurchase?: boolean;
+}
+
 export interface Product {
   id: string;
+  backendId?: string;
   name: string;
   price: number;
   weightUnit?: string;
   originalPrice?: number;
   image: string;
+  images?: string[];
   category: string;
   seller: Seller;
   description: string;
@@ -15,6 +36,9 @@ export interface Product {
   craftType: string;
   rating: number;
   reviews: number;
+  averageRating?: number;
+  reviewCount?: number;
+  reviewsList?: ProductReview[];
   inStock: boolean;
   minOrder: number;
 }

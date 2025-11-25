@@ -1,5 +1,26 @@
 const Product = require('../models/Product');
 const mongoosePaginate = require('mongoose-paginate-v2');
+const OrderService = require('./Order_serv');
+
+const REVIEW_COOLDOWN_MS = parseInt(process.env.REVIEW_COOLDOWN_MS || '60000', 10);
+const reviewRateLimiter = new Map();
+
+const recalculateReviewStats = (productDoc) => {
+  if (!productDoc) {
+    return;
+  }
+
+  const reviews = productDoc.reviews || [];
+  if (!reviews.length) {
+    productDoc.averageRating = 0;
+    productDoc.reviewCount = 0;
+    return;
+  }
+
+  const total = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+  productDoc.reviewCount = reviews.length;
+  productDoc.averageRating = parseFloat((total / productDoc.reviewCount).toFixed(1));
+};
 
 // Apply pagination plugin to the schema
 Product.schema.plugin(mongoosePaginate);
@@ -646,6 +667,122 @@ class ProductService {
       return products;
     } catch (error) {
       throw new Error(`Error fetching low stock alert: ${error.message}`);
+    }
+  }
+
+  // Add or update a product review
+  static async addProductReview(productId, user, reviewPayload) {
+    try {
+      if (!user || !user._id) {
+        throw new Error('User information is required to submit a review');
+      }
+
+      const rating = Number(reviewPayload.rating);
+      if (!rating || rating < 1 || rating > 5) {
+        throw new Error('Rating must be between 1 and 5');
+      }
+
+      const purchaseResult = await OrderService.getCompletedOrderForProduct(user._id, productId);
+      if (!purchaseResult.hasPurchase) {
+        const error = new Error('Only customers who have purchased and paid for this product can leave a review.');
+        error.statusCode = 403;
+        throw error;
+      }
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      const existingReviewIndex = product.reviews.findIndex(
+        (review) => review.user.toString() === user._id.toString()
+      );
+
+      const rateLimitKey = `${user._id.toString()}:${productId}`;
+      if (existingReviewIndex === -1) {
+        const lastAttempt = reviewRateLimiter.get(rateLimitKey);
+        if (lastAttempt && Date.now() - lastAttempt < REVIEW_COOLDOWN_MS) {
+          const secondsLeft = Math.ceil((REVIEW_COOLDOWN_MS - (Date.now() - lastAttempt)) / 1000);
+          const error = new Error(`Please wait ${secondsLeft} seconds before posting another review for this product.`);
+          error.statusCode = 429;
+          throw error;
+        }
+      }
+
+      if (existingReviewIndex > -1) {
+        product.reviews[existingReviewIndex].rating = rating;
+        product.reviews[existingReviewIndex].comment = reviewPayload.comment || '';
+        product.reviews[existingReviewIndex].userName = user.name || product.reviews[existingReviewIndex].userName;
+        product.reviews[existingReviewIndex].verifiedPurchase = true;
+        product.reviews[existingReviewIndex].orderId = purchaseResult.orderId || product.reviews[existingReviewIndex].orderId;
+        product.reviews[existingReviewIndex].lastEditedAt = new Date();
+      } else {
+        product.reviews.push({
+          user: user._id,
+          userName: user.name || 'RootsReach User',
+          rating,
+          comment: reviewPayload.comment || '',
+          orderId: purchaseResult.orderId,
+          verifiedPurchase: true,
+          createdAt: new Date(),
+          lastEditedAt: new Date()
+        });
+        reviewRateLimiter.set(rateLimitKey, Date.now());
+        const timeoutHandle = setTimeout(() => reviewRateLimiter.delete(rateLimitKey), REVIEW_COOLDOWN_MS);
+        if (typeof timeoutHandle.unref === 'function') {
+          timeoutHandle.unref();
+        }
+      }
+
+      recalculateReviewStats(product);
+      await product.save();
+
+      return await Product.findById(productId)
+        .select('averageRating reviewCount reviews')
+        .populate('reviews.user', 'name profileImage');
+    } catch (error) {
+      throw new Error(`Error adding product review: ${error.message}`);
+    }
+  }
+
+  // Get paginated product reviews
+  static async getProductReviews(productId, page = 1, limit = 10) {
+    try {
+      const parsedPage = Math.max(parseInt(page, 10) || 1, 1);
+      const parsedLimit = Math.max(parseInt(limit, 10) || 10, 1);
+
+      const product = await Product.findById(productId)
+        .select('reviews averageRating reviewCount')
+        .populate('reviews.user', 'name profileImage');
+
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      const sortedReviews = (product.reviews || [])
+        .sort((a, b) => new Date(b.lastEditedAt || b.createdAt) - new Date(a.lastEditedAt || a.createdAt));
+
+      const startIndex = (parsedPage - 1) * parsedLimit;
+      const paginatedReviews = sortedReviews.slice(startIndex, startIndex + parsedLimit);
+
+      const totalReviews = sortedReviews.length;
+      const totalPages = Math.ceil(totalReviews / parsedLimit) || 1;
+
+      return {
+        reviews: paginatedReviews,
+        pagination: {
+          currentPage: parsedPage,
+          totalPages,
+          totalReviews,
+          limit: parsedLimit,
+          hasNext: parsedPage < totalPages,
+          hasPrev: parsedPage > 1
+        },
+        averageRating: product.averageRating || 0,
+        reviewCount: product.reviewCount || totalReviews
+      };
+    } catch (error) {
+      throw new Error(`Error fetching product reviews: ${error.message}`);
     }
   }
 }

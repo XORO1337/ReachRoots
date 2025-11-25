@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/layout/Header';
@@ -10,10 +10,11 @@ import ProductModal from '../components/marketplace/ProductModal';
 import SellerModal from '../components/shared/SellerModal';
 import Footer from '../components/layout/Footer';
 import LanguageSelectionModal from '../components/shared/LanguageSelectionModal';
-import { products } from '../data/mockData';
+import { products as mockProducts } from '../data/mockData';
 import { Product, FilterState } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useLanguageSelection } from '../hooks/useLanguageSelection';
+import ProductService, { Product as ApiProduct, ProductReviewSummary } from '../services/productService';
 
 const Marketplace: React.FC = () => {
   const { cartItems, addToCart, updateQuantity, removeItem, getCartItemsCount } = useCart();
@@ -31,6 +32,72 @@ const Marketplace: React.FC = () => {
     craftType: '',
     search: ''
   });
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(mockProducts);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState<string | null>(null);
+
+  const mapApiProductToCatalog = (apiProduct: ApiProduct): Product => {
+    const primaryImage = apiProduct.images && apiProduct.images.length > 0
+      ? apiProduct.images[0]
+      : '/api/placeholder/400/400';
+    const artisan = apiProduct.artisanId;
+
+    return {
+      id: apiProduct._id,
+      backendId: apiProduct._id,
+      name: apiProduct.name,
+      price: apiProduct.price,
+      weightUnit: apiProduct.weightUnit || 'piece',
+      originalPrice: undefined,
+      image: primaryImage,
+      images: apiProduct.images,
+      category: apiProduct.category,
+      seller: {
+        id: artisan?._id || 'rootsreach-artisan',
+        name: artisan?.name || 'RootsReach Artisan',
+        city: artisan?.city || artisan?.location || 'Across India',
+        state: artisan?.state || '',
+        avatar: artisan?.profileImage?.url || '/api/placeholder/60/60',
+        story: '',
+        specialties: artisan ? [apiProduct.category] : [],
+        rating: apiProduct.averageRating || 4.5,
+        totalProducts: 0,
+        yearsOfExperience: 0
+      },
+      description: apiProduct.description,
+      materials: [],
+      craftType: apiProduct.category,
+      rating: apiProduct.averageRating ?? 0,
+      reviews: apiProduct.reviewCount ?? 0,
+      averageRating: apiProduct.averageRating ?? 0,
+      reviewCount: apiProduct.reviewCount ?? 0,
+      inStock: apiProduct.stock > 0,
+      minOrder: 1
+    };
+  };
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setProductsLoading(true);
+        setProductsError(null);
+        const result = await ProductService.getProductList({ limit: 24 });
+        const mappedProducts = result.products.map(mapApiProductToCatalog);
+        setCatalogProducts(mappedProducts.length ? mappedProducts : mockProducts);
+        if (!mappedProducts.length) {
+          setProductsError('Unable to load live catalog. Showing curated samples instead.');
+        }
+      } catch (error) {
+        console.error('Failed to load products:', error);
+        setProductsError('Unable to load live catalog. Showing curated samples instead.');
+        setCatalogProducts(mockProducts);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -53,6 +120,35 @@ const Marketplace: React.FC = () => {
   const handleViewSeller = (sellerId: string) => {
     setSelectedSellerId(sellerId);
     setIsSellerModalOpen(true);
+  };
+
+  const handleReviewSummaryUpdate = (productId: string, summary: ProductReviewSummary) => {
+    setCatalogProducts(prev => prev.map(item => {
+      const itemId = item.backendId || item.id;
+      if (itemId === productId) {
+        return {
+          ...item,
+          rating: summary.averageRating,
+          averageRating: summary.averageRating,
+          reviewCount: summary.reviewCount,
+          reviews: summary.reviewCount
+        };
+      }
+      return item;
+    }));
+
+    setSelectedProduct(prev => {
+      if (!prev) return prev;
+      const prevId = prev.backendId || prev.id;
+      if (prevId !== productId) return prev;
+      return {
+        ...prev,
+        rating: summary.averageRating,
+        averageRating: summary.averageRating,
+        reviewCount: summary.reviewCount,
+        reviews: summary.reviewCount
+      };
+    });
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -86,14 +182,28 @@ const Marketplace: React.FC = () => {
       <Hero />
       
       <Categories onCategorySelect={handleCategorySelect} />
+
+      {productsError && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm">
+            {productsError}
+          </div>
+        </div>
+      )}
       
-      <ProductGrid
-        products={products}
-        filters={filters}
-        onAddToCart={handleAddToCart}
-        onViewDetails={handleViewDetails}
-        onViewSeller={handleViewSeller}
-      />
+      {productsLoading ? (
+        <div className="py-16 flex items-center justify-center text-gray-600">
+          Loading catalog...
+        </div>
+      ) : (
+        <ProductGrid
+          products={catalogProducts}
+          filters={filters}
+          onAddToCart={handleAddToCart}
+          onViewDetails={handleViewDetails}
+          onViewSeller={handleViewSeller}
+        />
+      )}
       
       <Footer />
       
@@ -114,6 +224,7 @@ const Marketplace: React.FC = () => {
         }}
         onAddToCart={handleAddToCart}
         onViewSeller={handleViewSeller}
+        onReviewSummaryUpdate={handleReviewSummaryUpdate}
       />
       
       <SellerModal

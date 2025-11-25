@@ -10,6 +10,12 @@ try {
   authenticateUser = authMiddleware.authenticateUser;
   
   if (!authenticateUser) {
+    if (typeof authMiddleware.authenticateToken === 'function') {
+      authenticateUser = authMiddleware.authenticateToken;
+    }
+  }
+
+  if (!authenticateUser) {
     // Try direct import if destructuring fails
     authenticateUser = require('../middleware/auth');
   }
@@ -62,6 +68,8 @@ try {
   controllerMethods.deleteProductsByArtisan = ProductController.deleteProductsByArtisan;
   controllerMethods.getProductStatistics = ProductController.getProductStatistics;
   controllerMethods.getLowStockAlert = ProductController.getLowStockAlert;
+  controllerMethods.addProductReview = ProductController.addProductReview;
+  controllerMethods.getProductReviews = ProductController.getProductReviews;
 
   console.log('Available methods check:');
   Object.keys(controllerMethods).forEach(method => {
@@ -126,6 +134,14 @@ if (controllerMethods.getProductsByStatus) {
 
 // Basic CRUD Operations (POST, PUT, DELETE require auth)
 router.post('/', authenticateUser, controllerMethods.createProduct || ProductController.createProduct);
+
+// Product reviews (must be before /:id)
+if (controllerMethods.getProductReviews) {
+  router.get('/:id/reviews', controllerMethods.getProductReviews);
+}
+if (controllerMethods.addProductReview) {
+  router.post('/:id/reviews', authenticateUser, controllerMethods.addProductReview);
+}
 
 // Specific product routes (must come after specific non-parameterized routes)
 // GET by ID is public for viewing, others require auth

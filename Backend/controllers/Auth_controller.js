@@ -238,23 +238,14 @@ class AuthController {
       }
       
       const otpRequiredByConfig = AuthController.isOtpEnforced();
-      const emailDeliveryAvailable = otpService.isEmailDeliveryAvailable();
 
       if (!otpRequiredByConfig) {
         console.log('Email OTP requirement disabled via configuration. Completing login without OTP.');
         return AuthController.finalizeLoginSession(user, res, { roleChanged });
       }
 
-      if (otpRequiredByConfig && !emailDeliveryAvailable) {
-        console.warn('Email OTP required but email service is not configured or unavailable.');
-        if (AuthController.isOtpFallbackAllowed()) {
-          return AuthController.finalizeLoginSession(user, res, {
-            roleChanged,
-            message: 'Login successful (OTP temporarily disabled due to email configuration)',
-            meta: { otpDeliveryIssue: true }
-          });
-        }
-
+      if (!otpService.isEmailDeliveryAvailable()) {
+        console.warn('Email OTP required but email service is not configured or unavailable. Rejecting login.');
         return res.status(503).json({
           success: false,
           message: 'Email verification is temporarily unavailable. Please try again later.'
@@ -262,18 +253,10 @@ class AuthController {
       }
 
       try {
-        const otpResult = await otpService.sendOTP(email);
+        const otpResult = await otpService.sendOTP(email, user._id);
 
         if (!otpResult.emailSent) {
-          console.warn('OTP generated but email delivery failed.');
-          if (AuthController.isOtpFallbackAllowed()) {
-            return AuthController.finalizeLoginSession(user, res, {
-              roleChanged,
-              message: 'Login successful (OTP delivery unavailable, fallback applied)',
-              meta: { otpDeliveryIssue: true }
-            });
-          }
-
+          console.warn('OTP generated but email delivery failed. Rejecting login.');
           return res.status(503).json({
             success: false,
             message: 'Unable to send verification code. Please try again later.'
@@ -294,14 +277,6 @@ class AuthController {
         });
       } catch (otpError) {
         console.error('OTP sending failed:', otpError);
-
-        if (AuthController.isOtpFallbackAllowed()) {
-          return AuthController.finalizeLoginSession(user, res, {
-            roleChanged,
-            message: 'Login successful (OTP delivery failed, fallback applied)',
-            meta: { otpDeliveryIssue: true }
-          });
-        }
 
         res.status(503).json({ 
           success: false, 
@@ -549,7 +524,13 @@ class AuthController {
       if (user.isEmailVerified) {
         return res.status(400).json({ success: false, message: 'Email is already verified' });
       }
-      const result = await otpService.sendOTP(email);
+      if (!otpService.isEmailDeliveryAvailable()) {
+        return res.status(503).json({ success: false, message: 'Email delivery is unavailable. Please try again later.' });
+      }
+      const result = await otpService.sendOTP(email, user._id);
+      if (!result.emailSent) {
+        return res.status(503).json({ success: false, message: 'Unable to send OTP email. Please try again later.' });
+      }
       res.json({
         success: true,
         message: result.message,
@@ -579,7 +560,13 @@ class AuthController {
       if (user.isEmailVerified) {
         return res.status(400).json({ success: false, message: 'Email is already verified' });
       }
+      if (!otpService.isEmailDeliveryAvailable()) {
+        return res.status(503).json({ success: false, message: 'Email delivery is unavailable. Please try again later.' });
+      }
       const result = await otpService.resendOTP(email);
+      if (!result.emailSent) {
+        return res.status(503).json({ success: false, message: 'Unable to resend OTP email. Please try again later.' });
+      }
       res.json({
         success: true,
         message: result.message,

@@ -1,4 +1,24 @@
 import { API_CONFIG, buildApiUrl } from '../config/api';
+import { api } from '../utils/api';
+
+export interface ProductReviewEntry {
+  _id?: string;
+  user?: {
+    _id: string;
+    name?: string;
+    profileImage?: {
+      url?: string;
+      thumbnailUrl?: string;
+    };
+  } | string;
+  userName?: string;
+  userId?: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+  lastEditedAt?: string;
+  verifiedPurchase?: boolean;
+}
 
 export interface Product {
   _id: string;
@@ -9,12 +29,21 @@ export interface Product {
     _id: string;
     name: string;
     location?: string;
-  };
+    city?: string;
+    state?: string;
+    profileImage?: {
+      url?: string;
+      thumbnailUrl?: string;
+    };
+  } | null;
   price: number;
   weightUnit: string;
   stock: number;
   images: string[];
   status: 'active' | 'inactive' | 'low-stock';
+  averageRating?: number;
+  reviewCount?: number;
+  reviews?: ProductReviewEntry[];
   createdAt: string;
   updatedAt: string;
 }
@@ -36,20 +65,146 @@ export interface CategoriesResponse {
 export interface ProductsResponse {
   success: boolean;
   message: string;
-  data: {
-    products: Product[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalProducts: number;
-      limit: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
+  data: any;
+}
+
+export interface ProductListResult {
+  products: Product[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalProducts: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrev: boolean;
   };
 }
 
+export interface ProductQueryParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+  name?: string;
+  artisanId?: string;
+  status?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  artisanLocation?: string;
+}
+
+export interface ProductReviewsResult {
+  reviews: ProductReviewEntry[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalReviews: number;
+    limit: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  averageRating: number;
+  reviewCount: number;
+}
+
+export interface ProductReviewSummary {
+  reviews: ProductReviewEntry[];
+  averageRating: number;
+  reviewCount: number;
+}
+
+export interface SubmitReviewPayload {
+  rating: number;
+  comment?: string;
+}
+
+const normalizeProductListResponse = (payload: any, fallbackLimit: number = 10): ProductListResult => {
+  const defaultPagination = {
+    currentPage: 1,
+    totalPages: 1,
+    totalProducts: 0,
+    limit: fallbackLimit,
+    hasNext: false,
+    hasPrev: false
+  };
+
+  if (!payload) {
+    return {
+      products: [],
+      pagination: defaultPagination
+    };
+  }
+
+  if (Array.isArray(payload)) {
+    return {
+      products: payload,
+      pagination: {
+        ...defaultPagination,
+        totalProducts: payload.length
+      }
+    };
+  }
+
+  const products = Array.isArray(payload.products) ? payload.products : [];
+  const paginationSource = payload.pagination || {};
+  const currentPage = paginationSource.currentPage || payload.currentPage || 1;
+  const totalPages = paginationSource.totalPages || payload.totalPages || 1;
+  const totalProducts = paginationSource.totalProducts || payload.totalCount || products.length;
+  const limit = paginationSource.limit || payload.limit || products.length || fallbackLimit;
+
+  return {
+    products,
+    pagination: {
+      currentPage,
+      totalPages,
+      totalProducts,
+      limit,
+      hasNext: paginationSource.hasNext ?? currentPage < totalPages,
+      hasPrev: paginationSource.hasPrev ?? currentPage > 1
+    }
+  };
+};
+
 class ProductService {
+  /**
+   * Fetch products with optional filters and pagination
+   */
+  static async getProductList(params: ProductQueryParams = {}): Promise<ProductListResult> {
+    try {
+      const searchParams = new URLSearchParams();
+
+      if (params.page) searchParams.append('page', params.page.toString());
+      if (params.limit) searchParams.append('limit', params.limit.toString());
+      if (params.category) searchParams.append('category', params.category);
+      if (params.name) searchParams.append('name', params.name);
+      if (params.artisanId) searchParams.append('artisanId', params.artisanId);
+      if (params.status) searchParams.append('status', params.status);
+      if (params.sortBy) searchParams.append('sortBy', params.sortBy);
+      if (params.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+      if (params.minPrice !== undefined) searchParams.append('minPrice', params.minPrice.toString());
+      if (params.maxPrice !== undefined) searchParams.append('maxPrice', params.maxPrice.toString());
+      if (params.artisanLocation) searchParams.append('artisanLocation', params.artisanLocation);
+
+      const query = searchParams.toString();
+      const endpoint = query
+        ? `${API_CONFIG.ENDPOINTS.PRODUCTS.BASE}?${query}`
+        : API_CONFIG.ENDPOINTS.PRODUCTS.BASE;
+
+      const response = await api.get(endpoint);
+      const result: ProductsResponse = response.data;
+
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to fetch products');
+      }
+
+      return normalizeProductListResponse(result.data, params.limit);
+    } catch (error) {
+      console.error('Error fetching product list:', error);
+      throw error;
+    }
+  }
+
   /**
    * Fetch product categories from the database
    */
@@ -127,26 +282,8 @@ class ProductService {
    */
   private static async getProductCountByCategory(category: string): Promise<number> {
     try {
-      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.PRODUCTS.BASE}?category=${encodeURIComponent(category)}&limit=1`);
-      const response = await fetch(url, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        return 0;
-      }
-
-      const result: ProductsResponse = await response.json();
-      
-      if (result.success && result.data.pagination) {
-        return result.data.pagination.totalProducts || 0;
-      }
-      
-      return 0;
+      const listResult = await this.getProductList({ category, limit: 1 });
+      return listResult.pagination.totalProducts || 0;
     } catch (error) {
       console.error('Error fetching product count for category:', category, error);
       return 0;
@@ -285,6 +422,46 @@ class ProductService {
         wooden: [],
         jewelry: []
       };
+    }
+  }
+
+  /**
+   * Fetch product reviews with pagination
+   */
+  static async getProductReviews(productId: string, page: number = 1, limit: number = 5): Promise<ProductReviewsResult> {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.PRODUCTS.REVIEWS(productId);
+      const response = await api.get(`${endpoint}?page=${page}&limit=${limit}`);
+      const result = response.data;
+
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to load product reviews');
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching product reviews:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Submit or update a product review
+   */
+  static async submitProductReview(productId: string, payload: SubmitReviewPayload): Promise<ProductReviewSummary> {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.PRODUCTS.REVIEWS(productId);
+      const response = await api.post(endpoint, payload);
+      const result = response.data;
+
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to submit review');
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error('Error submitting product review:', error);
+      throw error;
     }
   }
 }
