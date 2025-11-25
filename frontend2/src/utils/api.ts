@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { redirectToAppRoute } from './navigation';
 
 const resolveBaseURL = () => {
     if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
@@ -36,7 +37,7 @@ api.interceptors.response.use(
             localStorage.removeItem('userEmail');
             localStorage.removeItem('userId');
             localStorage.removeItem('userPhoto');
-            window.location.href = '/login';
+            redirectToAppRoute('/login');
         }
         return Promise.reject(error);
     }

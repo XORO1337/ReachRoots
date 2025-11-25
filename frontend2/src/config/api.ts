@@ -62,7 +62,7 @@ export const buildApiUrl = (endpoint: string): string => {
 };
 
 // Helper function for Google OAuth with role
-const shouldUseHashRouting = (): boolean => {
+export const shouldUseHashRouting = (): boolean => {
   if (import.meta.env.VITE_ROUTER_MODE === 'browser') {
     return false;
   }

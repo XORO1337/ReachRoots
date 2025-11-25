@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2, ArrowLeft, Package, Star, MapPin } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Header from '../components/layout/Header';
@@ -11,6 +11,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const WishlistPage: React.FC = () => {
+  const navigate = useNavigate();
   const { wishlist, isLoading, removeFromWishlist, clearWishlist } = useWishlist();
   const { cartItems, addToCart, updateQuantity, removeItem, getCartItemsCount } = useCart();
   const { isAuthenticated } = useAuth();
@@ -28,10 +29,9 @@ const WishlistPage: React.FC = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      window.location.href = '/login';
+      navigate('/login');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   // Convert wishlist item to Product type for cart
   const convertWishlistItemToProduct = (item: WishlistItem): Product => {

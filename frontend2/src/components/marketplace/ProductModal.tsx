@@ -5,6 +5,7 @@ import { formatWeightUnit } from '../../utils/formatters';
 import { useAuth } from '../../contexts/AuthContext';
 import ProductService, { ProductReviewSummary } from '../../services/productService';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductModalProps {
   product: Product | null;
@@ -23,6 +24,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onViewSeller,
   onReviewSummaryUpdate
 }) => {
+  const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const userId = user?.id;
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -104,7 +106,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const handleSubmitReview = async () => {
     if (!productId) return;
     if (!isAuthenticated) {
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
 
@@ -291,7 +293,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       {!isAuthenticated && (
                         <div className="border border-blue-100 bg-blue-50 p-4 rounded-lg text-sm text-blue-800 flex items-center justify-between">
                           <span>Sign in to share your experience with this product.</span>
-                          <button onClick={() => window.location.href = '/login'} className="text-blue-700 font-medium underline">Sign in</button>
+                          <button onClick={() => navigate('/login')} className="text-blue-700 font-medium underline">Sign in</button>
                         </div>
                       )}
 
