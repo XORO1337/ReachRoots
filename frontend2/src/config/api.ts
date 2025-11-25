@@ -1,24 +1,60 @@
 // API Configuration with environment detection
 const getBaseUrl = (): string => {
-  // First check for environment variable (works for production)
+  // 1. Check for explicit environment variable
   if (import.meta.env.VITE_API_URL) {
+    console.log('Using VITE_API_URL:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
   
-  // Check if we're in development environment (localhost)
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  const hostname = window.location.hostname;
+
+  // 2. Check for localhost/127.0.0.1
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    console.log('Detected localhost, using local backend');
     return 'http://localhost:5000';
   }
   
-  // For GitHub Codespaces, construct dynamic URL
-  if (window.location.hostname.includes('app.github.dev')) {
-    const codespaceName = window.location.hostname.split('-').slice(0, -1).join('-');
-    return `https://${codespaceName}-5000.app.github.dev`;
+  // 3. Check for GitHub Codespaces (app.github.dev or github.dev)
+  if (hostname.includes('app.github.dev') || hostname.includes('github.dev')) {
+    // Attempt to replace the frontend port with the backend port (5000)
+    // Typical format: <codespace-name>-<port>.<domain>
+    // We want to replace the last number before the domain with 5000
+    
+    // Try to find the port in the hostname and replace it
+    // This regex looks for a hyphen followed by digits, followed by the domain suffix
+    const newHostname = hostname.replace(/-\d+(\.app\.github\.dev|\.github\.dev)/, '-5000$1');
+    
+    if (newHostname !== hostname) {
+      console.log('Detected Codespace, constructed backend URL:', `https://${newHostname}`);
+      return `https://${newHostname}`;
+    }
+    
+    // Fallback: if we couldn't do a simple replacement, try the split method but be careful
+    // This assumes the format name-port.domain
+    const parts = hostname.split('.');
+    const subdomain = parts[0];
+    const domain = parts.slice(1).join('.');
+    
+    const subParts = subdomain.split('-');
+    // If the last part is a number (port), replace it
+    if (!isNaN(Number(subParts[subParts.length - 1]))) {
+      subParts[subParts.length - 1] = '5000';
+      const newUrl = `https://${subParts.join('-')}.${domain}`;
+      console.log('Detected Codespace (fallback logic), constructed backend URL:', newUrl);
+      return newUrl;
+    }
   }
   
-  // Production fallback (Render) - updated domains
-  // If frontend is on reachroots.onrender.com, backend lives at reachroots-backend.onrender.com
-  return 'https://reachroots-backend.onrender.com';
+  // 4. Production fallback
+  // Only use production URL if we are actually ON the production domain or if we can't determine otherwise
+  if (hostname.includes('reachroots.onrender.com')) {
+    console.log('Detected production frontend, using production backend');
+    return 'https://reachroots-backend.onrender.com';
+  }
+
+  // 5. Default for unknown environments (likely local dev with custom host)
+  console.warn('Unknown environment, defaulting to localhost:5000');
+  return 'http://localhost:5000';
 };
 
 export const API_CONFIG = {

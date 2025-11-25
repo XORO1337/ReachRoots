@@ -25,7 +25,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api': {
-        target: 'https://reachroots-backend.onrender.com',
+        target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
         configure: (proxy, _options) => {
