@@ -35,7 +35,7 @@ export interface Product {
       url?: string;
       thumbnailUrl?: string;
     };
-  } | null;
+  } | string | null;
   price: number;
   weightUnit: string;
   stock: number;

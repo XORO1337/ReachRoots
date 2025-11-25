@@ -149,6 +149,15 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   if (!isOpen || !product) return null;
 
+  const sellerProfile = product.artisan || {
+    id: product.seller.id,
+    name: product.seller.name,
+    city: product.seller.city,
+    state: product.seller.state,
+    avatar: product.seller.avatar,
+    location: `${product.seller.city}${product.seller.state ? `, ${product.seller.state}` : ''}`
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
@@ -236,19 +245,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                 {/* Seller Info */}
                 <div
-                  onClick={() => onViewSeller(product.seller.id)}
+                  onClick={() => onViewSeller(sellerProfile.id)}
                   className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                 >
                   <img
-                    src={product.seller.avatar}
-                    alt={product.seller.name}
+                    src={sellerProfile.avatar || product.seller.avatar}
+                    alt={sellerProfile.name}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <h3 className="font-semibold text-gray-900">{product.seller.name}</h3>
+                    <h3 className="font-semibold text-gray-900">{sellerProfile.name}</h3>
                     <div className="flex items-center text-sm text-gray-600">
                       <MapPin className="h-4 w-4 mr-1" />
-                      {product.seller.city}, {product.seller.state}
+                      {sellerProfile.city}
+                      {sellerProfile.state ? `, ${sellerProfile.state}` : ''}
                     </div>
                   </div>
                 </div>

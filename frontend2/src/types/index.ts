@@ -23,6 +23,7 @@ export interface ProductReview {
 export interface Product {
   id: string;
   backendId?: string;
+  artisan?: ArtisanSummary;
   name: string;
   price: number;
   weightUnit?: string;
@@ -41,6 +42,15 @@ export interface Product {
   reviewsList?: ProductReview[];
   inStock: boolean;
   minOrder: number;
+}
+
+export interface ArtisanSummary {
+  id: string;
+  name: string;
+  city?: string;
+  state?: string;
+  avatar?: string;
+  location?: string;
 }
 
 export interface Seller {

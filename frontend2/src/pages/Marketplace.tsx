@@ -40,11 +40,23 @@ const Marketplace: React.FC = () => {
     const primaryImage = apiProduct.images && apiProduct.images.length > 0
       ? apiProduct.images[0]
       : '/api/placeholder/400/400';
-    const artisan = apiProduct.artisanId;
+    const artisan = apiProduct.artisanId && typeof apiProduct.artisanId === 'object'
+      ? apiProduct.artisanId
+      : null;
+
+    const artisanSummary = {
+      id: artisan?._id || 'rootsreach-artisan',
+      name: artisan?.name || 'RootsReach Artisan',
+      city: artisan?.city || artisan?.location || 'Across India',
+      state: artisan?.state || '',
+      avatar: artisan?.profileImage?.url || '/api/placeholder/60/60',
+      location: artisan?.location || artisan?.city || 'Across India'
+    };
 
     return {
       id: apiProduct._id,
       backendId: apiProduct._id,
+      artisan: artisanSummary,
       name: apiProduct.name,
       price: apiProduct.price,
       weightUnit: apiProduct.weightUnit || 'piece',
@@ -53,11 +65,11 @@ const Marketplace: React.FC = () => {
       images: apiProduct.images,
       category: apiProduct.category,
       seller: {
-        id: artisan?._id || 'rootsreach-artisan',
-        name: artisan?.name || 'RootsReach Artisan',
-        city: artisan?.city || artisan?.location || 'Across India',
-        state: artisan?.state || '',
-        avatar: artisan?.profileImage?.url || '/api/placeholder/60/60',
+        id: artisanSummary.id,
+        name: artisanSummary.name,
+        city: artisanSummary.city,
+        state: artisanSummary.state,
+        avatar: artisanSummary.avatar,
         story: '',
         specialties: artisan ? [apiProduct.category] : [],
         rating: apiProduct.averageRating || 4.5,

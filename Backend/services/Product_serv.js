@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const mongoosePaginate = require('mongoose-paginate-v2');
 const OrderService = require('./Order_serv');
 
@@ -29,7 +31,30 @@ class ProductService {
   // Create a new product
   static async createProduct(productData) {
     try {
-      const product = new Product(productData);
+      if (!productData.artisanId) {
+        throw new Error('Artisan ID is required to create a product');
+      }
+
+      const artisanObjectId = productData.artisanId.toString();
+      if (!mongoose.Types.ObjectId.isValid(artisanObjectId)) {
+        throw new Error('Provided artisan ID is not a valid ObjectId');
+      }
+
+      const artisan = await User.findById(artisanObjectId).select('role');
+      if (!artisan) {
+        throw new Error('Referenced artisan does not exist');
+      }
+
+      if (artisan.role !== 'artisan') {
+        throw new Error('Referenced user is not an artisan');
+      }
+
+      const normalizedPayload = {
+        ...productData,
+        artisanId: artisan._id
+      };
+
+      const product = new Product(normalizedPayload);
       return await product.save();
     } catch (error) {
       throw new Error(`Error creating product: ${error.message}`);
