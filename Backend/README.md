@@ -164,6 +164,18 @@ GET    /api/artisans/search/region            # Search by region
 JWT_ACCESS_SECRET=your_very_long_and_random_secret_key
 JWT_REFRESH_SECRET=another_very_long_and_random_secret_key
 
+# SMTP configuration for OTP emails
+SMTP_HOST=smtp.your-provider.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=apikey
+SMTP_PASS=replace-me
+SMTP_FROM="RootsReach <no-reply@rootsreach.com>"
+
+# OTP enforcement controls
+AUTH_REQUIRE_EMAIL_OTP=true
+AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE=false
+
 # Secure database connection
 MONGO_URI=mongodb://username:password@host:port/database
 

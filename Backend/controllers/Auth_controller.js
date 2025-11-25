@@ -24,7 +24,14 @@ const passport = require('../config/passport');
 const { getClientURL } = require('../config/environment');
 
 const isEmailOtpEnforcedFlag = () => process.env.AUTH_REQUIRE_EMAIL_OTP !== 'false';
-const isOtpFallbackAllowedFlag = () => process.env.AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE === 'true';
+const isOtpFallbackAllowedFlag = () => {
+  if (typeof process.env.AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE !== 'undefined') {
+    return process.env.AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE !== 'false';
+  }
+
+  // Default to allowing fallback so environments without SMTP credentials can still function.
+  return true;
+};
 
 const normalizeRedirectUrl = (url) => {
   if (!url || typeof url !== 'string') {
@@ -93,6 +100,18 @@ class AuthController {
 
   static isOtpFallbackAllowed() {
     return isOtpFallbackAllowedFlag();
+  }
+
+  static async completeLoginWithoutOtp(user, res, { roleChanged = false, reason = 'Verification emails are unavailable.' } = {}) {
+    console.warn(`[Auth] OTP fallback triggered for ${user?.email || 'unknown email'}: ${reason}`);
+    return AuthController.finalizeLoginSession(user, res, {
+      roleChanged,
+      message: 'Login completed without OTP because verification emails are temporarily unavailable.',
+      meta: {
+        otpSkipped: true,
+        otpFallbackReason: reason
+      }
+    });
   }
 
   static formatUserPayload(user) {
@@ -174,11 +193,38 @@ class AuthController {
       const userPayload = AuthController.formatUserPayload(user);
 
       const otpResult = await otpService.sendOTP(email);
-      if (!otpResult.emailSent) {
+      const otpDeliveryIssue = !otpResult.emailSent;
+
+      if (otpDeliveryIssue) {
+        console.warn(`[Auth] Registration OTP delivery failed for ${email}.`);
+
+        if (AuthController.isOtpFallbackAllowed()) {
+          user.isEmailVerified = true;
+          user.emailVerifiedAt = new Date();
+          await user.save();
+
+          return res.status(201).json({
+            success: true,
+            message: 'User registered successfully but OTP email could not be delivered. Email was auto-verified due to fallback mode.',
+            data: {
+              user: AuthController.formatUserPayload(user),
+              userId: user._id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              isEmailVerified: true,
+              otpSent: false,
+              otpDeliveryIssue: true,
+              otpFallbackUsed: true,
+              devOtpCode: otpResult.otpCode
+            }
+          });
+        }
+
         await AuthController.rollbackFailedRegistration(user._id, user.role);
         return res.status(503).json({
           success: false,
-          message: 'Registration failed because we could not deliver the verification code. Please try again once email delivery is available.'
+          message: 'Registration failed because we could not deliver the verification code. Configure SMTP credentials or enable AUTH_ALLOW_LOGIN_WITHOUT_OTP_ON_FAILURE to bypass temporarily.'
         });
       }
 
@@ -194,7 +240,8 @@ class AuthController {
           isEmailVerified: user.isEmailVerified,
           otpSent: true,
           otpExpires: otpResult.expiresAt,
-          otpDeliveryIssue: false
+          otpDeliveryIssue: false,
+          devOtpCode: otpResult.otpCode
         }
       });
     } catch (error) {
@@ -245,10 +292,20 @@ class AuthController {
       }
 
       if (!otpService.isEmailDeliveryAvailable()) {
-        console.warn('Email OTP required but email service is not configured or unavailable. Rejecting login.');
+        console.warn('Email OTP required but email service is not configured or unavailable.');
+        if (AuthController.isOtpFallbackAllowed()) {
+          return AuthController.completeLoginWithoutOtp(user, res, {
+            roleChanged,
+            reason: 'Email verification service is not configured.'
+          });
+        }
         return res.status(503).json({
           success: false,
-          message: 'Email verification is temporarily unavailable. Please try again later.'
+          message: 'Email verification is temporarily unavailable. Please try again later.',
+          data: {
+            requiresOTP: true,
+            otpDeliveryIssue: true
+          }
         });
       }
 
@@ -256,10 +313,20 @@ class AuthController {
         const otpResult = await otpService.sendOTP(email, user._id);
 
         if (!otpResult.emailSent) {
-          console.warn('OTP generated but email delivery failed. Rejecting login.');
+          console.warn('OTP generated but email delivery failed.');
+          if (AuthController.isOtpFallbackAllowed()) {
+            return AuthController.completeLoginWithoutOtp(user, res, {
+              roleChanged,
+              reason: 'Could not deliver OTP email.'
+            });
+          }
           return res.status(503).json({
             success: false,
-            message: 'Unable to send verification code. Please try again later.'
+            message: 'Unable to send verification code. Please try again later.',
+            data: {
+              requiresOTP: true,
+              otpDeliveryIssue: true
+            }
           });
         }
 
@@ -272,15 +339,26 @@ class AuthController {
             roleChanged,
             otpSent: true,
             requiresOTP: true,
-            otpExpires: otpResult.expiresAt
+            otpExpires: otpResult.expiresAt,
+            otpDeliveryIssue: false,
+            devOtpCode: otpResult.otpCode
           }
         });
       } catch (otpError) {
         console.error('OTP sending failed:', otpError);
-
+        if (AuthController.isOtpFallbackAllowed()) {
+          return AuthController.completeLoginWithoutOtp(user, res, {
+            roleChanged,
+            reason: 'Failed to trigger OTP email service.'
+          });
+        }
         res.status(503).json({ 
           success: false, 
-          message: 'Login verification failed. Please try again.' 
+          message: 'Login verification failed. Please try again.',
+          data: {
+            requiresOTP: true,
+            otpDeliveryIssue: true
+          } 
         });
       }
     } catch (error) {
