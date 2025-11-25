@@ -11,18 +11,22 @@ const buildOtpDeliveryError = (message) => {
 };
 
 const shouldExposeDevOtp = () => {
-  // Always expose OTP if we are using the console transport, 
+  // Always expose OTP if we are using the console transport,
   // otherwise the user has no way to get the code if emails aren't sending.
   if (emailService.usesConsoleTransport()) {
     return true;
   }
 
+  // In production with real SMTP, don't expose OTPs for security
   if (process.env.NODE_ENV === 'production') {
     return false;
   }
+
+  // In development, expose if explicitly requested
   if (process.env.AUTH_DEBUG_EXPOSE_OTP === 'true') {
     return true;
   }
+
   return false;
 };
 

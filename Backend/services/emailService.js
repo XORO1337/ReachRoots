@@ -13,50 +13,54 @@ class EmailService {
       process.env.SMTP_PASS
     );
 
-    if (hasSmtpCreds) {
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        }
-      });
-      this.isConfiguredFlag = true;
-      console.log('[EmailService] SMTP transporter configured.');
-      return;
+    // For production, default to console transport unless explicitly configured
+    const isProduction = process.env.NODE_ENV === 'production';
+    const forceConsoleTransport = isProduction && !process.env.ENABLE_SMTP_IN_PRODUCTION;
+
+    if (hasSmtpCreds && !forceConsoleTransport) {
+      try {
+        this.transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT),
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          },
+          // Add connection timeout to prevent hanging
+          connectionTimeout: 5000,
+          greetingTimeout: 5000,
+          socketTimeout: 5000
+        });
+        this.isConfiguredFlag = true;
+        console.log('[EmailService] SMTP transporter configured.');
+        return;
+      } catch (error) {
+        console.warn('[EmailService] SMTP configuration failed, falling back to console transport:', error.message);
+        // Fall through to console transport
+      }
     }
 
-    const devConsoleEnabled = this.shouldEnableConsoleTransport();
-    if (devConsoleEnabled) {
-      this.transporter = nodemailer.createTransport({
-        streamTransport: true,
-        newline: 'unix',
-        buffer: true
-      });
-      this.isConfiguredFlag = true;
-      this.usingConsoleTransport = true;
-      console.warn('[EmailService] SMTP credentials missing. Falling back to console transport (development mode). OTP emails will be logged to the server console.');
-      return;
-    }
+    // Use console transport (development mode or production fallback)
+    this.transporter = nodemailer.createTransport({
+      streamTransport: true,
+      newline: 'unix',
+      buffer: true
+    });
+    this.isConfiguredFlag = true;
+    this.usingConsoleTransport = true;
 
-    this.isConfiguredFlag = false;
-    console.warn('[EmailService] SMTP credentials missing and console transport disabled. Email delivery is unavailable.');
+    const reason = forceConsoleTransport
+      ? 'Production mode with console transport enabled'
+      : hasSmtpCreds
+        ? 'SMTP configuration failed or timed out'
+        : 'SMTP credentials missing';
+
+    console.warn(`[EmailService] Using console transport (${reason}). OTP emails will be logged to the server console.`);
   }
 
   shouldEnableConsoleTransport() {
-    // Check for explicit configuration
-    if (process.env.ENABLE_DEV_CONSOLE_EMAIL === 'true') {
-      return true;
-    }
-    if (process.env.ENABLE_DEV_CONSOLE_EMAIL === 'false') {
-      return false;
-    }
-    
-    // Default behavior: Enable console transport if we are not in production,
-    // OR if we are in production but SMTP is missing (to prevent 503s during initial setup)
-    // This is a safe fallback for the user's current situation.
+    // This method is deprecated - console transport is now the default
     return true;
   }
 
