@@ -33,7 +33,35 @@ export interface PaymentFailurePayload {
   reason?: string;
 }
 
+export interface PaymentAvailability {
+  onlinePaymentsAvailable: boolean;
+  availableMethods: PaymentMethod[];
+  message: string;
+}
+
 class PaymentService {
+  static async checkAvailability(): Promise<PaymentAvailability> {
+    try {
+      const response = await api.get('/api/payments/availability');
+      if (!response.data?.success) {
+        // Default to COD only if check fails
+        return {
+          onlinePaymentsAvailable: false,
+          availableMethods: ['cod'],
+          message: 'Only Cash on Delivery is available'
+        };
+      }
+      return response.data.data;
+    } catch (error) {
+      console.warn('Failed to check payment availability:', error);
+      return {
+        onlinePaymentsAvailable: false,
+        availableMethods: ['cod'],
+        message: 'Only Cash on Delivery is available'
+      };
+    }
+  }
+
   static async createRazorpayOrder(payload: RazorpayOrderPayload): Promise<RazorpayOrderConfig> {
     const response = await api.post('/api/payments/razorpay/order', payload);
     if (!response.data?.success) {

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
+import { API_CONFIG } from '../config/api';
 
 interface AdminUser {
   id: string;
@@ -21,46 +22,117 @@ interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
+// Session timeout: 30 minutes of inactivity
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+const ADMIN_TOKEN_KEY = 'adminToken';
+const ADMIN_LAST_ACTIVITY_KEY = 'adminLastActivity';
+
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastActivity, setLastActivity] = useState(Date.now());
+
+  const logout = useCallback(() => {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(ADMIN_LAST_ACTIVITY_KEY);
+    setUser(null);
+  }, []);
+
+  const updateActivity = useCallback(() => {
+    const now = Date.now();
+    setLastActivity(now);
+    localStorage.setItem(ADMIN_LAST_ACTIVITY_KEY, now.toString());
+  }, []);
 
   useEffect(() => {
     // Check if user is already authenticated on app load
     checkAuthStatus();
   }, []);
 
+  // Activity tracking for session timeout
+  useEffect(() => {
+    if (!user) return;
+
+    const handleActivity = () => {
+      updateActivity();
+    };
+
+    window.addEventListener('mousemove', handleActivity);
+    window.addEventListener('keydown', handleActivity);
+    window.addEventListener('click', handleActivity);
+
+    return () => {
+      window.removeEventListener('mousemove', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+      window.removeEventListener('click', handleActivity);
+    };
+  }, [user, updateActivity]);
+
+  // Session timeout check
+  useEffect(() => {
+    if (!user) return;
+
+    const checkSessionTimeout = setInterval(() => {
+      const storedLastActivity = localStorage.getItem(ADMIN_LAST_ACTIVITY_KEY);
+      const lastActivityTime = storedLastActivity ? parseInt(storedLastActivity, 10) : lastActivity;
+      
+      if (Date.now() - lastActivityTime > SESSION_TIMEOUT) {
+        console.log('Admin session timed out due to inactivity');
+        logout();
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkSessionTimeout);
+  }, [user, lastActivity, logout]);
+
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      if (token) {
-        // Verify token with backend
-        const response = await fetch('/api/auth/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+      const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+      const storedLastActivity = localStorage.getItem(ADMIN_LAST_ACTIVITY_KEY);
+      
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
-        if (response.ok) {
-          const userData = await response.json();
-          if (userData.success && userData.data.role === 'admin') {
-            setUser({
-              id: userData.data._id,
-              name: userData.data.name,
-              email: userData.data.email,
-              role: userData.data.role
-            });
-          } else {
-            localStorage.removeItem('adminToken');
-          }
-        } else {
-          localStorage.removeItem('adminToken');
+      // Check session timeout
+      if (storedLastActivity) {
+        const lastActivityTime = parseInt(storedLastActivity, 10);
+        if (Date.now() - lastActivityTime > SESSION_TIMEOUT) {
+          // Session expired
+          logout();
+          setIsLoading(false);
+          return;
         }
+      }
+
+      // Verify token with backend
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        if (userData.success && userData.data.role === 'admin') {
+          setUser({
+            id: userData.data._id,
+            name: userData.data.name,
+            email: userData.data.email,
+            role: userData.data.role
+          });
+          updateActivity();
+        } else {
+          logout();
+        }
+      } else {
+        logout();
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('adminToken');
+      logout();
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +140,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('/api/auth/login', {
+      console.log('Attempting admin login to:', `${API_CONFIG.BASE_URL}/api/auth/admin/login`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -84,7 +157,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           throw new Error('Access denied. Admin privileges required.');
         }
 
-        localStorage.setItem('adminToken', data.data.accessToken);
+        localStorage.setItem(ADMIN_TOKEN_KEY, data.data.accessToken);
+        updateActivity();
         setUser({
           id: data.data.user._id,
           name: data.data.user.name,
@@ -99,11 +173,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       console.error('Login failed:', error);
       return false;
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('adminToken');
-    setUser(null);
   };
 
   const value: AdminAuthContextType = {

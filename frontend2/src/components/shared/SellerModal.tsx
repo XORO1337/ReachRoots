@@ -1,23 +1,127 @@
-import React from 'react';
-import { Seller } from '../../types';
-import { sellers } from '../../data/mockData';
-import { X, MapPin, Star, Award, Calendar, Package } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, MapPin, Star, Award, Calendar, Package, Loader2 } from 'lucide-react';
+import SellerService, { SellerProfile } from '../../services/sellerService';
 
 interface SellerModalProps {
   sellerId: string | null;
   isOpen: boolean;
   onClose: () => void;
+  // Optional: Pass seller data directly if already loaded (from product)
+  sellerData?: {
+    id: string;
+    name: string;
+    city: string;
+    state: string;
+    avatar: string;
+    story?: string;
+    specialties?: string[];
+    rating?: number;
+    totalProducts?: number;
+    yearsOfExperience?: number;
+  };
 }
 
 const SellerModal: React.FC<SellerModalProps> = ({
   sellerId,
   isOpen,
-  onClose
+  onClose,
+  sellerData
 }) => {
+  const [seller, setSeller] = useState<SellerProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !sellerId) {
+      setSeller(null);
+      setError(null);
+      return;
+    }
+
+    // If seller data is passed directly, use it
+    if (sellerData) {
+      setSeller({
+        id: sellerData.id,
+        name: sellerData.name,
+        city: sellerData.city,
+        state: sellerData.state,
+        avatar: sellerData.avatar,
+        story: sellerData.story || 'A skilled artisan creating beautiful handcrafted items with traditional techniques.',
+        specialties: sellerData.specialties || [],
+        rating: sellerData.rating || 4.5,
+        totalProducts: sellerData.totalProducts || 0,
+        yearsOfExperience: sellerData.yearsOfExperience || 5,
+      });
+      return;
+    }
+
+    // Otherwise fetch from backend
+    const fetchSeller = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const fetchedSeller = await SellerService.getSellerById(sellerId);
+        if (fetchedSeller) {
+          setSeller(fetchedSeller);
+        } else {
+          setError('Artisan not found');
+        }
+      } catch (err) {
+        console.error('Error fetching seller:', err);
+        setError('Failed to load artisan details');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSeller();
+  }, [sellerId, isOpen, sellerData]);
+
   if (!isOpen || !sellerId) return null;
 
-  const seller = sellers.find(s => s.id === sellerId);
-  if (!seller) return null;
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+        <div className="relative min-h-screen flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-orange-500 mx-auto" />
+            <p className="mt-4 text-gray-600">Loading artisan details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !seller) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+        <div className="relative min-h-screen flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 text-center">
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="text-red-500 mb-4">
+              <p className="text-lg font-semibold">Unable to Load Artisan</p>
+              <p className="text-sm">{error || 'Artisan details not available'}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">

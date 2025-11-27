@@ -173,6 +173,18 @@ const rolePermissions = {
       ownResourcesOnly: ['distributor', 'inventory', 'order']
     }
   },
+  shipping_agent: {
+    canRead: ['user', 'order', 'pickup_request'],
+    canCreate: ['delivery'],
+    canUpdate: ['delivery', 'order'],
+    canDelete: [],
+    canSearch: ['order', 'pickup_request'],
+    restrictions: {
+      requiresIdentityVerification: ['delivery'],
+      ownResourcesOnly: ['delivery'],
+      assignedOrdersOnly: ['order']
+    }
+  },
   admin: {
     canRead: ['*'],
     canCreate: ['*'],

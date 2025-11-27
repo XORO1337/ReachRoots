@@ -259,6 +259,126 @@ class AuthController {
     }
   }
 
+  // Admin login - direct password authentication without OTP
+  // Security hardened with login attempt logging
+  static async adminLogin(req, res) {
+    const loginAttempt = {
+      email: req.body.email || 'unknown',
+      ip: req.ip || req.connection?.remoteAddress || 'unknown',
+      userAgent: req.get('User-Agent') || 'unknown',
+      timestamp: new Date(),
+      success: false,
+      failureReason: null
+    };
+
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        loginAttempt.failureReason = 'Missing credentials';
+        console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Email and password are required' 
+        });
+      }
+      
+      const user = await User.findOne({ email: email.toLowerCase() });
+      
+      if (!user) {
+        loginAttempt.failureReason = 'User not found';
+        console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid credentials' 
+        });
+      }
+      
+      // Only allow admin or shipping_agent roles
+      if (!['admin', 'shipping_agent'].includes(user.role)) {
+        loginAttempt.failureReason = `Invalid role: ${user.role}`;
+        console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Access denied. Admin or shipping agent account required.' 
+        });
+      }
+      
+      if (user.isLocked) {
+        loginAttempt.failureReason = 'Account locked';
+        console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+        return res.status(423).json({ 
+          success: false, 
+          message: 'Account is temporarily locked due to too many failed login attempts' 
+        });
+      }
+      
+      const isPasswordValid = await user.comparePassword(password);
+      
+      if (!isPasswordValid) {
+        await user.incLoginAttempts();
+        loginAttempt.failureReason = 'Invalid password';
+        console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid credentials' 
+        });
+      }
+      
+      // Reset login attempts on successful login
+      if (user.loginAttempts > 0) {
+        await user.resetLoginAttempts();
+      }
+      
+      // Create payload for JWT - must be plain object, not Mongoose document
+      const tokenPayload = {
+        userId: user._id.toString(),
+        email: user.email,
+        role: user.role,
+        name: user.name
+      };
+      
+      // Generate tokens
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
+      
+      // Update refresh token in database
+      user.refreshToken = refreshToken;
+      user.lastLogin = new Date();
+      await user.save();
+      
+      // Log successful login
+      loginAttempt.success = true;
+      loginAttempt.userId = user._id;
+      loginAttempt.role = user.role;
+      console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+      
+      const userPayload = AuthController.formatUserPayload(user);
+      
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        data: {
+          user: userPayload,
+          accessToken,
+          refreshToken
+        }
+      });
+    } catch (error) {
+      loginAttempt.failureReason = `Server error: ${error.message}`;
+      console.log('🔐 Admin Login Attempt:', JSON.stringify(loginAttempt));
+      console.error('Admin login error:', error);
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ 
+        success: false, 
+        message: process.env.NODE_ENV === 'development' 
+          ? `Login failed: ${error.message}` 
+          : 'Login failed. Please try again.',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  }
+
   // Google OAuth login initiation
   static initiateGoogleAuth(req, res, next) {
     // Store the selected role in session if provided

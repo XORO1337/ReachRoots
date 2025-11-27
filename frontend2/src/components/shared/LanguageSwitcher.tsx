@@ -11,7 +11,16 @@ interface Language {
 const languages: Language[] = [
   { code: 'en', name: 'English', nativeName: 'English' },
   { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' }
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
+  { code: 'or', name: 'Odia', nativeName: 'ଓଡ଼ିଆ' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
+  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+  { code: 'ks', name: 'Kashmiri', nativeName: 'कॉशुर' },
+  { code: 'doi', name: 'Dogri', nativeName: 'डोगरी' },
+  { code: 'ur', name: 'Urdu', nativeName: 'اردو' }
 ];
 
 interface LanguageSwitcherProps {

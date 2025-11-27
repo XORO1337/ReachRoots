@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Eye, IndianRupee, ShoppingBag, CheckCircle } from 'lucide-react';
 import { Order } from '../types/dashboard';
 
@@ -7,6 +8,7 @@ interface OrdersProps {
 }
 
 const Orders: React.FC<OrdersProps> = ({ orders }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [customerFilter, setCustomerFilter] = useState('All Customers');
   const [statusFilter, setStatusFilter] = useState('All Status');
@@ -44,7 +46,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{totalOrders}</div>
-              <div className="text-sm text-gray-600">Total Orders</div>
+              <div className="text-sm text-gray-600">{t('artisanDashboard.totalOrders')}</div>
             </div>
           </div>
         </div>
@@ -56,7 +58,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{pendingOrders}</div>
-              <div className="text-sm text-gray-600">Pending</div>
+              <div className="text-sm text-gray-600">{t('artisanDashboard.pending')}</div>
             </div>
           </div>
         </div>
@@ -68,7 +70,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{confirmedOrders}</div>
-              <div className="text-sm text-gray-600">Confirmed</div>
+              <div className="text-sm text-gray-600">{t('artisanDashboard.confirmed')}</div>
             </div>
           </div>
         </div>
@@ -80,7 +82,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">₹{totalValue.toFixed(2)}</div>
-              <div className="text-sm text-gray-600">Total Value</div>
+              <div className="text-sm text-gray-600">{t('artisanDashboard.totalValue')}</div>
             </div>
           </div>
         </div>
@@ -89,7 +91,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
       {/* Order Management */}
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Management</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('artisanDashboard.orderManagement')}</h2>
 
           {/* Filters */}
           <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
@@ -97,7 +99,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search orders..."
+                placeholder={t('artisanDashboard.searchOrders')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -109,19 +111,19 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
                 onChange={(e) => setCustomerFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option>All Customers</option>
-                <option>Normal Buyer</option>
-                <option>Distributor</option>
+                <option value="All Customers">{t('artisanDashboard.allCustomers')}</option>
+                <option value="Normal Buyer">{t('artisanDashboard.normalBuyer')}</option>
+                <option value="Distributor">{t('artisanDashboard.distributor')}</option>
               </select>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option>All Status</option>
-                <option>Pending</option>
-                <option>Confirmed</option>
-                <option>Delivered</option>
+                <option value="All Status">{t('artisanDashboard.allStatus')}</option>
+                <option value="Pending">{t('artisanDashboard.pending')}</option>
+                <option value="Confirmed">{t('artisanDashboard.confirmed')}</option>
+                <option value="Delivered">{t('artisanDashboard.delivered')}</option>
               </select>
             </div>
           </div>
@@ -132,15 +134,15 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.orderId')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.customer')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.type')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.items')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.total')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.delivery')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.date')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -186,7 +188,7 @@ const Orders: React.FC<OrdersProps> = ({ orders }) => {
                       </button>
                       {order.status === 'Pending' && (
                         <button className="bg-orange-500 text-white px-3 py-1 rounded text-xs hover:bg-orange-600">
-                          Confirm
+                          {t('artisanDashboard.confirm')}
                         </button>
                       )}
                     </div>

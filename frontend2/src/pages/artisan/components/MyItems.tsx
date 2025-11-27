@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Filter, Eye, Edit, Trash2 } from 'lucide-react';
 import { InventoryItem } from '../types/dashboard';
 
@@ -7,6 +8,7 @@ interface MyItemsProps {
 }
 
 const MyItems: React.FC<MyItemsProps> = ({ items }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
   const [statusFilter, setStatusFilter] = useState('All Status');
@@ -38,19 +40,19 @@ const MyItems: React.FC<MyItemsProps> = ({ items }) => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="text-3xl font-bold text-gray-900">{totalItems}</div>
-          <div className="text-sm text-gray-600 mt-1">Total Items</div>
+          <div className="text-sm text-gray-600 mt-1">{t('artisanDashboard.totalItems')}</div>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="text-3xl font-bold text-gray-900">{activeItems}</div>
-          <div className="text-sm text-gray-600 mt-1">Active Items</div>
+          <div className="text-sm text-gray-600 mt-1">{t('artisanDashboard.activeItems')}</div>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="text-3xl font-bold text-gray-900">{totalStock}</div>
-          <div className="text-sm text-gray-600 mt-1">Total Stock</div>
+          <div className="text-sm text-gray-600 mt-1">{t('artisanDashboard.totalStock')}</div>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="text-3xl font-bold text-gray-900">{itemsSold}</div>
-          <div className="text-sm text-gray-600 mt-1">Items Sold</div>
+          <div className="text-sm text-gray-600 mt-1">{t('artisanDashboard.itemsSold')}</div>
         </div>
       </div>
 
@@ -58,9 +60,9 @@ const MyItems: React.FC<MyItemsProps> = ({ items }) => {
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Items Inventory</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('artisanDashboard.itemsInventory')}</h2>
             <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
-              + Add New Item
+              + {t('artisanDashboard.addNewItem')}
             </button>
           </div>
 
@@ -70,7 +72,7 @@ const MyItems: React.FC<MyItemsProps> = ({ items }) => {
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search items..."
+                placeholder={t('artisanDashboard.searchItems')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -82,21 +84,21 @@ const MyItems: React.FC<MyItemsProps> = ({ items }) => {
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option>All Categories</option>
-                <option>Textiles</option>
-                <option>Ceramics</option>
-                <option>Woodwork</option>
-                <option>Leather Goods</option>
+                <option value="All Categories">{t('artisanDashboard.allCategories')}</option>
+                <option value="Textiles">{t('artisanDashboard.textiles')}</option>
+                <option value="Ceramics">{t('artisanDashboard.ceramics')}</option>
+                <option value="Woodwork">{t('artisanDashboard.woodwork')}</option>
+                <option value="Leather Goods">{t('artisanDashboard.leatherGoods')}</option>
               </select>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option>All Status</option>
-                <option>Active</option>
-                <option>Low Stock</option>
-                <option>Out of Stock</option>
+                <option value="All Status">{t('artisanDashboard.allStatus')}</option>
+                <option value="Active">{t('artisanDashboard.active')}</option>
+                <option value="Low Stock">{t('artisanDashboard.lowStock')}</option>
+                <option value="Out of Stock">{t('artisanDashboard.outOfStock')}</option>
               </select>
             </div>
           </div>
@@ -107,15 +109,15 @@ const MyItems: React.FC<MyItemsProps> = ({ items }) => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sold</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.item')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.category')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.price')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.cost')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.profit')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.stock')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.sold')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">

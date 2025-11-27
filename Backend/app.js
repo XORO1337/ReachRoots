@@ -23,6 +23,8 @@ const devLogsRoutes = require('./routes/DevLogs_route');
 const adminRoutes = require('./routes/Admin_route');
 const wishlistRoutes = require('./routes/Wishlist_route');
 const paymentRoutes = require('./routes/Payment_route');
+const shippingAgentRoutes = require('./routes/ShippingAgent_route');
+const agentApplicationRoutes = require('./routes/AgentApplication_route');
 
 // Import middleware
 const { generalLimit } = require('./middleware/rateLimiting');
@@ -180,6 +182,12 @@ app.use('/api/admin', adminRoutes);
 
 console.log('Defining wishlist routes...');
 app.use('/api/wishlist', wishlistRoutes);
+
+console.log('Defining shipping agent routes...');
+app.use('/api/agent', shippingAgentRoutes);
+
+console.log('Defining agent application routes...');
+app.use('/api/agent-applications', agentApplicationRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

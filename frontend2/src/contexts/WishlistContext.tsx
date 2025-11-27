@@ -1,24 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './AuthContext';
+import WishlistService, { WishlistItem, WishlistData } from '../services/wishlistService';
 
-// Simplified interface for local storage
-export interface WishlistItem {
-  productId: string;
-  productName: string;
-  productPrice: number;
-  productImage: string;
-  productCategory: string;
-  artisanName?: string;
-  addedAt: string;
-}
-
-export interface WishlistData {
-  userId: string;
-  items: WishlistItem[];
-  totalItems: number;
-  lastUpdated: string;
-}
+export type { WishlistItem, WishlistData };
 
 interface WishlistContextType {
   wishlist: WishlistData | null;
@@ -44,6 +29,7 @@ interface WishlistContextType {
   isInWishlist: (productId: string) => boolean;
   clearWishlist: () => Promise<void>;
   getWishlistItemsCount: () => number;
+  refreshWishlist: () => Promise<void>;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
@@ -52,7 +38,7 @@ interface WishlistProviderProps {
   children: React.ReactNode;
 }
 
-// Local storage utilities
+// Local storage utilities for fallback/caching
 const getWishlistKey = (userId: string) => `wishlist_${userId}`;
 
 const loadWishlistFromStorage = (userId: string): WishlistData | null => {
@@ -61,7 +47,6 @@ const loadWishlistFromStorage = (userId: string): WishlistData | null => {
     if (!stored) return null;
     
     const parsed = JSON.parse(stored);
-    // Validate the structure
     if (parsed && parsed.userId === userId && Array.isArray(parsed.items)) {
       return parsed;
     }
@@ -77,7 +62,6 @@ const saveWishlistToStorage = (wishlistData: WishlistData) => {
     localStorage.setItem(getWishlistKey(wishlistData.userId), JSON.stringify(wishlistData));
   } catch (error) {
     console.error('Error saving wishlist to storage:', error);
-    toast.error('Failed to save wishlist');
   }
 };
 
@@ -94,7 +78,38 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
 
-  // Load wishlist when user logs in
+  // Load wishlist from backend when user logs in
+  const loadUserWishlist = useCallback(async () => {
+    if (!user?.id) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Try to load from backend first
+      const backendWishlist = await WishlistService.getWishlist();
+      
+      if (backendWishlist) {
+        // Use backend data
+        setWishlist(backendWishlist);
+        // Cache locally
+        saveWishlistToStorage(backendWishlist);
+      } else {
+        // Fallback to local storage
+        const localWishlist = loadWishlistFromStorage(user.id) || createEmptyWishlist(user.id);
+        setWishlist(localWishlist);
+      }
+    } catch (err) {
+      console.error('Error loading wishlist:', err);
+      setError('Failed to load wishlist');
+      // Fallback to local storage
+      const localWishlist = loadWishlistFromStorage(user.id) || createEmptyWishlist(user.id);
+      setWishlist(localWishlist);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
     if (isAuthenticated && user?.id) {
       loadUserWishlist();
@@ -103,31 +118,14 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       setWishlist(null);
       setError(null);
     }
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, loadUserWishlist]);
 
-  const loadUserWishlist = () => {
-    if (!user?.id) return;
-    
-    setIsLoading(true);
-    try {
-      const userWishlist = loadWishlistFromStorage(user.id) || createEmptyWishlist(user.id);
-      setWishlist(userWishlist);
-      setError(null);
-    } catch (err) {
-      console.error('Error loading wishlist:', err);
-      setError('Failed to load wishlist');
-      setWishlist(createEmptyWishlist(user.id));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateWishlist = (updatedWishlist: WishlistData) => {
+  const updateLocalWishlist = useCallback((updatedWishlist: WishlistData) => {
     updatedWishlist.lastUpdated = new Date().toISOString();
     updatedWishlist.totalItems = updatedWishlist.items.length;
     setWishlist(updatedWishlist);
     saveWishlistToStorage(updatedWishlist);
-  };
+  }, []);
 
   const addToWishlist = async (product: {
     id: string;
@@ -147,13 +145,24 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       return;
     }
 
-    try {
-      // Check if item already exists
-      if (wishlist.items.some(item => item.productId === product.id)) {
-        toast.error('Product is already in your wishlist');
-        return;
-      }
+    // Check if item already exists
+    if (wishlist.items.some(item => item.productId === product.id)) {
+      toast.error('Product is already in your wishlist');
+      return;
+    }
 
+    try {
+      // Try backend first
+      const success = await WishlistService.addToWishlist({
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        productImage: product.image,
+        productCategory: product.category,
+        artisanName: product.artisanName,
+      });
+
+      // Update local state regardless
       const newItem: WishlistItem = {
         productId: product.id,
         productName: product.name,
@@ -169,7 +178,11 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         items: [...wishlist.items, newItem]
       };
 
-      updateWishlist(updatedWishlist);
+      updateLocalWishlist(updatedWishlist);
+
+      if (!success) {
+        console.warn('Backend sync failed, using local storage only');
+      }
       
       toast.success('Added to wishlist!', {
         icon: '❤️',
@@ -187,12 +200,20 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
+      // Try backend first
+      const success = await WishlistService.removeFromWishlist(productId);
+
+      // Update local state regardless
       const updatedWishlist = {
         ...wishlist,
         items: wishlist.items.filter(item => item.productId !== productId)
       };
 
-      updateWishlist(updatedWishlist);
+      updateLocalWishlist(updatedWishlist);
+
+      if (!success) {
+        console.warn('Backend sync failed, using local storage only');
+      }
       
       toast.success('Removed from wishlist', {
         icon: '💔',
@@ -252,8 +273,17 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
+      // Try backend first
+      const success = await WishlistService.clearWishlist();
+
+      // Update local state regardless
       const emptyWishlist = createEmptyWishlist(user.id);
-      updateWishlist(emptyWishlist);
+      updateLocalWishlist(emptyWishlist);
+
+      if (!success) {
+        console.warn('Backend sync failed, using local storage only');
+      }
+      
       toast.success('Wishlist cleared');
     } catch (err) {
       console.error('Error clearing wishlist:', err);
@@ -265,6 +295,10 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     return wishlist?.totalItems || 0;
   };
 
+  const refreshWishlist = async () => {
+    await loadUserWishlist();
+  };
+
   const value: WishlistContextType = {
     wishlist,
     isLoading,
@@ -274,7 +308,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     toggleWishlistItem,
     isInWishlist,
     clearWishlist,
-    getWishlistItemsCount
+    getWishlistItemsCount,
+    refreshWishlist
   };
 
   return (

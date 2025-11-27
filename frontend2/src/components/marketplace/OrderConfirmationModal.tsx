@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { redirectToAppRoute } from '../../utils/navigation';
 import { CheckCircle, X, Copy, Package } from 'lucide-react';
 
@@ -17,6 +18,7 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   totalAmount,
   estimatedDelivery = '5-7 business days'
 }) => {
+  const { t } = useTranslation();
   const copyOrderNumber = () => {
     navigator.clipboard.writeText(orderNumber);
     // You could add a toast notification here
@@ -40,10 +42,10 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">
-                  Order Confirmed!
+                  {t('orderConfirmation.title')}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Your order has been successfully placed
+                  {t('orderConfirmation.thankYou')}
                 </p>
               </div>
             </div>
@@ -61,7 +63,7 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Order Number</p>
+                  <p className="text-sm font-medium text-gray-700">{t('orders.orderNumber')}</p>
                   <p className="text-lg font-mono font-bold text-gray-900">{orderNumber}</p>
                 </div>
                 <button
@@ -69,14 +71,14 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
                   className="flex items-center px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 >
                   <Copy className="h-4 w-4 mr-1" />
-                  Copy
+                  {t('orderConfirmation.copy')}
                 </button>
               </div>
             </div>
 
             {/* Order Amount */}
             <div className="flex justify-between items-center py-2 border-b border-gray-200">
-              <span className="text-sm font-medium text-gray-700">Total Amount</span>
+              <span className="text-sm font-medium text-gray-700">{t('orders.orderTotal')}</span>
               <span className="text-lg font-bold text-gray-900">₹{totalAmount.toLocaleString()}</span>
             </div>
 
@@ -84,19 +86,19 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
             <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
               <Package className="h-5 w-5 text-blue-600 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Estimated Delivery</p>
+                <p className="text-sm font-medium text-blue-900">{t('delivery.estimatedDelivery')}</p>
                 <p className="text-sm text-blue-700">{estimatedDelivery}</p>
               </div>
             </div>
 
             {/* What's Next */}
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-900">What's next?</h4>
+              <h4 className="text-sm font-medium text-gray-900">{t('orderConfirmation.whatsNext')}</h4>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• You'll receive an email confirmation shortly</li>
-                <li>• Artisans will prepare your items</li>
-                <li>• You'll get tracking details once shipped</li>
-                <li>• Save your order number for reference</li>
+                <li>• {t('orderConfirmation.emailConfirmation')}</li>
+                <li>• {t('orderConfirmation.artisansPrepare')}</li>
+                <li>• {t('orderConfirmation.trackingDetails')}</li>
+                <li>• {t('orderConfirmation.saveOrderNumber')}</li>
               </ul>
             </div>
           </div>
@@ -107,13 +109,13 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
               onClick={onClose}
               className="flex-1 bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors"
             >
-              Continue Shopping
+              {t('orderConfirmation.continueShopping')}
             </button>
             <button
               onClick={() => redirectToAppRoute('/orders')}
               className="flex-1 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors"
             >
-              View Orders
+              {t('orderConfirmation.viewOrders')}
             </button>
           </div>
         </div>

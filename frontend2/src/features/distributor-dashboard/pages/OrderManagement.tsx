@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Filter, MoreHorizontal, Download, Plus, CheckCircle, Clock, Truck, Package } from 'lucide-react';
 
 interface Order {
@@ -61,6 +62,7 @@ const mockOrders: Order[] = [
 ];
 
 const OrderManagement: React.FC = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'transit' | 'delivered'>('all');
   const [orders] = useState<Order[]>(mockOrders);

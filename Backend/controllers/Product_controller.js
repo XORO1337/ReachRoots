@@ -234,6 +234,23 @@ const getProductCategories = async (req, res) => {
   }
 };
 
+// Get product categories with counts (optimized)
+const getProductCategoriesWithCounts = async (req, res) => {
+  try {
+    const categories = await ProductService.getProductCategoriesWithCounts();
+    res.status(200).json({
+      success: true,
+      message: 'Product categories with counts retrieved successfully',
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 // Get featured products
 const getFeaturedProducts = async (req, res) => {
   try {
@@ -571,5 +588,6 @@ module.exports = {
   getProductStatistics,
   getLowStockAlert,
   addProductReview,
-  getProductReviews
+  getProductReviews,
+  getProductCategoriesWithCounts
 };

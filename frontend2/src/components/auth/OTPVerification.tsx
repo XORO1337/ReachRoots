@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { API_CONFIG, buildApiUrl } from '../../config/api';
 
 interface OTPVerificationProps {
@@ -16,6 +17,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   onCancel,
   devOtpCode
 }) => {
+  const { t } = useTranslation();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -67,7 +69,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     const otpString = otp.join('');
     
     if (otpString.length !== 6) {
-      setError('Please enter the complete 6-digit OTP');
+      setError(t('otp.enterComplete'));
       return;
     }
 
@@ -93,14 +95,14 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
       if (data.success) {
         onVerified(data.data);
       } else {
-        setError(data.message || 'OTP verification failed');
+        setError(data.message || t('otp.verificationFailed'));
         // Clear OTP on error
         setOtp(['', '', '', '', '', '']);
         document.getElementById('otp-0')?.focus();
       }
     } catch (error) {
       console.error('OTP verification error:', error);
-      setError('Network error. Please try again.');
+      setError(t('otp.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -128,11 +130,11 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         setOtp(['', '', '', '', '', '']); // Clear current OTP
         document.getElementById('otp-0')?.focus();
       } else {
-        setError(data.message || 'Failed to resend OTP');
+        setError(data.message || t('otp.resendFailed'));
       }
     } catch (error) {
       console.error('Resend OTP error:', error);
-      setError('Network error. Please try again.');
+      setError(t('otp.networkError'));
     } finally {
       setResendLoading(false);
     }
@@ -143,18 +145,18 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Verify Email
+            {t('otp.verifyEmail')}
           </h2>
           <p className="text-gray-600">
-            We've sent a 6-digit code to
+            {t('otp.sentCode')}
           </p>
           <p className="font-medium text-gray-900">{email}</p>
         </div>
 
         {devOtpCode && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-            <p className="text-yellow-800 text-sm font-medium">Development Mode OTP: <span className="font-bold text-lg">{devOtpCode}</span></p>
-            <p className="text-xs text-yellow-600 mt-1">Use this code to verify (Emails are simulated)</p>
+            <p className="text-yellow-800 text-sm font-medium">{t('otp.devModeOtp')}: <span className="font-bold text-lg">{devOtpCode}</span></p>
+            <p className="text-xs text-yellow-600 mt-1">{t('otp.devModeHint')}</p>
           </div>
         )}
 
@@ -183,9 +185,9 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
           <div className="text-center text-sm text-gray-600 mb-4">
             {timeLeft > 0 ? (
-              <p>Time remaining: {formatTime(timeLeft)}</p>
+              <p>{t('otp.timeRemaining')}: {formatTime(timeLeft)}</p>
             ) : (
-              <p className="text-red-600">OTP expired</p>
+              <p className="text-red-600">{t('otp.expired')}</p>
             )}
           </div>
         </div>
@@ -196,7 +198,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
             disabled={isLoading || otp.join('').length !== 6}
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Verifying...' : 'Verify OTP'}
+            {isLoading ? t('otp.verifying') : t('otp.verifyOtp')}
           </button>
 
           <button
@@ -204,7 +206,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
             disabled={!canResend || resendLoading}
             className="w-full text-blue-600 py-2 px-4 rounded-lg font-medium hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {resendLoading ? 'Sending...' : 'Resend OTP'}
+            {resendLoading ? t('otp.sending') : t('otp.resendOtp')}
           </button>
 
           <button
@@ -212,7 +214,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
             disabled={isLoading}
             className="w-full text-gray-600 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         </div>
       </div>

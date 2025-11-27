@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Clock, Users } from 'lucide-react';
 import { DashboardStats } from '../types/dashboard';
 
@@ -43,11 +44,13 @@ interface DashboardOverviewProps {
 }
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-          title="Current Month Earnings"
+          title={t('artisanDashboard.currentMonthEarnings')}
           value={`₹${stats.currentMonthEarnings.toFixed(2)}`}
           change={stats.earningsChange}
           icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
@@ -55,7 +58,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
         />
         
         <StatCard
-          title="Total Orders Served"
+          title={t('artisanDashboard.totalOrdersServed')}
           value={stats.totalOrders.toLocaleString()}
           change={stats.ordersChange}
           icon={<ShoppingBag className="w-6 h-6 text-orange-600" />}
@@ -63,14 +66,14 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
         />
         
         <StatCard
-          title="Active Orders"
+          title={t('artisanDashboard.activeOrders')}
           value={stats.activeOrders.toString()}
           icon={<Clock className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
         />
         
         <StatCard
-          title="Customer Types"
+          title={t('artisanDashboard.customerTypes')}
           value={`${stats.customerTypes.normalBuyers}% / ${stats.customerTypes.distributors}%`}
           icon={<Users className="w-6 h-6 text-orange-600" />}
           color="bg-orange-50"
@@ -80,9 +83,9 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
       {/* My Items Preview */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">My Items</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('artisanDashboard.myItems')}</h2>
           <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
-            + Add New Item
+            + {t('artisanDashboard.addNewItem')}
           </button>
         </div>
 
@@ -90,12 +93,12 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats }) => {
           <table className="w-full">
             <thead>
               <tr className="text-left border-b border-gray-200">
-                <th className="pb-3 text-sm font-medium text-gray-600">Item</th>
-                <th className="pb-3 text-sm font-medium text-gray-600">Category</th>
-                <th className="pb-3 text-sm font-medium text-gray-600">Price</th>
-                <th className="pb-3 text-sm font-medium text-gray-600">Stock</th>
-                <th className="pb-3 text-sm font-medium text-gray-600">Status</th>
-                <th className="pb-3 text-sm font-medium text-gray-600">Actions</th>
+                <th className="pb-3 text-sm font-medium text-gray-600">{t('artisanDashboard.item')}</th>
+                <th className="pb-3 text-sm font-medium text-gray-600">{t('artisanDashboard.category')}</th>
+                <th className="pb-3 text-sm font-medium text-gray-600">{t('artisanDashboard.price')}</th>
+                <th className="pb-3 text-sm font-medium text-gray-600">{t('artisanDashboard.stock')}</th>
+                <th className="pb-3 text-sm font-medium text-gray-600">{t('artisanDashboard.status')}</th>
+                <th className="pb-3 text-sm font-medium text-gray-600">{t('artisanDashboard.actions')}</th>
               </tr>
             </thead>
             <tbody>

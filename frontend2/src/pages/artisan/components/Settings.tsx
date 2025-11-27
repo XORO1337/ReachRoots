@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Camera, Save, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -13,6 +14,7 @@ import {
 const DEFAULT_BIO = 'Tell us about yourself and your craft...';
 
 const Settings: React.FC = () => {
+	const { t } = useTranslation();
 	const { user, updateUserData } = useAuth();
 	const [activeTab, setActiveTab] = useState('Profile');
 	const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -49,7 +51,13 @@ const Settings: React.FC = () => {
 		}
 	}, [user]);
 
-	const tabs = ['Profile', 'Business', 'Notifications', 'Payments', 'Security'];
+	const tabs = [
+		{ key: 'Profile', label: t('artisanDashboard.profile') },
+		{ key: 'Business', label: t('artisanDashboard.business') },
+		{ key: 'Notifications', label: t('artisanDashboard.notifications') },
+		{ key: 'Payments', label: t('artisanDashboard.payments') },
+		{ key: 'Security', label: t('artisanDashboard.security') }
+	];
 
 	const handleInputChange = (field: keyof UpdateProfileData | 'email', value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
@@ -127,10 +135,10 @@ const Settings: React.FC = () => {
 
 	const renderProfileTab = () => (
 		<div>
-			<h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">👤 Personal Information</h3>
+			<h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">👤 {t('artisanDashboard.personalInformation')}</h3>
 
 			<div className="mb-8">
-				<label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+				<label className="block text-sm font-medium text-gray-700 mb-2">{t('artisanDashboard.profilePhoto')}</label>
 				<div className="flex items-center space-x-4">
 					{user?.photoURL ? (
 						<img src={user.photoURL} alt={formData.firstName || 'Profile'} className="w-20 h-20 rounded-full object-cover" />
@@ -155,76 +163,76 @@ const Settings: React.FC = () => {
 						className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 disabled:opacity-50"
 					>
 						{isUploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-						<span>{isUploadingPhoto ? 'Uploading...' : 'Change Photo'}</span>
+						<span>{isUploadingPhoto ? t('artisanDashboard.uploading') : t('artisanDashboard.changePhoto')}</span>
 					</button>
-					<p className="text-sm text-gray-500">JPG, PNG, or GIF up to 5MB.</p>
+					<p className="text-sm text-gray-500">{t('artisanDashboard.photoSizeLimit')}</p>
 				</div>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="firstName">First Name</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="firstName">{t('artisanDashboard.firstName')}</label>
 					<input
 						id="firstName"
 						type="text"
 						value={formData.firstName}
 						onChange={(e) => handleInputChange('firstName', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Enter your first name"
+						placeholder={t('artisanDashboard.enterFirstName')}
 					/>
 				</div>
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="lastName">Last Name</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="lastName">{t('artisanDashboard.lastName')}</label>
 					<input
 						id="lastName"
 						type="text"
 						value={formData.lastName}
 						onChange={(e) => handleInputChange('lastName', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Enter your last name"
+						placeholder={t('artisanDashboard.enterLastName')}
 					/>
 				</div>
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2">{t('artisanDashboard.emailAddress')}</label>
 					<input
 						type="email"
 						value={formData.email}
 						disabled
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
 					/>
-					<p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+					<p className="text-xs text-gray-500 mt-1">{t('artisanDashboard.emailCannotBeChanged')}</p>
 				</div>
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">Phone Number</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">{t('artisanDashboard.phoneNumber')}</label>
 					<input
 						id="phone"
 						type="tel"
 						value={formData.phone}
 						onChange={(e) => handleInputChange('phone', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Enter your phone number"
+						placeholder={t('artisanDashboard.enterPhoneNumber')}
 					/>
 				</div>
 				<div className="md:col-span-2">
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="location">Location</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="location">{t('artisanDashboard.location')}</label>
 					<input
 						id="location"
 						type="text"
 						value={formData.location}
 						onChange={(e) => handleInputChange('location', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="City, state or region"
+						placeholder={t('artisanDashboard.locationPlaceholder')}
 					/>
 				</div>
 				<div className="md:col-span-2">
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="bio">Bio</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="bio">{t('artisanDashboard.bio')}</label>
 					<textarea
 						id="bio"
 						rows={4}
 						value={formData.bio}
 						onChange={(e) => handleInputChange('bio', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Tell us about yourself and your craft..."
+						placeholder={t('artisanDashboard.bioPlaceholder')}
 					/>
 				</div>
 			</div>
@@ -235,41 +243,41 @@ const Settings: React.FC = () => {
 		<div>
 			<h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
 				<ShieldCheck className="w-5 h-5 text-orange-500" />
-				<span>Security Settings</span>
+				<span>{t('artisanDashboard.securitySettings')}</span>
 			</h3>
 			<div className="grid grid-cols-1 gap-6 max-w-xl">
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="currentPassword">Current Password</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="currentPassword">{t('artisanDashboard.currentPassword')}</label>
 					<input
 						id="currentPassword"
 						type="password"
 						value={passwordForm.currentPassword}
 						onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Enter current password"
+						placeholder={t('artisanDashboard.enterCurrentPassword')}
 					/>
 				</div>
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="newPassword">New Password</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="newPassword">{t('artisanDashboard.newPassword')}</label>
 					<input
 						id="newPassword"
 						type="password"
 						value={passwordForm.newPassword}
 						onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Enter new password"
+						placeholder={t('artisanDashboard.enterNewPassword')}
 					/>
-					<p className="text-xs text-gray-500 mt-1">Must include uppercase, lowercase, number, and symbol.</p>
+					<p className="text-xs text-gray-500 mt-1">{t('artisanDashboard.passwordRequirements')}</p>
 				</div>
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="confirmPassword">Confirm New Password</label>
+					<label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="confirmPassword">{t('artisanDashboard.confirmNewPassword')}</label>
 					<input
 						id="confirmPassword"
 						type="password"
 						value={passwordForm.confirmPassword}
 						onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
 						className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-						placeholder="Re-enter new password"
+						placeholder={t('artisanDashboard.reenterNewPassword')}
 					/>
 				</div>
 			</div>
@@ -278,7 +286,7 @@ const Settings: React.FC = () => {
 
 	const renderPlaceholderTab = (tabName: string) => (
 		<div className="flex items-center justify-center h-64">
-			<p className="text-gray-500">{tabName} settings coming soon...</p>
+			<p className="text-gray-500">{tabName} {t('artisanDashboard.settingsComingSoon')}</p>
 		</div>
 	);
 
@@ -288,15 +296,15 @@ const Settings: React.FC = () => {
 				<nav className="flex space-x-8">
 					{tabs.map((tab) => (
 						<button
-							key={tab}
-							onClick={() => setActiveTab(tab)}
+							key={tab.key}
+							onClick={() => setActiveTab(tab.key)}
 							className={`py-2 px-1 border-b-2 font-medium text-sm ${
-								activeTab === tab
+								activeTab === tab.key
 									? 'border-orange-500 text-orange-600'
 									: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
 							}`}
 						>
-							{tab}
+							{tab.label}
 						</button>
 					))}
 				</nav>
@@ -316,7 +324,7 @@ const Settings: React.FC = () => {
 						className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2 disabled:opacity-50"
 					>
 						{isSavingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-						<span>{isSavingProfile ? 'Saving...' : 'Save Changes'}</span>
+						<span>{isSavingProfile ? t('artisanDashboard.saving') : t('artisanDashboard.saveChanges')}</span>
 					</button>
 				</div>
 			)}
@@ -329,7 +337,7 @@ const Settings: React.FC = () => {
 						className="bg-slate-900 text-white px-6 py-2 rounded-lg hover:bg-slate-800 transition-colors flex items-center space-x-2 disabled:opacity-50"
 					>
 						{isUpdatingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-						<span>{isUpdatingPassword ? 'Updating...' : 'Update Password'}</span>
+						<span>{isUpdatingPassword ? t('artisanDashboard.updatingPassword') : t('artisanDashboard.updatePassword')}</span>
 					</button>
 				</div>
 			)}

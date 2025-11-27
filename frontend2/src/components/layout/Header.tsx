@@ -54,18 +54,18 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartToggle, filters, 
             <div className="flex items-center space-x-6">
               <p className="flex items-center font-medium">
                 <span className="mr-2">🎯</span>
-                Authentic Handmade Crafts from Artisans Across India
+                {t('header.authenticCrafts')}
               </p>
               <span className="hidden lg:block text-orange-100">|</span>
               <p className="hidden lg:flex items-center text-orange-100">
                 <span className="mr-2">🚚</span>
-                Free shipping on orders above ₹2,000
+                {t('header.freeShipping')}
               </p>
             </div>
             <div className="hidden md:flex items-center space-x-6 text-sm">
               <span className="flex items-center hover:text-orange-200 cursor-pointer transition-colors">
                 <span className="mr-2">📞</span>
-                Support: +91-9318422848
+                {t('header.support')}: +91-9318422848
               </span>
               <span className="flex items-center hover:text-orange-200 cursor-pointer transition-colors">
                 <span className="mr-2">✉️</span>
@@ -175,7 +175,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartToggle, filters, 
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
                             onClick={() => setShowUserMenu(false)}
                           >
-                            My Orders
+                            {t('orders.title')}
                           </Link>
                         )}
                         <button
@@ -224,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartToggle, filters, 
                 </span>
               )}
               <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                {cartItemsCount} items
+                {cartItemsCount} {t('cart.itemsInCart')}
               </span>
             </button>
 
@@ -308,10 +308,10 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartToggle, filters, 
               </Link>
             </div>
             <div className="border-t border-gray-200 pt-4 space-y-3">
-              <a href="#categories" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">Browse Categories</a>
-              <a href="#featured" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">Featured Products</a>
-              <a href="#artisans" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">Meet Our Artisans</a>
-              <a href="#about" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">About RootsReach</a>
+              <a href="#categories" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">{t('marketplace.browseCategories')}</a>
+              <a href="#featured" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">{t('marketplace.featuredProducts')}</a>
+              <a href="#artisans" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">{t('header.meetArtisans')}</a>
+              <a href="#about" className="block py-3 text-gray-700 hover:text-orange-600 font-medium transition-colors">{t('header.aboutRootsReach')}</a>
             </div>
           </div>
         </div>

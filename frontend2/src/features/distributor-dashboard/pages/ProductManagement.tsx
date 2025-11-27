@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, MoreHorizontal, Package, AlertCircle, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
 import DistributorService, { ProductWithInventory } from '../../../services/distributorService';
 
@@ -10,6 +11,7 @@ interface Pagination {
 }
 
 const ProductManagement: React.FC = () => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<ProductWithInventory[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Eye, Edit, Trash2, Package } from 'lucide-react';
 import { useArtisanItems, ArtisanItem } from '../../../hooks/useArtisanItems';
 import AddItemModal from '../components/AddItemModal';
@@ -6,6 +7,7 @@ import EditItemModal from '../components/EditItemModal';
 import ViewItemModal from '../components/ViewItemModal';
 
 const MyItems: React.FC = () => {
+  const { t } = useTranslation();
   const { items, isLoading, error, fetchItems, createItem, updateItem, deleteItem, setError } = useArtisanItems();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');

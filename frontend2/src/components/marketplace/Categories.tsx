@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Icons from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useCategories } from '../../hooks/useCategories';
 
 interface CategoriesProps {
@@ -7,6 +8,7 @@ interface CategoriesProps {
 }
 
 const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
+  const { t } = useTranslation();
   const { categories, loading, error } = useCategories();
 
   const getIcon = (iconName: string) => {
@@ -20,11 +22,10 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Explore Craft Categories
+              {t('categories.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover authentic handmade products across various traditional craft categories, 
-              each representing centuries of cultural heritage and artisan expertise.
+              {t('categories.description')}
             </p>
           </div>
           
@@ -55,10 +56,10 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Explore Craft Categories
+              {t('categories.title')}
             </h2>
             <p className="text-xl text-red-600 max-w-3xl mx-auto">
-              Unable to load categories. Please try again later.
+              {t('categories.loadError')}
             </p>
           </div>
         </div>
@@ -71,17 +72,16 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Explore Craft Categories
+            {t('categories.title')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover authentic handmade products across various traditional craft categories, 
-            each representing centuries of cultural heritage and artisan expertise.
+            {t('categories.description')}
           </p>
         </div>
 
         {categories.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No categories available at the moment.</p>
+            <p className="text-gray-600">{t('categories.noCategories')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -115,11 +115,11 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
                     {category.name}
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    {category.productCount} products available
+                    {t('categories.productsAvailable', { count: category.productCount })}
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-orange-600 font-medium">
-                      Explore Collection →
+                      {t('categories.exploreCollection')} →
                     </span>
                     <div className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-medium">
                       {category.productCount}
@@ -134,14 +134,13 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
         {/* CTA Section */}
         <div className="mt-16 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-8 lg:p-12 text-center">
           <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-            Can't Find What You're Looking For?
+            {t('categories.ctaTitle')}
           </h3>
           <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-            Our network of skilled artisans can create custom pieces tailored to your specific requirements. 
-            Get in touch to discuss your unique needs.
+            {t('categories.ctaDescription')}
           </p>
           <button className="bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
-            Request Custom Products
+            {t('categories.requestCustom')}
           </button>
         </div>
       </div>

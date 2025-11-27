@@ -10,7 +10,11 @@ import {
   LogOut,
   Menu,
   X,
-  Home
+  Home,
+  Package,
+  Truck,
+  Radio,
+  ClipboardList
 } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
@@ -21,6 +25,10 @@ const AdminLayout: React.FC = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home, current: location.pathname === '/admin/dashboard' },
+    { name: 'Orders', href: '/admin/orders', icon: Package, current: location.pathname === '/admin/orders' },
+    { name: 'Pickup Requests', href: '/admin/pickup-requests', icon: Radio, current: location.pathname === '/admin/pickup-requests' },
+    { name: 'Shipping Agents', href: '/admin/agents', icon: Truck, current: location.pathname === '/admin/agents' },
+    { name: 'Applications', href: '/admin/applications', icon: ClipboardList, current: location.pathname === '/admin/applications' },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, current: location.pathname === '/admin/analytics' },
     { name: 'User Management', href: '/admin/users', icon: Users, current: location.pathname === '/admin/users' },
     { name: 'Notifications', href: '/admin/notifications', icon: Bell, current: location.pathname === '/admin/notifications' },

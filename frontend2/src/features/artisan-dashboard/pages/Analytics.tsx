@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Users, Package } from 'lucide-react';
 import { useArtisanDashboard } from '../../../hooks/useArtisanDashboard';
 
 const AnalyticsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { analytics, isLoading, error, refreshData } = useArtisanDashboard();
 
   if (isLoading) {

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CartItem } from '../../types';
-import { X, Minus, Plus, ShoppingBag, Truck } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { formatWeightUnit } from '../../utils/formatters';
+import { calculateDeliveryFee, DELIVERY_THRESHOLDS } from '../../utils/deliveryFee';
+import DeliveryFeeTracker from './DeliveryFeeTracker';
 import OrderService, { Order } from '../../services/orderService';
 import CheckoutModal from './CheckoutModal';
 import OrderConfirmationModal from './OrderConfirmationModal';
@@ -25,13 +28,16 @@ const Cart: React.FC<CartProps> = ({
   onUpdateQuantity,
   onRemoveItem
 }) => {
+  const { t } = useTranslation();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
 
-  const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const deliveryFeeInfo = calculateDeliveryFee(subtotal);
+  const total = subtotal + deliveryFeeInfo.fee;
 
   const handleCheckout = () => {
     setShowCheckoutModal(true);
@@ -60,6 +66,8 @@ const Cart: React.FC<CartProps> = ({
         shippingAddress: checkoutData.shippingAddress,
         customerInfo: checkoutData.customerInfo,
         paymentMethod: checkoutData.paymentMethod,
+        subtotal: subtotal,
+        deliveryFee: deliveryFeeInfo.fee,
         totalAmount: total
       };
 
@@ -160,7 +168,7 @@ const Cart: React.FC<CartProps> = ({
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-xl font-semibold flex items-center">
               <ShoppingBag className="h-5 w-5 mr-2" />
-              Shopping Cart ({itemCount})
+              {t('cart.title')} ({itemCount})
             </h2>
             <button
               onClick={onClose}
@@ -175,13 +183,13 @@ const Cart: React.FC<CartProps> = ({
             {items.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
-                <p className="text-gray-500 mb-6">Start shopping to add items to your cart</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('cart.empty')}</h3>
+                <p className="text-gray-500 mb-6">{t('cart.emptyDescription')}</p>
                 <button
                   onClick={onClose}
                   className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
                 >
-                  Continue Shopping
+                  {t('cart.continueShopping')}
                 </button>
               </div>
             ) : (
@@ -198,7 +206,7 @@ const Cart: React.FC<CartProps> = ({
                         {item.product.name}
                       </h4>
                       <p className="text-sm text-gray-500">
-                        by {item.product.seller.name}
+                        {t('productCard.by')} {item.product.seller.name}
                       </p>
                       <p className="text-sm font-semibold text-gray-900">
                         ₹{item.product.price.toLocaleString()}/{formatWeightUnit(item.product.weightUnit)}
@@ -236,16 +244,32 @@ const Cart: React.FC<CartProps> = ({
           {/* Footer */}
           {items.length > 0 && (
             <div className="border-t p-6 space-y-4">
-              {/* Shipping Info */}
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Truck className="h-4 w-4" />
-                <span>Free shipping on orders over ₹2,000</span>
-              </div>
+              {/* Delivery Fee Tracker */}
+              <DeliveryFeeTracker 
+                subtotal={subtotal} 
+                onBrowseProducts={onClose}
+              />
 
-              {/* Total */}
-              <div className="flex items-center justify-between text-lg font-semibold">
-                <span>Total:</span>
-                <span>₹{total.toLocaleString()}</span>
+              {/* Order Summary */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>{t('cart.subtotal')} ({itemCount} {t('cart.itemsInCart')})</span>
+                  <span>₹{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className={deliveryFeeInfo.tierColor}>
+                    {t('delivery.deliveryFee')}
+                  </span>
+                  <span className={deliveryFeeInfo.tierColor}>
+                    {deliveryFeeInfo.fee === 0 ? t('delivery.free') : `₹${deliveryFeeInfo.fee}`}
+                  </span>
+                </div>
+                <div className="border-t border-gray-200 pt-2 mt-2">
+                  <div className="flex items-center justify-between text-lg font-semibold">
+                    <span>{t('cart.total')}</span>
+                    <span>₹{total.toLocaleString()}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Checkout Button */}
@@ -254,11 +278,11 @@ const Cart: React.FC<CartProps> = ({
                 disabled={isCheckingOut}
                 className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors"
               >
-                {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}
+                {isCheckingOut ? t('cart.processing') : t('cart.checkout')}
               </button>
 
               <p className="text-xs text-gray-500 text-center">
-                🔒 Secure checkout - No registration required
+                🔒 {t('cart.secureCheckout')}
               </p>
             </div>
           )}
@@ -270,6 +294,8 @@ const Cart: React.FC<CartProps> = ({
         isOpen={showCheckoutModal}
         onClose={() => setShowCheckoutModal(false)}
         items={items}
+        subtotal={subtotal}
+        deliveryFee={deliveryFeeInfo.fee}
         totalAmount={total}
         onSubmit={handleOrderSubmit}
         isProcessing={isCheckingOut}

@@ -209,6 +209,29 @@ class PaymentController {
       res.status(500).json({ success: false, message: error.message || 'Failed to update payment status' });
     }
   }
+
+  // Check if online payment methods are available
+  static async checkPaymentAvailability(req, res) {
+    try {
+      const isRazorpayConfigured = PaymentGatewayService.isConfigured();
+      
+      res.json({
+        success: true,
+        data: {
+          onlinePaymentsAvailable: isRazorpayConfigured,
+          availableMethods: isRazorpayConfigured 
+            ? ['cod', 'upi', 'card', 'netbanking', 'wallet']
+            : ['cod'],
+          message: isRazorpayConfigured 
+            ? 'All payment methods available'
+            : 'Only Cash on Delivery is available at this time'
+        }
+      });
+    } catch (error) {
+      console.error('Check payment availability error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }
 
 module.exports = PaymentController;

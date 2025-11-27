@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -12,6 +13,7 @@ import Communications from './pages/Communications';
 type NavigationPage = 'dashboard' | 'products' | 'inventory' | 'orders' | 'analytics' | 'communications';
 
 const DistributorDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   
   // Extract current page from URL path
@@ -31,25 +33,25 @@ const DistributorDashboard: React.FC = () => {
 
   const getPageTitle = (page: NavigationPage) => {
     switch (page) {
-      case 'dashboard': return 'Dashboard Overview';
-      case 'products': return 'Product Management';
-      case 'inventory': return 'Inventory Tracking';
-      case 'orders': return 'Order Management';
-      case 'analytics': return 'Performance Analytics';
-      case 'communications': return 'Communication Hub';
-      default: return 'Dashboard Overview';
+      case 'dashboard': return t('distributorDashboard.dashboardOverview');
+      case 'products': return t('distributorDashboard.productManagement');
+      case 'inventory': return t('distributorDashboard.inventoryTracking');
+      case 'orders': return t('distributorDashboard.orderManagement');
+      case 'analytics': return t('distributorDashboard.performanceAnalytics');
+      case 'communications': return t('distributorDashboard.communicationHub');
+      default: return t('distributorDashboard.dashboardOverview');
     }
   };
 
   const getPageSubtitle = (page: NavigationPage) => {
     switch (page) {
-      case 'dashboard': return 'Welcome to your distributor portal';
-      case 'products': return 'Manage your assigned products and inventory';
-      case 'inventory': return 'Monitor stock levels and manage inventory across all locations';
-      case 'orders': return 'Track and manage customer orders';
-      case 'analytics': return 'Track your sales performance and business metrics';
-      case 'communications': return 'Stay updated with announcements, notifications, and messages';
-      default: return 'Welcome to your distributor portal';
+      case 'dashboard': return t('distributorDashboard.dashboardSubtitle');
+      case 'products': return t('distributorDashboard.productsSubtitle');
+      case 'inventory': return t('distributorDashboard.inventorySubtitle');
+      case 'orders': return t('distributorDashboard.ordersSubtitle');
+      case 'analytics': return t('distributorDashboard.analyticsSubtitle');
+      case 'communications': return t('distributorDashboard.communicationsSubtitle');
+      default: return t('distributorDashboard.dashboardSubtitle');
     }
   };
 

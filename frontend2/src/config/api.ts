@@ -11,7 +11,7 @@ const getBaseUrl = (): string => {
   // 2. Check for localhost/127.0.0.1
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     console.log('Detected localhost, using local backend');
-    return 'http://localhost:5000';
+    return 'http://localhost:10000';
   }
   
   // 3. Check for GitHub Codespaces (app.github.dev or github.dev)
@@ -22,7 +22,7 @@ const getBaseUrl = (): string => {
     
     // Try to find the port in the hostname and replace it
     // This regex looks for a hyphen followed by digits, followed by the domain suffix
-    const newHostname = hostname.replace(/-\d+(\.app\.github\.dev|\.github\.dev)/, '-5000$1');
+    const newHostname = hostname.replace(/-\d+(\.app\.github\.dev|\.github\.dev)/, '-10000$1');
     
     if (newHostname !== hostname) {
       console.log('Detected Codespace, constructed backend URL:', `https://${newHostname}`);
@@ -38,7 +38,7 @@ const getBaseUrl = (): string => {
     const subParts = subdomain.split('-');
     // If the last part is a number (port), replace it
     if (!isNaN(Number(subParts[subParts.length - 1]))) {
-      subParts[subParts.length - 1] = '5000';
+      subParts[subParts.length - 1] = '10000';
       const newUrl = `https://${subParts.join('-')}.${domain}`;
       console.log('Detected Codespace (fallback logic), constructed backend URL:', newUrl);
       return newUrl;
@@ -53,8 +53,8 @@ const getBaseUrl = (): string => {
   }
 
   // 5. Default for unknown environments (likely local dev with custom host)
-  console.warn('Unknown environment, defaulting to localhost:5000');
-  return 'http://localhost:5000';
+  console.warn('Unknown environment, defaulting to localhost:10000');
+  return 'http://localhost:10000';
 };
 
 export const API_CONFIG = {
@@ -75,6 +75,7 @@ export const API_CONFIG = {
       BASE: '/api/products',
       SEARCH: '/api/products/search',
       CATEGORIES: '/api/products/categories',
+      CATEGORIES_WITH_COUNTS: '/api/products/categories-with-counts',
       BY_CATEGORY: '/api/products/by-category',
       BY_ARTISAN: '/api/products/by-artisan',
       FEATURED: '/api/products/featured',

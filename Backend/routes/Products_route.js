@@ -89,6 +89,7 @@ if (typeof authenticateUser !== 'function') {
 
 // Public routes (no authentication required)
 router.get('/categories', controllerMethods.getProductCategories || ProductController.getProductCategories);
+router.get('/categories-with-counts', controllerMethods.getProductCategoriesWithCounts || ProductController.getProductCategoriesWithCounts);
 router.get('/popular', controllerMethods.getPopularProducts || ProductController.getPopularProducts);
 
 // Search and filter routes - PUBLIC for browsing

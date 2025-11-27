@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, MessageSquare, Megaphone, CheckCircle, X } from 'lucide-react';
 
 interface Notification {
@@ -28,6 +29,7 @@ interface Message {
 }
 
 const Communications: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState<'notifications' | 'announcements' | 'messages'>('notifications');
   const [unreadNotifications] = useState(2);
   const [newMessages] = useState(2);

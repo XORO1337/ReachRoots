@@ -1,11 +1,15 @@
 const express = require('express');
 const OrderController = require('../controllers/Order_controller.js');
+const OrderStatusController = require('../controllers/OrderStatus_controller.js');
 const { authenticateToken } = require('../middleware/auth');
 const { validateOrderCreation } = require('../middleware/validation');
 const router = express.Router();
 
 // Order creation and management
 router.post('/', authenticateToken, validateOrderCreation, OrderController.createOrder);
+
+// Get shipping carriers list (public)
+router.get('/shipping-carriers', OrderStatusController.getShippingCarriers);
 
 // Test route for order creation (temporary)
 router.post('/test-create', async (req, res) => {
@@ -51,6 +55,7 @@ router.get('/analytics/summary', authenticateToken, OrderController.getOrderSumm
 // Order listing and filtering
 router.get('/artisan', authenticateToken, OrderController.getArtisanOrders);
 router.get('/distributor', authenticateToken, OrderController.getDistributorOrders);
+router.get('/buyer/me', authenticateToken, OrderController.getMyOrders); // Get current user's orders
 router.get('/buyer/:buyerId', authenticateToken, OrderController.getOrdersByBuyer);
 
 // Basic CRUD Operations
@@ -59,7 +64,34 @@ router.get('/:id', authenticateToken, OrderController.getOrderById);
 router.put('/:id', authenticateToken, OrderController.updateOrder);
 router.delete('/:id', authenticateToken, OrderController.deleteOrder);
 
-// Status management
+// ============================================
+// ORDER STATUS MANAGEMENT ROUTES
+// ============================================
+
+// Get order status with full details
+router.get('/:id/status-info', authenticateToken, OrderStatusController.getOrderStatus);
+
+// Get status history timeline
+router.get('/:id/history', authenticateToken, OrderStatusController.getStatusHistory);
+
+// Status transition endpoints
+router.patch('/:id/receive', authenticateToken, OrderStatusController.markAsReceived);
+router.patch('/:id/pack', authenticateToken, OrderStatusController.markAsPacked);
+router.post('/:id/request-pickup', authenticateToken, OrderStatusController.requestPickupAgent);
+router.post('/:id/self-ship', authenticateToken, OrderStatusController.confirmSelfShipping);
+router.patch('/:id/deliver', authenticateToken, OrderStatusController.markAsDelivered);
+router.patch('/:id/cancel', authenticateToken, OrderStatusController.cancelOrder);
+
+// Admin/logistics endpoint for confirming pickup
+router.post('/:id/confirm-pickup', authenticateToken, OrderStatusController.confirmPickup);
+
+// Add note to order
+router.post('/:id/note', authenticateToken, OrderStatusController.addNote);
+
+// Revert status (within 15-minute window)
+router.post('/:id/revert', authenticateToken, OrderStatusController.revertStatus);
+
+// Legacy status management (keep for backward compatibility)
 router.patch('/:id/status', authenticateToken, OrderController.updateOrderStatus);
 
 // Order items management

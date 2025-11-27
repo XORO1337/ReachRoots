@@ -10,7 +10,6 @@ import ProductModal from '../components/marketplace/ProductModal';
 import SellerModal from '../components/shared/SellerModal';
 import Footer from '../components/layout/Footer';
 import LanguageSelectionModal from '../components/shared/LanguageSelectionModal';
-import { products as mockProducts } from '../data/mockData';
 import { Product, FilterState } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useLanguageSelection } from '../hooks/useLanguageSelection';
@@ -32,8 +31,8 @@ const Marketplace: React.FC = () => {
     craftType: '',
     search: ''
   });
-  const [catalogProducts, setCatalogProducts] = useState<Product[]>(mockProducts);
-  const [productsLoading, setProductsLoading] = useState(false);
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState<string | null>(null);
 
   const mapApiProductToCatalog = (apiProduct: ApiProduct): Product => {
@@ -95,14 +94,14 @@ const Marketplace: React.FC = () => {
         setProductsError(null);
         const result = await ProductService.getProductList({ limit: 24 });
         const mappedProducts = result.products.map(mapApiProductToCatalog);
-        setCatalogProducts(mappedProducts.length ? mappedProducts : mockProducts);
+        setCatalogProducts(mappedProducts);
         if (!mappedProducts.length) {
-          setProductsError('Unable to load live catalog. Showing curated samples instead.');
+          setProductsError('No products available at the moment. Please check back later.');
         }
       } catch (error) {
         console.error('Failed to load products:', error);
-        setProductsError('Unable to load live catalog. Showing curated samples instead.');
-        setCatalogProducts(mockProducts);
+        setProductsError('Unable to load products. Please try again later.');
+        setCatalogProducts([]);
       } finally {
         setProductsLoading(false);
       }
@@ -246,6 +245,7 @@ const Marketplace: React.FC = () => {
           setIsSellerModalOpen(false);
           setSelectedSellerId(null);
         }}
+        sellerData={selectedSellerId ? catalogProducts.find(p => p.seller.id === selectedSellerId)?.seller : undefined}
       />
 
       {/* Language Selection Modal */}

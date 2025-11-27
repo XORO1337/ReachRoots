@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, MapPin, Award } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useHeroShowcase } from '../../hooks/useHeroShowcase';
 
 const Hero: React.FC = () => {
+  const { t } = useTranslation();
   const { products, loading, error } = useHeroShowcase();
 
   // Fallback images in case of no data or loading
@@ -42,18 +44,17 @@ const Hero: React.FC = () => {
           <div className="space-y-6">
             <div className="inline-flex items-center px-4 py-2 bg-orange-100 rounded-full text-orange-700 text-sm font-medium">
               <Award className="h-4 w-4 mr-2" />
-              Authentic Handmade Crafts
+              {t('hero.badge')}
             </div>
             
             <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              Connect with
-              <span className="text-orange-600 block">Skilled Artisans</span>
-              Across India
+              {t('hero.titleLine1')}
+              <span className="text-orange-600 block">{t('hero.titleLine2')}</span>
+              {t('hero.titleLine3')}
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl">
-              Discover authentic handmade crafts directly from talented artisans in tier 2 and tier 3 cities. 
-              Support traditional craftsmanship while sourcing unique products for your business.
+              {t('hero.description')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
@@ -61,14 +62,14 @@ const Hero: React.FC = () => {
                 to="/signup"
                 className="bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center"
               >
-                Start Shopping
+                {t('hero.startShopping')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link 
                 to="/artisans/top"
                 className="border-2 border-orange-600 text-orange-600 px-8 py-4 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-center"
               >
-                Meet Our Artisans
+                {t('hero.meetArtisans')}
               </Link>
             </div>
             
@@ -76,15 +77,15 @@ const Hero: React.FC = () => {
             <div className="grid grid-cols-3 gap-8 pt-8">
               <div className="text-center">
                 <div className="text-3xl font-bold text-gray-900">500+</div>
-                <div className="text-gray-600">Skilled Artisans</div>
+                <div className="text-gray-600">{t('hero.stats.artisans')}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-gray-900">50+</div>
-                <div className="text-gray-600">Cities Connected</div>
+                <div className="text-gray-600">{t('hero.stats.cities')}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-gray-900">10K+</div>
-                <div className="text-gray-600">Happy Customers</div>
+                <div className="text-gray-600">{t('hero.stats.customers')}</div>
               </div>
             </div>
           </div>
@@ -197,8 +198,8 @@ const Hero: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Users className="h-5 w-5 text-orange-600" />
                 <div>
-                  <div className="font-semibold text-sm">Direct from Artisans</div>
-                  <div className="text-xs text-gray-600">No middlemen</div>
+                  <div className="font-semibold text-sm">{t('hero.directFromArtisans')}</div>
+                  <div className="text-xs text-gray-600">{t('hero.noMiddlemen')}</div>
                 </div>
               </div>
             </div>
@@ -207,8 +208,8 @@ const Hero: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <MapPin className="h-5 w-5 text-orange-600" />
                 <div>
-                  <div className="font-semibold text-sm">Pan-India Network</div>
-                  <div className="text-xs text-gray-600">50+ cities covered</div>
+                  <div className="font-semibold text-sm">{t('hero.panIndiaNetwork')}</div>
+                  <div className="text-xs text-gray-600">{t('hero.citiesCovered')}</div>
                 </div>
               </div>
             </div>

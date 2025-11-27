@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 
 interface HeaderProps {
@@ -7,12 +8,13 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
+  const { t } = useTranslation();
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <span>Artisan Hub</span>
+            <span>{t('artisanDashboard.artisanHub')}</span>
             <span>›</span>
             <span>{title}</span>
           </div>

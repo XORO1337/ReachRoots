@@ -237,40 +237,64 @@ class ProductService {
   }
 
   /**
-   * Get category data with product counts and images
+   * Get categories with counts from optimized backend endpoint
+   */
+  static async getCategoriesWithCounts(): Promise<Array<{ name: string; productCount: number }>> {
+    try {
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.PRODUCTS.CATEGORIES_WITH_COUNTS);
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.data || [];
+      } else {
+        throw new Error(result.message || 'Failed to fetch categories with counts');
+      }
+    } catch (error) {
+      console.error('Error fetching categories with counts:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get category data with product counts and images (optimized - single API call)
    */
   static async getCategoriesWithDetails(): Promise<CategoryData[]> {
     try {
-      const categories = await this.getCategories();
+      // Use optimized endpoint that returns categories with counts in single query
+      const categoriesWithCounts = await this.getCategoriesWithCounts();
       
-      // Create category data with icons and get product counts
-      const categoryDetails = await Promise.all(
-        categories.map(async (category) => {
-          try {
-            // Get actual product count for each category
-            const productCountResponse = await this.getProductCountByCategory(category);
-            
-            return {
-              id: category.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-              name: category,
-              image: this.getCategoryImage(category),
-              icon: this.getCategoryIcon(category),
-              productCount: productCountResponse
-            };
-          } catch (error) {
-            console.error(`Error fetching data for category ${category}:`, error);
-            return {
-              id: category.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-              name: category,
-              image: this.getCategoryImage(category),
-              icon: this.getCategoryIcon(category),
-              productCount: 0
-            };
-          }
-        })
-      );
+      if (categoriesWithCounts.length === 0) {
+        // Fallback to old method if optimized endpoint fails
+        const categories = await this.getCategories();
+        return categories.map(category => ({
+          id: category.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+          name: category,
+          image: this.getCategoryImage(category),
+          icon: this.getCategoryIcon(category),
+          productCount: 0
+        }));
+      }
 
-      return categoryDetails;
+      // Map the optimized response to CategoryData format
+      return categoriesWithCounts.map(cat => ({
+        id: cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        name: cat.name,
+        image: this.getCategoryImage(cat.name),
+        icon: this.getCategoryIcon(cat.name),
+        productCount: cat.productCount
+      }));
     } catch (error) {
       console.error('Error fetching category details:', error);
       return [];
@@ -295,18 +319,101 @@ class ProductService {
    */
   private static getCategoryImage(category: string): string {
     const categoryImages: Record<string, string> = {
-      'textiles': 'https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'pottery': 'https://images.pexels.com/photos/1081199/pexels-photo-1081199.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'jewelry': 'https://images.pexels.com/photos/1927259/pexels-photo-1927259.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'wooden crafts': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'woodwork': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'metalwork': 'https://images.pexels.com/photos/6045247/pexels-photo-6045247.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'home decor': 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=300',
-      'handicrafts': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300',
+      // Textiles & Fabrics
+      'textiles': 'https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'textile': 'https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'handloom': 'https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'weaving': 'https://images.pexels.com/photos/6850602/pexels-photo-6850602.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'embroidery': 'https://images.pexels.com/photos/6850602/pexels-photo-6850602.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'fabric': 'https://images.pexels.com/photos/6292652/pexels-photo-6292652.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Pottery & Ceramics
+      'pottery': 'https://images.pexels.com/photos/1081199/pexels-photo-1081199.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'ceramics': 'https://images.pexels.com/photos/1081199/pexels-photo-1081199.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'terracotta': 'https://images.pexels.com/photos/2162938/pexels-photo-2162938.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'clay': 'https://images.pexels.com/photos/1081199/pexels-photo-1081199.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Jewelry & Accessories
+      'jewelry': 'https://images.pexels.com/photos/1927259/pexels-photo-1927259.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'jewellery': 'https://images.pexels.com/photos/1927259/pexels-photo-1927259.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'accessories': 'https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'ornaments': 'https://images.pexels.com/photos/1927259/pexels-photo-1927259.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Wood & Bamboo
+      'wooden crafts': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'woodwork': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'wood': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'bamboo': 'https://images.pexels.com/photos/4207892/pexels-photo-4207892.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'cane': 'https://images.pexels.com/photos/4207892/pexels-photo-4207892.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'furniture': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Metal & Brass
+      'metalwork': 'https://images.pexels.com/photos/6045247/pexels-photo-6045247.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'metal': 'https://images.pexels.com/photos/6045247/pexels-photo-6045247.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'brass': 'https://images.pexels.com/photos/6045247/pexels-photo-6045247.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'copper': 'https://images.pexels.com/photos/6045247/pexels-photo-6045247.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'bell metal': 'https://images.pexels.com/photos/6045247/pexels-photo-6045247.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Home & Decor
+      'home decor': 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'home': 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'decor': 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'decoration': 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'wall art': 'https://images.pexels.com/photos/1674049/pexels-photo-1674049.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Handicrafts & Art
+      'handicrafts': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'handicraft': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'crafts': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'art': 'https://images.pexels.com/photos/1674049/pexels-photo-1674049.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'paintings': 'https://images.pexels.com/photos/1674049/pexels-photo-1674049.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'painting': 'https://images.pexels.com/photos/1674049/pexels-photo-1674049.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Leather
+      'leather': 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'leather goods': 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'bags': 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Paper & Stationery
+      'paper': 'https://images.pexels.com/photos/6373305/pexels-photo-6373305.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'paper crafts': 'https://images.pexels.com/photos/6373305/pexels-photo-6373305.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'stationery': 'https://images.pexels.com/photos/6373305/pexels-photo-6373305.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Food & Organic
+      'food': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'organic': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'spices': 'https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'pickles': 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Jute & Natural Fiber
+      'jute': 'https://images.pexels.com/photos/5603635/pexels-photo-5603635.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'jute products': 'https://images.pexels.com/photos/5603635/pexels-photo-5603635.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'natural fiber': 'https://images.pexels.com/photos/5603635/pexels-photo-5603635.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Stone & Marble
+      'stone': 'https://images.pexels.com/photos/2536543/pexels-photo-2536543.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'marble': 'https://images.pexels.com/photos/2536543/pexels-photo-2536543.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'stone carving': 'https://images.pexels.com/photos/2536543/pexels-photo-2536543.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Glass
+      'glass': 'https://images.pexels.com/photos/4207908/pexels-photo-4207908.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'glasswork': 'https://images.pexels.com/photos/4207908/pexels-photo-4207908.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Traditional & Regional
+      'traditional': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'ethnic': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'tribal': 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600',
+      
+      // Miscellaneous
+      'toys': 'https://images.pexels.com/photos/163036/mario-luigi-figures-background-163036.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'dolls': 'https://images.pexels.com/photos/163036/mario-luigi-figures-background-163036.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'musical instruments': 'https://images.pexels.com/photos/1407322/pexels-photo-1407322.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'candles': 'https://images.pexels.com/photos/1123262/pexels-photo-1123262.jpeg?auto=compress&cs=tinysrgb&w=600',
+      'incense': 'https://images.pexels.com/photos/4040584/pexels-photo-4040584.jpeg?auto=compress&cs=tinysrgb&w=600',
     };
     
-    const key = category.toLowerCase();
-    return categoryImages[key] || 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300';
+    const key = category.toLowerCase().trim();
+    return categoryImages[key] || 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=600';
   }
 
   /**
@@ -314,17 +421,100 @@ class ProductService {
    */
   private static getCategoryIcon(category: string): string {
     const categoryIcons: Record<string, string> = {
+      // Textiles & Fabrics
       'textiles': 'Shirt',
+      'textile': 'Shirt',
+      'handloom': 'Shirt',
+      'weaving': 'Layers',
+      'embroidery': 'Scissors',
+      'fabric': 'Shirt',
+      
+      // Pottery & Ceramics
       'pottery': 'Cookie',
+      'ceramics': 'Cookie',
+      'terracotta': 'FlaskConical',
+      'clay': 'Cookie',
+      
+      // Jewelry & Accessories
       'jewelry': 'Gem',
+      'jewellery': 'Gem',
+      'accessories': 'Watch',
+      'ornaments': 'Gem',
+      
+      // Wood & Bamboo
       'wooden crafts': 'TreePine',
       'woodwork': 'TreePine',
+      'wood': 'TreePine',
+      'bamboo': 'Leaf',
+      'cane': 'Leaf',
+      'furniture': 'Armchair',
+      
+      // Metal & Brass
       'metalwork': 'Wrench',
+      'metal': 'Wrench',
+      'brass': 'Award',
+      'copper': 'Award',
+      'bell metal': 'Bell',
+      
+      // Home & Decor
       'home decor': 'Home',
+      'home': 'Home',
+      'decor': 'Lamp',
+      'decoration': 'Sparkles',
+      'wall art': 'Frame',
+      
+      // Handicrafts & Art
       'handicrafts': 'Palette',
+      'handicraft': 'Palette',
+      'crafts': 'Palette',
+      'art': 'PaintBucket',
+      'paintings': 'Paintbrush',
+      'painting': 'Paintbrush',
+      
+      // Leather
+      'leather': 'Briefcase',
+      'leather goods': 'Briefcase',
+      'bags': 'ShoppingBag',
+      
+      // Paper & Stationery
+      'paper': 'FileText',
+      'paper crafts': 'FileText',
+      'stationery': 'PenTool',
+      
+      // Food & Organic
+      'food': 'Utensils',
+      'organic': 'Leaf',
+      'spices': 'Flame',
+      'pickles': 'Utensils',
+      
+      // Jute & Natural Fiber
+      'jute': 'Wheat',
+      'jute products': 'Wheat',
+      'natural fiber': 'Wheat',
+      
+      // Stone & Marble
+      'stone': 'Mountain',
+      'marble': 'Mountain',
+      'stone carving': 'Hammer',
+      
+      // Glass
+      'glass': 'Wine',
+      'glasswork': 'Wine',
+      
+      // Traditional & Regional
+      'traditional': 'Star',
+      'ethnic': 'Star',
+      'tribal': 'Tent',
+      
+      // Miscellaneous
+      'toys': 'Gamepad2',
+      'dolls': 'Baby',
+      'musical instruments': 'Music',
+      'candles': 'Flame',
+      'incense': 'Wind',
     };
     
-    const key = category.toLowerCase();
+    const key = category.toLowerCase().trim();
     return categoryIcons[key] || 'Package';
   }
   /**

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Product, ProductReview } from '../../types';
 import { X, Star, MapPin, ShoppingCart, Heart, Share2 } from 'lucide-react';
 import { formatWeightUnit } from '../../utils/formatters';
@@ -24,6 +25,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onViewSeller,
   onReviewSummaryUpdate
 }) => {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const userId = user?.id;
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -202,7 +204,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       ? 'bg-green-100 text-green-600' 
                       : 'bg-red-100 text-red-600'
                   }`}>
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    {product.inStock ? t('productModal.inStock') : t('productCard.outOfStock')}
                   </span>
                 </div>
 
@@ -265,7 +267,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                 {/* Description */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('productModal.description')}</h3>
                   <p className="text-gray-600 leading-relaxed">
                     {product.description}
                   </p>
@@ -273,7 +275,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                 {/* Materials */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Materials Used</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('productModal.materialsUsed')}</h3>
                   <div className="flex flex-wrap gap-2">
                     {product.materials.map((material, index) => (
                       <span
@@ -288,7 +290,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                   {/* Reviews */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Customer Reviews</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('productModal.customerReviews')}</h3>
                     <div className="flex items-center mb-3">
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
@@ -301,8 +303,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     <div className="mb-4 space-y-4">
                       {!isAuthenticated && (
                         <div className="border border-blue-100 bg-blue-50 p-4 rounded-lg text-sm text-blue-800 flex items-center justify-between">
-                          <span>Sign in to share your experience with this product.</span>
-                          <button onClick={() => redirectToAppRoute('/login')} className="text-blue-700 font-medium underline">Sign in</button>
+                          <span>{t('productModal.signInToReview')}</span>
+                          <button onClick={() => redirectToAppRoute('/login')} className="text-blue-700 font-medium underline">{t('auth.login')}</button>
                         </div>
                       )}
 
@@ -310,14 +312,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <div className="border border-orange-100 bg-orange-50 p-4 rounded-lg">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-sm font-semibold text-orange-900">You already reviewed this product</p>
-                              <p className="text-xs text-orange-800">Update your review if something changed.</p>
+                              <p className="text-sm font-semibold text-orange-900">{t('productModal.alreadyReviewed')}</p>
+                              <p className="text-xs text-orange-800">{t('productModal.updateReviewHint')}</p>
                             </div>
                             <button
                               onClick={handleEditReviewClick}
                               className="text-sm font-medium text-orange-700 underline"
                             >
-                              Edit your review
+                              {t('productModal.editYourReview')}
                             </button>
                           </div>
                         </div>
@@ -326,10 +328,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       {isAuthenticated && (!currentUserReview || isEditing) && (
                         <div className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-3">
-                            <label className="block text-sm font-medium text-gray-700">Your rating</label>
+                            <label className="block text-sm font-medium text-gray-700">{t('productModal.yourRating')}</label>
                             {isEditing && (
                               <button className="text-xs text-gray-500 underline" onClick={handleCancelEdit}>
-                                Cancel edit
+                                {t('productModal.cancelEdit')}
                               </button>
                             )}
                           </div>
@@ -345,13 +347,13 @@ const ProductModal: React.FC<ProductModalProps> = ({
                               </button>
                             ))}
                           </div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Comment</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('productModal.comment')}</label>
                           <textarea
                             value={userComment}
                             onChange={(e) => setUserComment(e.target.value)}
                             className="w-full border border-gray-200 rounded-md p-2 text-sm"
                             rows={3}
-                            placeholder="Share your experience..."
+                            placeholder={t('productModal.shareExperience')}
                           />
                           {reviewsError && <div className="text-sm text-red-600 mt-2">{reviewsError}</div>}
                           <div className="mt-3 flex items-center gap-3">
@@ -360,10 +362,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
                               disabled={submitting || userRating === 0}
                               className="bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-700 disabled:opacity-60"
                             >
-                              {submitting ? (isEditing ? 'Saving...' : 'Submitting...') : isEditing ? 'Save changes' : 'Submit review'}
+                              {submitting ? (isEditing ? t('productModal.saving') : t('productModal.submitting')) : isEditing ? t('productModal.saveChanges') : t('productModal.submitReview')}
                             </button>
                             {isEditing && (
-                              <button onClick={handleCancelEdit} className="text-sm text-gray-500 underline">Never mind</button>
+                              <button onClick={handleCancelEdit} className="text-sm text-gray-500 underline">{t('productModal.neverMind')}</button>
                             )}
                           </div>
                         </div>
@@ -373,9 +375,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     {/* Reviews list */}
                     <div className="space-y-3">
                       {reviewsLoading ? (
-                        <div className="text-sm text-gray-500">Loading reviews...</div>
+                        <div className="text-sm text-gray-500">{t('productModal.loadingReviews')}</div>
                       ) : reviewsData.length === 0 ? (
-                        <div className="text-sm text-gray-500">No reviews yet. Be the first to review this product.</div>
+                        <div className="text-sm text-gray-500">{t('productModal.noReviewsYet')}</div>
                       ) : (
                         reviewsData.map((r, idx) => {
                           const matchesId = currentUserReview?._id && r._id && currentUserReview._id === r._id;
@@ -391,14 +393,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                   <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-sm text-gray-700">{(r.userName || 'U')[0]}</div>
                                   <div>
                                     <div className="flex items-center gap-2">
-                                      <div className="text-sm font-medium text-gray-900">{r.userName || 'Anonymous'}</div>
-                                      {isOwnReview && <span className="text-xs text-orange-700 font-semibold">Your review</span>}
-                                      {r.verifiedPurchase && <span className="text-xs text-green-600 font-semibold">Verified purchase</span>}
+                                      <div className="text-sm font-medium text-gray-900">{r.userName || t('productModal.anonymous')}</div>
+                                      {isOwnReview && <span className="text-xs text-orange-700 font-semibold">{t('productModal.yourReview')}</span>}
+                                      {r.verifiedPurchase && <span className="text-xs text-green-600 font-semibold">{t('productModal.verifiedPurchase')}</span>}
                                     </div>
                                     <div className="text-xs text-gray-500 flex flex-col">
                                       <span>{new Date(r.createdAt || '').toLocaleDateString()}</span>
                                       {r.lastEditedAt && (
-                                        <span>Edited {new Date(r.lastEditedAt).toLocaleDateString()}</span>
+                                        <span>{t('productModal.edited')} {new Date(r.lastEditedAt).toLocaleDateString()}</span>
                                       )}
                                     </div>
                                   </div>
@@ -415,7 +417,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                       onClick={handleEditReviewClick}
                                       className="text-xs text-orange-700 underline"
                                     >
-                                      Edit
+                                      {t('common.edit')}
                                     </button>
                                   )}
                                 </div>
@@ -431,7 +433,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   {/* Minimum Order */}
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <p className="text-blue-800 font-medium">
-                      Minimum Order Quantity: {product.minOrder} pieces
+                      {t('productModal.minimumOrderQuantity')}: {product.minOrder} {t('units.pieces')}
                     </p>
                   </div>
 
@@ -443,7 +445,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     className="flex-1 bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
                   >
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Add to Cart
+                    {t('productCard.addToCart')}
                   </button>
                   <button className="p-3 border-2 border-gray-300 rounded-lg hover:border-red-300 hover:text-red-500 transition-colors">
                     <Heart className="h-5 w-5" />

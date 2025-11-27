@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Search, 
   Grid, 
@@ -42,6 +43,7 @@ interface SearchResults {
 }
 
 const SearchResultsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { cartItems, addToCart, updateQuantity, removeItem, getCartItemsCount } = useCart();
   
@@ -329,10 +331,10 @@ const SearchResultsPage: React.FC = () => {
         <div className="flex items-center text-sm text-gray-600 mb-6">
           <Link to="/" className="hover:text-orange-600 flex items-center">
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Marketplace
+            {t('searchResults.backToMarketplace')}
           </Link>
           <span className="mx-2">/</span>
-          <span>Search Results</span>
+          <span>{t('searchResults.searchResults')}</span>
           {searchQuery && (
             <>
               <span className="mx-2">/</span>
@@ -346,21 +348,21 @@ const SearchResultsPage: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">
-                {searchQuery ? `Search Results for "${searchQuery}"` : 'Browse Products'}
+                {searchQuery ? `${t('searchResults.searchResultsFor')} "${searchQuery}"` : t('searchResults.browseProducts')}
               </h1>
               <div className="flex items-center gap-6 mt-2">
                 <p className="text-gray-600">
-                  {loading ? 'Searching...' : `${searchResults.totalCount} products found`}
+                  {loading ? t('searchResults.searching') : `${searchResults.totalCount} ${t('searchResults.productsFound')}`}
                 </p>
                 {searchResults.totalCount > 0 && (
                   <>
                     <div className="flex items-center text-sm text-gray-500">
                       <Users className="w-4 h-4 mr-1" />
-                      <span>{new Set(searchResults.products.map(p => p.seller.id)).size} artisans</span>
+                      <span>{new Set(searchResults.products.map(p => p.seller.id)).size} {t('searchResults.artisans')}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <Package className="w-4 h-4 mr-1" />
-                      <span>{searchResults.products.filter(p => p.inStock).length} in stock</span>
+                      <span>{searchResults.products.filter(p => p.inStock).length} {t('searchResults.inStock')}</span>
                     </div>
                   </>
                 )}
@@ -393,7 +395,7 @@ const SearchResultsPage: React.FC = () => {
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4" />
-                Filters
+                {t('searchResults.filters')}
                 {hasActiveFilters && (
                   <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
                 )}
@@ -407,13 +409,13 @@ const SearchResultsPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 flex items-center">
                   <FilterX className="w-4 h-4 mr-1" />
-                  Active filters:
+                  {t('searchResults.activeFilters')}
                 </span>
                 <button
                   onClick={clearFilters}
                   className="text-sm text-orange-600 hover:text-orange-700 font-medium underline decoration-dotted"
                 >
-                  Clear all
+                  {t('searchResults.clearAll')}
                 </button>
               </div>
             </div>
@@ -428,7 +430,7 @@ const SearchResultsPage: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-semibold text-gray-900 flex items-center">
                     <SlidersHorizontal className="w-5 h-5 mr-2 text-orange-600" />
-                    Filters
+                    {t('searchResults.filters')}
                   </h3>
                   <button
                     onClick={() => setShowFilters(false)}
@@ -443,14 +445,14 @@ const SearchResultsPage: React.FC = () => {
                   <div className="border-b border-gray-100 pb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                       <Package className="w-4 h-4 mr-2 text-orange-600" />
-                      Category
+                      {t('searchResults.category')}
                     </label>
                     <select
                       value={filters.category}
                       onChange={(e) => handleFilterChange('category', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                     >
-                      <option value="">All Categories</option>
+                      <option value="">{t('searchResults.allCategories')}</option>
                       {availableCategories.map((category: string) => (
                         <option key={category} value={category}>{category}</option>
                       ))}
@@ -461,13 +463,13 @@ const SearchResultsPage: React.FC = () => {
                   <div className="border-b border-gray-100 pb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                       <TrendingUp className="w-4 h-4 mr-2 text-green-600" />
-                      Price Range (₹)
+                      {t('searchResults.priceRange')}
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <input
                           type="number"
-                          placeholder="Min"
+                          placeholder={t('searchResults.minPrice')}
                           value={filters.minPrice}
                           onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
@@ -476,7 +478,7 @@ const SearchResultsPage: React.FC = () => {
                       <div>
                         <input
                           type="number"
-                          placeholder="Max"
+                          placeholder={t('searchResults.maxPrice')}
                           value={filters.maxPrice}
                           onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
@@ -489,11 +491,11 @@ const SearchResultsPage: React.FC = () => {
                   <div className="border-b border-gray-100 pb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                       <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                      Artisan Location
+                      {t('searchResults.artisanLocation')}
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter city or state"
+                      placeholder={t('searchResults.enterCityOrState')}
                       value={filters.artisanLocation}
                       onChange={(e) => handleFilterChange('artisanLocation', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
@@ -509,7 +511,7 @@ const SearchResultsPage: React.FC = () => {
             {/* Sort Options */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600 font-medium">Sort by:</span>
+                <span className="text-sm text-gray-600 font-medium">{t('searchResults.sortBy')}</span>
                 <select
                   value={`${filters.sortBy}-${filters.sortOrder}`}
                   onChange={(e) => {
@@ -518,12 +520,12 @@ const SearchResultsPage: React.FC = () => {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white"
                 >
-                  <option value="createdAt-desc">Newest First</option>
-                  <option value="createdAt-asc">Oldest First</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="name-asc">Name: A to Z</option>
-                  <option value="name-desc">Name: Z to A</option>
+                  <option value="createdAt-desc">{t('searchResults.newestFirst')}</option>
+                  <option value="createdAt-asc">{t('searchResults.oldestFirst')}</option>
+                  <option value="price-asc">{t('searchResults.priceLowToHigh')}</option>
+                  <option value="price-desc">{t('searchResults.priceHighToLow')}</option>
+                  <option value="name-asc">{t('searchResults.nameAToZ')}</option>
+                  <option value="name-desc">{t('searchResults.nameZToA')}</option>
                 </select>
               </div>
             </div>
@@ -543,7 +545,7 @@ const SearchResultsPage: React.FC = () => {
                   onClick={() => fetchSearchResults(searchQuery, currentPage, filters)}
                   className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
-                  Try Again
+                  {t('searchResults.tryAgain')}
                 </button>
               </div>
             )}
@@ -552,15 +554,15 @@ const SearchResultsPage: React.FC = () => {
             {!loading && !error && searchResults.products.length === 0 && (
               <div className="text-center py-12">
                 <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('searchResults.noProductsFound')}</h3>
                 <p className="text-gray-500 mb-6">
-                  Try adjusting your search criteria or clear some filters
+                  {t('searchResults.tryAdjustingSearch')}
                 </p>
                 <button
                   onClick={clearFilters}
                   className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
-                  Clear Filters
+                  {t('searchResults.clearFilters')}
                 </button>
               </div>
             )}
@@ -589,7 +591,7 @@ const SearchResultsPage: React.FC = () => {
                 {searchResults.totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row justify-between items-center mt-12 gap-4">
                     <div className="text-sm text-gray-600">
-                      Showing {((currentPage - 1) * 12) + 1} to {Math.min(currentPage * 12, searchResults.totalCount)} of {searchResults.totalCount} products
+                      {t('searchResults.showing')} {((currentPage - 1) * 12) + 1} {t('searchResults.to')} {Math.min(currentPage * 12, searchResults.totalCount)} {t('searchResults.of')} {searchResults.totalCount} {t('searchResults.products')}
                     </div>
                     
                     <div className="flex items-center space-x-2">
@@ -598,7 +600,7 @@ const SearchResultsPage: React.FC = () => {
                         disabled={currentPage === 1}
                         className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                       >
-                        ← Previous
+                        ← {t('searchResults.previous')}
                       </button>
 
                       {(() => {
@@ -650,7 +652,7 @@ const SearchResultsPage: React.FC = () => {
                         disabled={currentPage === searchResults.totalPages}
                         className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                       >
-                        Next →
+                        {t('searchResults.next')} →
                       </button>
                     </div>
                   </div>

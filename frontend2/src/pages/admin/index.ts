@@ -5,3 +5,7 @@ export { default as Notifications } from './Notifications';
 export { default as Analytics } from './Analytics';
 export { default as Settings } from './Settings';
 export { default as ActivityLogs } from './ActivityLogs';
+export { default as OrderManagement } from './OrderManagement';
+export { default as AgentManagement } from './AgentManagement';
+export { default as PickupRequests } from './PickupRequests';
+export { default as AgentApplications } from './AgentApplications';
