@@ -33,9 +33,6 @@ export interface PaymentFailurePayload {
   reason?: string;
 }
 
-<<<<<<< HEAD
-class PaymentService {
-=======
 export interface PaymentAvailability {
   onlinePaymentsAvailable: boolean;
   availableMethods: PaymentMethod[];
@@ -65,7 +62,6 @@ class PaymentService {
     }
   }
 
->>>>>>> fixed-repo/main
   static async createRazorpayOrder(payload: RazorpayOrderPayload): Promise<RazorpayOrderConfig> {
     const response = await api.post('/api/payments/razorpay/order', payload);
     if (!response.data?.success) {

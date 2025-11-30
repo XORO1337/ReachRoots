@@ -234,8 +234,6 @@ const getProductCategories = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-=======
 // Get product categories with counts (optimized)
 const getProductCategoriesWithCounts = async (req, res) => {
   try {
@@ -253,7 +251,6 @@ const getProductCategoriesWithCounts = async (req, res) => {
   }
 };
 
->>>>>>> fixed-repo/main
 // Get featured products
 const getFeaturedProducts = async (req, res) => {
   try {
@@ -591,10 +588,6 @@ module.exports = {
   getProductStatistics,
   getLowStockAlert,
   addProductReview,
-<<<<<<< HEAD
-  getProductReviews
-=======
   getProductReviews,
   getProductCategoriesWithCounts
->>>>>>> fixed-repo/main
 };

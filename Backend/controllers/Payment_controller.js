@@ -209,8 +209,6 @@ class PaymentController {
       res.status(500).json({ success: false, message: error.message || 'Failed to update payment status' });
     }
   }
-<<<<<<< HEAD
-=======
 
   // Check if online payment methods are available
   static async checkPaymentAvailability(req, res) {
@@ -234,7 +232,6 @@ class PaymentController {
       res.status(500).json({ success: false, message: error.message });
     }
   }
->>>>>>> fixed-repo/main
 }
 
 module.exports = PaymentController;
