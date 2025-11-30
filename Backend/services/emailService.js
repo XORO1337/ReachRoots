@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
-    this.usingConsoleTransport = false;
     this.transporter = null;
     this.defaultFrom = process.env.SMTP_FROM || 'RootsReach <no-reply@rootsreach.com>';
 
@@ -13,7 +12,6 @@ class EmailService {
       process.env.SMTP_PASS
     );
 
-    // Try to use real SMTP if credentials are available
     if (hasSmtpCreds) {
       try {
         this.transporter = nodemailer.createTransport({
@@ -25,55 +23,24 @@ class EmailService {
             pass: process.env.SMTP_PASS
           },
           // Add connection timeout to prevent hanging
-          connectionTimeout: 10000, // 10 seconds
+          connectionTimeout: 10000,
           greetingTimeout: 10000,
           socketTimeout: 10000
         });
-
-        // Test the connection immediately
-        this.transporter.verify((error, success) => {
-          if (error) {
-            console.warn('[EmailService] SMTP verification failed, falling back to console transport:', error.message);
-            this.fallbackToConsoleTransport('SMTP verification failed');
-          } else {
-            console.log('[EmailService] SMTP transporter configured and verified.');
-            this.isConfiguredFlag = true;
-          }
-        });
-        return;
+        this.isConfiguredFlag = true;
+        console.log('[EmailService] SMTP transporter configured successfully.');
       } catch (error) {
-        console.warn('[EmailService] SMTP configuration failed, falling back to console transport:', error.message);
-        this.fallbackToConsoleTransport('SMTP configuration error');
-        return;
+        console.error('[EmailService] SMTP configuration failed:', error.message);
+        this.isConfiguredFlag = false;
       }
+    } else {
+      console.error('[EmailService] SMTP credentials are missing. Email service is not available.');
+      this.isConfiguredFlag = false;
     }
-
-    // No SMTP credentials - use console transport
-    this.fallbackToConsoleTransport('SMTP credentials missing');
-  }
-
-  fallbackToConsoleTransport(reason) {
-    this.transporter = nodemailer.createTransport({
-      streamTransport: true,
-      newline: 'unix',
-      buffer: true
-    });
-    this.isConfiguredFlag = true;
-    this.usingConsoleTransport = true;
-    console.warn(`[EmailService] Using console transport (${reason}). OTP emails will be logged to the server console.`);
-  }
-
-  shouldEnableConsoleTransport() {
-    // This method is deprecated - console transport is now the default
-    return true;
   }
 
   isConfigured() {
     return this.isConfiguredFlag;
-  }
-
-  usesConsoleTransport() {
-    return this.usingConsoleTransport;
   }
 
   /**
@@ -110,15 +77,9 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
+      console.log('Email sent successfully:', info.messageId);
 
-      if (this.usingConsoleTransport) {
-        const preview = info.message ? info.message.toString() : '(no preview available)';
-        console.log(`\n[EmailService][Console] OTP email to ${email}:\n${preview}\n`);
-      } else {
-        console.log('Email sent successfully:', info.messageId);
-      }
-
-      return { skipped: false, messageId: info.messageId || 'dev-console' };
+      return { skipped: false, messageId: info.messageId };
     } catch (error) {
       console.error('Error sending email:', error);
       throw new Error('Failed to send email');

@@ -176,8 +176,7 @@ class AuthController {
           isEmailVerified: user.isEmailVerified,
           otpSent: true,
           otpExpires: otpResult.expiresAt,
-          otpDeliveryIssue: false,
-          devOtpCode: otpResult.devOtpCode
+          otpDeliveryIssue: false
         }
       });
     } catch (error) {
@@ -237,8 +236,7 @@ class AuthController {
             otpSent: true,
             requiresOTP: true,
             otpExpires: otpResult.expiresAt,
-            otpDeliveryIssue: false,
-            devOtpCode: otpResult.devOtpCode
+            otpDeliveryIssue: false
           }
         });
       } catch (otpError) {
@@ -504,8 +502,7 @@ class AuthController {
         data: {
           expiresAt: result.expiresAt,
           sendCount: result.sendCount,
-          maxSendsPerDay: result.maxSendsPerDay,
-          devOtpCode: result.devOtpCode
+          maxSendsPerDay: result.maxSendsPerDay
         }
       });
     } catch (error) {
@@ -537,8 +534,7 @@ class AuthController {
           expiresAt: result.expiresAt,
           attemptsRemaining: result.attemptsRemaining,
           dailySendCount: result.dailySendCount,
-          maxSendsPerDay: result.maxSendsPerDay,
-          devOtpCode: result.devOtpCode
+          maxSendsPerDay: result.maxSendsPerDay
         }
       });
     } catch (error) {
