@@ -59,7 +59,11 @@ function getClientURL() {
   }
   
   // Production fallback - you'll need to set this manually
+<<<<<<< HEAD
   return 'https://reachroots.onrender.com'; // Frontend production domain
+=======
+  return 'https://super-duper-fortnight-4jvx7qp4wxwc7jjg-5174.app.github.dev'; // Frontend production domain
+>>>>>>> fixed-repo/main
 }
 
 // Function to get backend URL

@@ -4,12 +4,24 @@ import { api } from '../utils/api';
 export interface ArtisanOrder {
   _id: string;
   orderNumber: string;
+<<<<<<< HEAD
   customerId: {
+=======
+  buyerId: {
+>>>>>>> fixed-repo/main
     _id: string;
     name: string;
     email: string;
     phone: string;
   };
+<<<<<<< HEAD
+=======
+  customerInfo?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+>>>>>>> fixed-repo/main
   items: Array<{
     productId: {
       _id: string;
@@ -20,7 +32,11 @@ export interface ArtisanOrder {
     price: number;
   }>;
   totalAmount: number;
+<<<<<<< HEAD
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+=======
+  status: 'pending' | 'received' | 'processing' | 'packed' | 'pickup_requested' | 'shipped' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'cancelled' | 'returned';
+>>>>>>> fixed-repo/main
   shippingAddress: {
     street: string;
     city: string;
@@ -28,6 +44,29 @@ export interface ArtisanOrder {
     zipCode: string;
     country: string;
   };
+<<<<<<< HEAD
+=======
+  shippingMethod?: 'self_ship' | 'pickup_agent';
+  shippingDetails?: {
+    carrier?: string;
+    trackingNumber?: string;
+    estimatedDelivery?: string;
+    proofOfShipment?: string;
+  };
+  statusHistory?: Array<{
+    status: string;
+    timestamp: string;
+    note?: string;
+    updatedBy?: string;
+  }>;
+  statusNotes?: Array<{
+    note: string;
+    status: string;
+    timestamp: string;
+    addedBy?: string;
+  }>;
+  lastStatusChangeAt?: string;
+>>>>>>> fixed-repo/main
   createdAt: string;
   updatedAt: string;
 }

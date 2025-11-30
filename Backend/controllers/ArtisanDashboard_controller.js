@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+const mongoose = require('mongoose');
+>>>>>>> fixed-repo/main
 const ArtisanService = require('../services/Artisan_serv');
 const ProductService = require('../services/Product_serv');
 const OrderService = require('../services/Order_serv');
@@ -59,29 +63,51 @@ class ArtisanDashboardController {
       const lastMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
 
       // Get artisan orders for current month
+<<<<<<< HEAD
       const currentMonthOrders = await Order.find({
         artisanId: artisan._id,
+=======
+      // Note: Order.artisanId references User, so use req.user.id
+      const currentMonthOrders = await Order.find({
+        artisanId: artisanId,
+>>>>>>> fixed-repo/main
         createdAt: { $gte: currentMonth }
       });
 
       // Get artisan orders for last month
       const lastMonthOrders = await Order.find({
+<<<<<<< HEAD
         artisanId: artisan._id,
+=======
+        artisanId: artisanId,
+>>>>>>> fixed-repo/main
         createdAt: { $gte: lastMonth, $lte: lastMonthEnd }
       });
 
       // Get total orders
+<<<<<<< HEAD
       const totalOrders = await Order.countDocuments({ artisanId: artisan._id });
 
       // Get active orders (not completed/cancelled)
       const activeOrders = await Order.countDocuments({
         artisanId: artisan._id,
+=======
+      const totalOrders = await Order.countDocuments({ artisanId: artisanId });
+
+      // Get active orders (not completed/cancelled)
+      const activeOrders = await Order.countDocuments({
+        artisanId: artisanId,
+>>>>>>> fixed-repo/main
         status: { $nin: ['completed', 'cancelled'] }
       });
 
       // Get pending deliveries
       const pendingDelivery = await Order.countDocuments({
+<<<<<<< HEAD
         artisanId: artisan._id,
+=======
+        artisanId: artisanId,
+>>>>>>> fixed-repo/main
         status: 'shipped'
       });
 
@@ -194,7 +220,11 @@ class ArtisanDashboardController {
       const salesByMonth = await Order.aggregate([
         {
           $match: {
+<<<<<<< HEAD
             artisanId: artisan._id,
+=======
+            artisanId: new mongoose.Types.ObjectId(artisanId),
+>>>>>>> fixed-repo/main
             createdAt: { $gte: twelveMonthsAgo },
             status: { $in: ['delivered', 'completed'] }
           }
@@ -223,7 +253,11 @@ class ArtisanDashboardController {
       const topProducts = await Order.aggregate([
         {
           $match: {
+<<<<<<< HEAD
             artisanId: artisan._id,
+=======
+            artisanId: new mongoose.Types.ObjectId(artisanId),
+>>>>>>> fixed-repo/main
             status: { $in: ['delivered', 'completed'] }
           }
         },
@@ -267,7 +301,11 @@ class ArtisanDashboardController {
       // Order status distribution
       const orderStatus = await Order.aggregate([
         {
+<<<<<<< HEAD
           $match: { artisanId: artisan._id }
+=======
+          $match: { artisanId: new mongoose.Types.ObjectId(artisanId) }
+>>>>>>> fixed-repo/main
         },
         {
           $group: {
@@ -357,7 +395,12 @@ class ArtisanDashboardController {
       }
 
       // Build query
+<<<<<<< HEAD
       const query = { artisanId: artisan._id };
+=======
+      // Note: Product.artisanId references User, so use req.user.id
+      const query = { artisanId: artisanId };
+>>>>>>> fixed-repo/main
       if (status) query.status = status;
       if (category) query.category = category;
 
@@ -412,13 +455,22 @@ class ArtisanDashboardController {
       }
 
       // Build query
+<<<<<<< HEAD
       const query = { artisanId: artisan._id };
+=======
+      // Note: Order.artisanId references User, so use req.user.id
+      const query = { artisanId: artisanId };
+>>>>>>> fixed-repo/main
       if (status) query.status = status;
 
       // Get orders with pagination
       const skip = (page - 1) * limit;
       const orders = await Order.find(query)
+<<<<<<< HEAD
         .populate('customerId', 'name email phone')
+=======
+        .populate('buyerId', 'name email phone')
+>>>>>>> fixed-repo/main
         .populate('items.productId', 'name price')
         .skip(skip)
         .limit(limit)
@@ -499,8 +551,14 @@ class ArtisanDashboardController {
       }
 
       // Update order
+<<<<<<< HEAD
       const order = await Order.findOneAndUpdate(
         { _id: orderId, artisanId: artisan._id },
+=======
+      // Note: Order.artisanId references User, so use req.user.id
+      const order = await Order.findOneAndUpdate(
+        { _id: orderId, artisanId: artisanId },
+>>>>>>> fixed-repo/main
         updateData,
         { new: true }
       ).populate('buyerId', 'name email phone')
@@ -568,9 +626,17 @@ class ArtisanDashboardController {
       }
 
       // Add artisan ID and images to product data
+<<<<<<< HEAD
       const productData = {
         ...req.body,
         artisanId: artisan._id,
+=======
+      // Note: artisanId should be the User's ID, not the ArtisanProfile's ID
+      // because Product.artisanId references the User collection
+      const productData = {
+        ...req.body,
+        artisanId: artisanId, // Use req.user.id (User ID), not artisan._id (ArtisanProfile ID)
+>>>>>>> fixed-repo/main
         images: imageUrls
       };
 
@@ -608,8 +674,14 @@ class ArtisanDashboardController {
       }
 
       // Update product (only if it belongs to the artisan)
+<<<<<<< HEAD
       const product = await Product.findOneAndUpdate(
         { _id: productId, artisanId: artisan._id },
+=======
+      // Note: Product.artisanId references User, so use req.user.id
+      const product = await Product.findOneAndUpdate(
+        { _id: productId, artisanId: artisanId },
+>>>>>>> fixed-repo/main
         { ...req.body, updatedAt: new Date() },
         { new: true }
       );
@@ -653,9 +725,16 @@ class ArtisanDashboardController {
       }
 
       // Delete product (only if it belongs to the artisan)
+<<<<<<< HEAD
       const product = await Product.findOneAndDelete({
         _id: productId,
         artisanId: artisan._id
+=======
+      // Note: Product.artisanId references User, so use req.user.id
+      const product = await Product.findOneAndDelete({
+        _id: productId,
+        artisanId: artisanId
+>>>>>>> fixed-repo/main
       });
 
       if (!product) {
@@ -775,8 +854,14 @@ class ArtisanDashboardController {
       }
 
       // Build query for delivery-relevant statuses
+<<<<<<< HEAD
       const query = { 
         artisanId: artisan._id,
+=======
+      // Note: Order.artisanId references User, so use req.user.id
+      const query = { 
+        artisanId: artisanId,
+>>>>>>> fixed-repo/main
         status: { $in: ['processing', 'shipped', 'delivered'] }
       };
       
@@ -898,7 +983,13 @@ class ArtisanDashboardController {
       }
 
       if (typeof phone === 'string') {
+<<<<<<< HEAD
         user.phone = phone.trim();
+=======
+        // Handle empty strings by setting to null for sparse index
+        const trimmedPhone = phone.trim();
+        user.phone = trimmedPhone || null;
+>>>>>>> fixed-repo/main
       }
 
       if (typeof location === 'string') {

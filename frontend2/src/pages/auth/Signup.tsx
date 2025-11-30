@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Palette, Package } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,6 +26,10 @@ interface SignupFormData {
 }
 
 const Signup: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState<SignupFormData>({
@@ -45,44 +53,77 @@ const Signup: React.FC = () => {
 
     // Name validation
     if (!formData.fullName.trim()) {
+<<<<<<< HEAD
       errors.fullName = 'Full name is required';
     } else if (formData.fullName.trim().length < 2) {
       errors.fullName = 'Full name must be at least 2 characters long';
+=======
+      errors.fullName = t('validation.nameRequired');
+    } else if (formData.fullName.trim().length < 2) {
+      errors.fullName = t('validation.nameMinLength');
+>>>>>>> fixed-repo/main
     }
 
     // Email validation
     if (!formData.email) {
+<<<<<<< HEAD
       errors.email = 'Email address is required';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       errors.email = 'Please enter a valid email address';
+=======
+      errors.email = t('validation.emailRequired');
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      errors.email = t('validation.emailInvalid');
+>>>>>>> fixed-repo/main
     }
 
     // Password validation
     if (!formData.password) {
+<<<<<<< HEAD
       errors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       errors.password = 'Password must be at least 8 characters long';
     } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(formData.password)) {
       errors.password = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)';
+=======
+      errors.password = t('validation.passwordRequired');
+    } else if (formData.password.length < 8) {
+      errors.password = t('validation.passwordMinLengthSignup');
+    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(formData.password)) {
+      errors.password = t('validation.passwordComplex');
+>>>>>>> fixed-repo/main
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
+<<<<<<< HEAD
       errors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       errors.confirmPassword = 'Passwords do not match';
+=======
+      errors.confirmPassword = t('validation.passwordConfirmRequired');
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = t('validation.passwordMismatch');
+>>>>>>> fixed-repo/main
     }
 
     // Phone number validation
     if (!formData.phoneNumber) {
+<<<<<<< HEAD
       errors.phoneNumber = 'Phone number is required';
     } else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) {
       errors.phoneNumber = 'Please enter a valid 10-digit Indian phone number';
+=======
+      errors.phoneNumber = t('validation.phoneRequired');
+    } else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = t('validation.phoneInvalid');
+>>>>>>> fixed-repo/main
     }
 
     // Role-specific validations
     if (formData.role === 'artisan') {
       if (!formData.region?.trim()) {
+<<<<<<< HEAD
         errors.region = 'Region is required for artisans';
       }
     } else if (formData.role === 'distributor') {
@@ -91,6 +132,16 @@ const Signup: React.FC = () => {
       }
       if (!formData.distributionAreas?.trim()) {
         errors.distributionAreas = 'Distribution areas are required for distributors';
+=======
+        errors.region = t('validation.regionRequired');
+      }
+    } else if (formData.role === 'distributor') {
+      if (!formData.businessName?.trim()) {
+        errors.businessName = t('validation.businessNameRequired');
+      }
+      if (!formData.distributionAreas?.trim()) {
+        errors.distributionAreas = t('validation.distributionAreasRequired');
+>>>>>>> fixed-repo/main
       }
     }
 
@@ -101,15 +152,23 @@ const Signup: React.FC = () => {
   const parseBackendError = (errorMessage: string) => {
     // Parse specific backend error messages
     if (errorMessage.includes('User with this email already exists')) {
+<<<<<<< HEAD
       return 'An account with this email address already exists. Please try logging in instead.';
     }
     if (errorMessage.includes('User with this phone number already exists')) {
       return 'An account with this phone number already exists. Please try logging in instead.';
+=======
+      return t('errors.emailExists');
+    }
+    if (errorMessage.includes('User with this phone number already exists')) {
+      return t('errors.phoneExists');
+>>>>>>> fixed-repo/main
     }
     if (errorMessage.includes('Password must contain')) {
       return errorMessage; // Return the specific password validation message
     }
     if (errorMessage.includes('Please enter a valid email')) {
+<<<<<<< HEAD
       return 'The email address format is invalid. Please check and try again.';
     }
     if (errorMessage.includes('Please enter a valid phone number')) {
@@ -123,6 +182,21 @@ const Signup: React.FC = () => {
     }
     if (errorMessage.includes('profile_creation_failed')) {
       return 'Account created but profile setup failed. Please contact support or try logging in.';
+=======
+      return t('errors.invalidEmailFormat');
+    }
+    if (errorMessage.includes('Please enter a valid phone number')) {
+      return t('errors.invalidPhoneFormat');
+    }
+    if (errorMessage.includes('validation failed')) {
+      return t('errors.validationFailed');
+    }
+    if (errorMessage.includes('Network Error') || errorMessage.includes('Failed to fetch')) {
+      return t('errors.networkError');
+    }
+    if (errorMessage.includes('profile_creation_failed')) {
+      return t('errors.profileCreationFailed');
+>>>>>>> fixed-repo/main
     }
     
     return errorMessage; // Return original message if no specific handling
@@ -172,7 +246,11 @@ const Signup: React.FC = () => {
 
     if (!user || !accessToken) {
       console.error('Signup success payload missing user or access token');
+<<<<<<< HEAD
       setError('Registration completed but authentication failed. Please try logging in.');
+=======
+      setError(t('errors.authenticationFailed'));
+>>>>>>> fixed-repo/main
       return;
     }
 
@@ -209,7 +287,11 @@ const Signup: React.FC = () => {
 
   const handleOTPCancel = () => {
     setShowOTPVerification(false);
+<<<<<<< HEAD
     setError('Registration cancelled. Your account was created but not verified. Please log in to verify your email.');
+=======
+    setError(t('errors.registrationCancelled'));
+>>>>>>> fixed-repo/main
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -266,7 +348,11 @@ const Signup: React.FC = () => {
           setShowOTPVerification(true);
         } else {
           // Handle case where OTP sending failed but user was created
+<<<<<<< HEAD
           setError('Registration successful but OTP sending failed. Please contact support.');
+=======
+          setError(t('errors.otpSendingFailed'));
+>>>>>>> fixed-repo/main
         }
       } else {
         const errorMessage = parseBackendError(data.message || 'Registration failed. Please try again.');
@@ -274,10 +360,17 @@ const Signup: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Registration error:', error);
+<<<<<<< HEAD
       let errorMessage = 'An error occurred during registration. Please try again.';
       
       if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
         errorMessage = 'Network connection error. Please check your internet connection and try again.';
+=======
+      let errorMessage = t('errors.registrationError');
+      
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        errorMessage = t('errors.networkError');
+>>>>>>> fixed-repo/main
       } else if (error.message) {
         errorMessage = parseBackendError(error.message);
       }
@@ -328,8 +421,13 @@ const Signup: React.FC = () => {
 
         {/* Header */}
         <div className="text-center mb-8">
+<<<<<<< HEAD
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Create Account</h1>
           <p className="text-gray-600">Join us to discover authentic handmade crafts</p>
+=======
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{t('auth.createAccount')}</h1>
+          <p className="text-gray-600">{t('auth.joinCommunity')}</p>
+>>>>>>> fixed-repo/main
         </div>
 
         {/* Error Display */}
@@ -341,7 +439,11 @@ const Signup: React.FC = () => {
 
         {/* Role Selection */}
         <div className="mb-6">
+<<<<<<< HEAD
           <label className="block text-sm font-medium text-gray-700 mb-3">I want to join as:</label>
+=======
+          <label className="block text-sm font-medium text-gray-700 mb-3">{t('auth.signupAs')}</label>
+>>>>>>> fixed-repo/main
           <div className="grid grid-cols-1 gap-3">
             {/* Customer Role */}
             <button
@@ -354,8 +456,13 @@ const Signup: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <User className={`h-5 w-5 ${formData.role === 'customer' ? 'text-orange-500' : 'text-gray-400'}`} />
                 <div>
+<<<<<<< HEAD
                   <div className="font-medium text-gray-900">Customer</div>
                   <div className="text-sm text-gray-500">Browse and purchase handmade crafts</div>
+=======
+                  <div className="font-medium text-gray-900">{t('auth.customer')}</div>
+                  <div className="text-sm text-gray-500">{t('auth.customerSignupDesc')}</div>
+>>>>>>> fixed-repo/main
                 </div>
               </div>
             </button>
@@ -371,8 +478,13 @@ const Signup: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <Palette className={`h-5 w-5 ${formData.role === 'artisan' ? 'text-orange-500' : 'text-gray-400'}`} />
                 <div>
+<<<<<<< HEAD
                   <div className="font-medium text-gray-900">Artisan</div>
                   <div className="text-sm text-gray-500">Sell your handmade crafts and manage orders</div>
+=======
+                  <div className="font-medium text-gray-900">{t('auth.artisan')}</div>
+                  <div className="text-sm text-gray-500">{t('auth.artisanSignupDesc')}</div>
+>>>>>>> fixed-repo/main
                 </div>
               </div>
             </button>
@@ -390,8 +502,13 @@ const Signup: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <Package className={`h-5 w-5 ${formData.role === 'distributor' ? 'text-orange-500' : 'text-gray-400'}`} />
                 <div>
+<<<<<<< HEAD
                   <div className="font-medium text-gray-900">Distributor</div>
                   <div className="text-sm text-gray-500">Manage inventory and distribute products</div>
+=======
+                  <div className="font-medium text-gray-900">{t('auth.distributor')}</div>
+                  <div className="text-sm text-gray-500">{t('auth.distributorSignupDesc')}</div>
+>>>>>>> fixed-repo/main
                 </div>
               </div>
             </button>
@@ -403,7 +520,11 @@ const Signup: React.FC = () => {
           {/* Full Name Field */}
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
               Full Name
+=======
+              {t('auth.fullName')}
+>>>>>>> fixed-repo/main
             </label>
             <input
               type="text"
@@ -411,7 +532,11 @@ const Signup: React.FC = () => {
               name="fullName"
               value={formData.fullName}
               onChange={handleInputChange}
+<<<<<<< HEAD
               placeholder="Enter your full name"
+=======
+              placeholder={t('auth.enterFullName')}
+>>>>>>> fixed-repo/main
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-gray-50 focus:bg-white ${
                 validationErrors.fullName 
                   ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
@@ -427,7 +552,11 @@ const Signup: React.FC = () => {
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
               Email Address
+=======
+              {t('auth.emailAddress')}
+>>>>>>> fixed-repo/main
             </label>
             <input
               type="email"
@@ -435,7 +564,11 @@ const Signup: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
+<<<<<<< HEAD
               placeholder="Enter your email address"
+=======
+              placeholder={t('auth.enterEmail')}
+>>>>>>> fixed-repo/main
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-gray-50 focus:bg-white ${
                 validationErrors.email 
                   ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
@@ -451,7 +584,11 @@ const Signup: React.FC = () => {
           {/* Password Field */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
               Password
+=======
+              {t('auth.password')}
+>>>>>>> fixed-repo/main
             </label>
             <div className="relative">
               <input
@@ -460,7 +597,11 @@ const Signup: React.FC = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
+<<<<<<< HEAD
                 placeholder="Enter your password"
+=======
+                placeholder={t('auth.enterPassword')}
+>>>>>>> fixed-repo/main
                 className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-gray-50 focus:bg-white ${
                   validationErrors.password 
                     ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
@@ -480,14 +621,22 @@ const Signup: React.FC = () => {
               <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
             )}
             <p className="mt-1 text-xs text-gray-500">
+<<<<<<< HEAD
               Must contain at least 8 characters with uppercase, lowercase, number, and special character
+=======
+              {t('signup.passwordHint')}
+>>>>>>> fixed-repo/main
             </p>
           </div>
 
           {/* Confirm Password Field */}
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
               Confirm Password
+=======
+              {t('auth.confirmPassword')}
+>>>>>>> fixed-repo/main
             </label>
             <div className="relative">
               <input
@@ -496,7 +645,11 @@ const Signup: React.FC = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
+<<<<<<< HEAD
                 placeholder="Confirm your password"
+=======
+                placeholder={t('auth.confirmYourPassword')}
+>>>>>>> fixed-repo/main
                 className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-gray-50 focus:bg-white ${
                   validationErrors.confirmPassword 
                     ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
@@ -520,7 +673,11 @@ const Signup: React.FC = () => {
           {/* Phone Number Field */}
           <div>
             <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
               Phone Number
+=======
+              {t('auth.phoneNumber')}
+>>>>>>> fixed-repo/main
             </label>
             <input
               type="tel"
@@ -528,7 +685,11 @@ const Signup: React.FC = () => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleInputChange}
+<<<<<<< HEAD
               placeholder="Enter your 10-digit phone number"
+=======
+              placeholder={t('auth.enterPhoneNumber')}
+>>>>>>> fixed-repo/main
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-gray-50 focus:bg-white ${
                 validationErrors.phoneNumber 
                   ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
@@ -540,7 +701,11 @@ const Signup: React.FC = () => {
               <p className="mt-1 text-sm text-red-600">{validationErrors.phoneNumber}</p>
             )}
             <p className="mt-1 text-xs text-gray-500">
+<<<<<<< HEAD
               Enter a valid 10-digit Indian phone number
+=======
+              {t('signup.phoneHint')}
+>>>>>>> fixed-repo/main
             </p>
           </div>
 
@@ -549,21 +714,33 @@ const Signup: React.FC = () => {
             <>
               <div>
                 <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                   Bio (Optional)
+=======
+                  {t('auth.bio')}
+>>>>>>> fixed-repo/main
                 </label>
                 <textarea
                   id="bio"
                   name="bio"
                   value={formData.bio || ''}
                   onChange={handleInputChange}
+<<<<<<< HEAD
                   placeholder="Tell us about your craft and experience"
+=======
+                  placeholder={t('auth.tellUsAboutYourself')}
+>>>>>>> fixed-repo/main
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-gray-50 focus:bg-white resize-none"
                 />
               </div>
               <div>
                 <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                   Region
+=======
+                  {t('auth.region')}
+>>>>>>> fixed-repo/main
                 </label>
                 <input
                   type="text"
@@ -571,14 +748,22 @@ const Signup: React.FC = () => {
                   name="region"
                   value={formData.region || ''}
                   onChange={handleInputChange}
+<<<<<<< HEAD
                   placeholder="e.g., Maharashtra, Rajasthan"
+=======
+                  placeholder={t('auth.enterRegion')}
+>>>>>>> fixed-repo/main
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
               <div>
                 <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                   Skills (Optional)
+=======
+                  {t('auth.skills')}
+>>>>>>> fixed-repo/main
                 </label>
                 <input
                   type="text"
@@ -586,7 +771,11 @@ const Signup: React.FC = () => {
                   name="skills"
                   value={formData.skills || ''}
                   onChange={handleInputChange}
+<<<<<<< HEAD
                   placeholder="e.g., pottery, woodworking, textile (comma-separated)"
+=======
+                  placeholder={t('auth.enterSkills')}
+>>>>>>> fixed-repo/main
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-gray-50 focus:bg-white"
                 />
               </div>
@@ -597,7 +786,11 @@ const Signup: React.FC = () => {
             <>
               <div>
                 <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                   Business Name
+=======
+                  {t('auth.businessName')}
+>>>>>>> fixed-repo/main
                 </label>
                 <input
                   type="text"
@@ -605,14 +798,22 @@ const Signup: React.FC = () => {
                   name="businessName"
                   value={formData.businessName || ''}
                   onChange={handleInputChange}
+<<<<<<< HEAD
                   placeholder="Enter your business name"
+=======
+                  placeholder={t('auth.enterBusinessName')}
+>>>>>>> fixed-repo/main
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
               <div>
                 <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                   License Number (Optional)
+=======
+                  {t('auth.licenseNumber')}
+>>>>>>> fixed-repo/main
                 </label>
                 <input
                   type="text"
@@ -620,13 +821,21 @@ const Signup: React.FC = () => {
                   name="licenseNumber"
                   value={formData.licenseNumber || ''}
                   onChange={handleInputChange}
+<<<<<<< HEAD
                   placeholder="Enter your business license number"
+=======
+                  placeholder={t('auth.enterLicenseNumber')}
+>>>>>>> fixed-repo/main
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-gray-50 focus:bg-white"
                 />
               </div>
               <div>
                 <label htmlFor="distributionAreas" className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                   Distribution Areas (Optional)
+=======
+                  {t('auth.distributionAreas')}
+>>>>>>> fixed-repo/main
                 </label>
                 <input
                   type="text"
@@ -634,7 +843,11 @@ const Signup: React.FC = () => {
                   name="distributionAreas"
                   value={formData.distributionAreas || ''}
                   onChange={handleInputChange}
+<<<<<<< HEAD
                   placeholder="e.g., Mumbai, Pune, Nashik (comma-separated)"
+=======
+                  placeholder={t('auth.enterDistributionAreas')}
+>>>>>>> fixed-repo/main
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-gray-50 focus:bg-white"
                 />
               </div>
@@ -647,13 +860,21 @@ const Signup: React.FC = () => {
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
+<<<<<<< HEAD
             {isLoading ? 'Creating Account...' : 'Create Account'}
+=======
+            {isLoading ? t('signup.creatingAccount') : t('auth.createAccount')}
+>>>>>>> fixed-repo/main
           </button>
 
           {/* Divider */}
           <div className="flex items-center my-6">
             <div className="flex-1 border-t border-gray-300"></div>
+<<<<<<< HEAD
             <span className="px-4 text-sm text-gray-500 bg-white">OR CONTINUE WITH</span>
+=======
+            <span className="px-4 text-sm text-gray-500 bg-white">{t('signup.orContinueWith')}</span>
+>>>>>>> fixed-repo/main
             <div className="flex-1 border-t border-gray-300"></div>
           </div>
 
@@ -681,16 +902,26 @@ const Signup: React.FC = () => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
+<<<<<<< HEAD
             Continue with Google
+=======
+            {t('auth.signUpWithGoogle')}
+>>>>>>> fixed-repo/main
           </button>
         </form>
 
         {/* Footer */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600">
+<<<<<<< HEAD
             Already have an account?{' '}
             <Link to="/login" className="text-orange-600 hover:text-orange-700 font-medium transition-colors">
               Sign in
+=======
+            {t('auth.alreadyHaveAccount')}{' '}
+            <Link to="/login" className="text-orange-600 hover:text-orange-700 font-medium transition-colors">
+              {t('auth.login')}
+>>>>>>> fixed-repo/main
             </Link>
           </p>
         </div>

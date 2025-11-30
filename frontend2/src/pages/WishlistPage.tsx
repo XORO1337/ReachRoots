@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2, ArrowLeft, Package, Star, MapPin } from 'lucide-react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { toast } from 'react-hot-toast';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -12,6 +16,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { redirectToAppRoute } from '../utils/navigation';
 
 const WishlistPage: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const { wishlist, isLoading, removeFromWishlist, clearWishlist } = useWishlist();
   const { cartItems, addToCart, updateQuantity, removeItem, getCartItemsCount } = useCart();
   const { isAuthenticated } = useAuth();
@@ -68,13 +76,21 @@ const WishlistPage: React.FC = () => {
     try {
       const product = convertWishlistItemToProduct(item);
       addToCart(product);
+<<<<<<< HEAD
       toast.success(`${item.productName} added to cart!`, {
+=======
+      toast.success(t('wishlist.addedToCart', { name: item.productName }), {
+>>>>>>> fixed-repo/main
         icon: '🛒',
         duration: 2000
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
+<<<<<<< HEAD
       toast.error('Failed to add item to cart');
+=======
+      toast.error(t('wishlist.failedToAddToCart'));
+>>>>>>> fixed-repo/main
     }
   };
 
@@ -91,6 +107,7 @@ const WishlistPage: React.FC = () => {
       return;
     }
 
+<<<<<<< HEAD
     if (window.confirm(`Are you sure you want to remove all ${wishlist.items.length} items from your wishlist?`)) {
       setIsClearing(true);
       try {
@@ -99,6 +116,16 @@ const WishlistPage: React.FC = () => {
       } catch (error) {
         console.error('Error clearing wishlist:', error);
         toast.error('Failed to clear wishlist');
+=======
+    if (window.confirm(t('wishlist.confirmClearAll', { count: wishlist.items.length }))) {
+      setIsClearing(true);
+      try {
+        await clearWishlist();
+        toast.success(t('wishlist.clearedSuccess'));
+      } catch (error) {
+        console.error('Error clearing wishlist:', error);
+        toast.error(t('wishlist.failedToClear'));
+>>>>>>> fixed-repo/main
       } finally {
         setIsClearing(false);
       }
@@ -125,10 +152,17 @@ const WishlistPage: React.FC = () => {
         <div className="flex items-center text-sm text-gray-600 mb-6">
           <Link to="/" className="hover:text-orange-600 flex items-center">
             <ArrowLeft className="w-4 h-4 mr-1" />
+<<<<<<< HEAD
             Back to Marketplace
           </Link>
           <span className="mx-2">/</span>
           <span>My Wishlist</span>
+=======
+            {t('wishlist.backToMarketplace')}
+          </Link>
+          <span className="mx-2">/</span>
+          <span>{t('wishlist.myWishlist')}</span>
+>>>>>>> fixed-repo/main
         </div>
 
         {/* Header */}
@@ -137,10 +171,17 @@ const WishlistPage: React.FC = () => {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 flex items-center">
                 <Heart className="w-6 h-6 mr-2 text-red-500" />
+<<<<<<< HEAD
                 My Wishlist
               </h1>
               <p className="text-gray-600 mt-1">
                 {isLoading ? 'Loading...' : `${wishlist?.totalItems || 0} items saved for later`}
+=======
+                {t('wishlist.myWishlist')}
+              </h1>
+              <p className="text-gray-600 mt-1">
+                {isLoading ? t('common.loading') : t('wishlist.itemsSaved', { count: wishlist?.totalItems || 0 })}
+>>>>>>> fixed-repo/main
               </p>
             </div>
             
@@ -151,7 +192,11 @@ const WishlistPage: React.FC = () => {
                 className="flex items-center space-x-2 px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Trash2 className="w-4 h-4" />
+<<<<<<< HEAD
                 <span>{isClearing ? 'Clearing...' : 'Clear All'}</span>
+=======
+                <span>{isClearing ? t('wishlist.clearing') : t('wishlist.clearAll')}</span>
+>>>>>>> fixed-repo/main
               </button>
             )}
           </div>
@@ -168,16 +213,26 @@ const WishlistPage: React.FC = () => {
         {!isLoading && (!wishlist || wishlist.items.length === 0) && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+<<<<<<< HEAD
             <h3 className="text-lg font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
             <p className="text-gray-500 mb-6">
               Save items you love to your wishlist. They'll appear here so you can easily find them later.
+=======
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('wishlist.emptyTitle')}</h3>
+            <p className="text-gray-500 mb-6">
+              {t('wishlist.emptyDescription')}
+>>>>>>> fixed-repo/main
             </p>
             <Link
               to="/"
               className="inline-flex items-center space-x-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
             >
               <Package className="w-4 h-4" />
+<<<<<<< HEAD
               <span>Start Shopping</span>
+=======
+              <span>{t('wishlist.startShopping')}</span>
+>>>>>>> fixed-repo/main
             </Link>
           </div>
         )}
@@ -218,7 +273,11 @@ const WishlistPage: React.FC = () => {
 
                         {/* Description - Simplified for local storage */}
                         <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+<<<<<<< HEAD
                           Handcrafted with care by local artisans
+=======
+                          {t('wishlist.handcraftedByArtisans')}
+>>>>>>> fixed-repo/main
                         </p>
 
                         {/* Seller Info */}
@@ -229,7 +288,11 @@ const WishlistPage: React.FC = () => {
                             className="w-6 h-6 rounded-full mr-2"
                           />
                           <span className="text-sm text-gray-600">
+<<<<<<< HEAD
                             by {item.artisanName || 'RootsReach Artisan'}
+=======
+                            {t('wishlist.byArtisan', { name: item.artisanName || 'RootsReach Artisan' })}
+>>>>>>> fixed-repo/main
                           </span>
                           <div className="flex items-center text-xs text-gray-500 ml-4">
                             <MapPin className="h-3 w-3 mr-1" />
@@ -250,13 +313,21 @@ const WishlistPage: React.FC = () => {
                             ))}
                           </div>
                           <span className="text-sm text-gray-600 ml-2">
+<<<<<<< HEAD
                             4.5 (12 reviews)
+=======
+                            4.5 ({t('wishlist.reviews', { count: 12 })})
+>>>>>>> fixed-repo/main
                           </span>
                         </div>
 
                         {/* Added Date */}
                         <p className="text-xs text-gray-500">
+<<<<<<< HEAD
                           Added on {new Date(item.addedAt).toLocaleDateString()}
+=======
+                          {t('wishlist.addedOn', { date: new Date(item.addedAt).toLocaleDateString() })}
+>>>>>>> fixed-repo/main
                         </p>
                       </div>
 
@@ -265,10 +336,17 @@ const WishlistPage: React.FC = () => {
                         <div className="mb-4">
                           <div className="text-2xl font-bold text-gray-900">
                             ₹{(item.productPrice || 0).toLocaleString()}/
+<<<<<<< HEAD
                             <span className="text-sm text-gray-600">unit</span>
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
                             In Stock
+=======
+                            <span className="text-sm text-gray-600">{t('wishlist.unit')}</span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {t('wishlist.inStock')}
+>>>>>>> fixed-repo/main
                           </div>
                         </div>
 
@@ -279,14 +357,22 @@ const WishlistPage: React.FC = () => {
                             className="w-full bg-orange-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors text-sm flex items-center justify-center"
                           >
                             <ShoppingCart className="h-4 w-4 mr-1" />
+<<<<<<< HEAD
                             Add to Cart
+=======
+                            {t('wishlist.addToCart')}
+>>>>>>> fixed-repo/main
                           </button>
                           <button
                             onClick={() => handleRemoveFromWishlist(item.productId)}
                             className="w-full border-2 border-red-300 text-red-600 py-2 px-4 rounded-lg font-semibold hover:bg-red-50 transition-colors text-sm flex items-center justify-center"
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
+<<<<<<< HEAD
                             Remove
+=======
+                            {t('wishlist.remove')}
+>>>>>>> fixed-repo/main
                           </button>
                         </div>
                       </div>

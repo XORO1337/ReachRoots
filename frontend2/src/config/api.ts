@@ -11,7 +11,11 @@ const getBaseUrl = (): string => {
   // 2. Check for localhost/127.0.0.1
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     console.log('Detected localhost, using local backend');
+<<<<<<< HEAD
     return 'http://localhost:5000';
+=======
+    return 'http://localhost:10000';
+>>>>>>> fixed-repo/main
   }
   
   // 3. Check for GitHub Codespaces (app.github.dev or github.dev)
@@ -22,7 +26,11 @@ const getBaseUrl = (): string => {
     
     // Try to find the port in the hostname and replace it
     // This regex looks for a hyphen followed by digits, followed by the domain suffix
+<<<<<<< HEAD
     const newHostname = hostname.replace(/-\d+(\.app\.github\.dev|\.github\.dev)/, '-5000$1');
+=======
+    const newHostname = hostname.replace(/-\d+(\.app\.github\.dev|\.github\.dev)/, '-10000$1');
+>>>>>>> fixed-repo/main
     
     if (newHostname !== hostname) {
       console.log('Detected Codespace, constructed backend URL:', `https://${newHostname}`);
@@ -38,7 +46,11 @@ const getBaseUrl = (): string => {
     const subParts = subdomain.split('-');
     // If the last part is a number (port), replace it
     if (!isNaN(Number(subParts[subParts.length - 1]))) {
+<<<<<<< HEAD
       subParts[subParts.length - 1] = '5000';
+=======
+      subParts[subParts.length - 1] = '10000';
+>>>>>>> fixed-repo/main
       const newUrl = `https://${subParts.join('-')}.${domain}`;
       console.log('Detected Codespace (fallback logic), constructed backend URL:', newUrl);
       return newUrl;
@@ -47,6 +59,7 @@ const getBaseUrl = (): string => {
   
   // 4. Production fallback
   // Only use production URL if we are actually ON the production domain or if we can't determine otherwise
+<<<<<<< HEAD
   if (hostname.includes('reachroots.onrender.com')) {
     console.log('Detected production frontend, using production backend');
     return 'https://reachroots-backend.onrender.com';
@@ -55,6 +68,16 @@ const getBaseUrl = (): string => {
   // 5. Default for unknown environments (likely local dev with custom host)
   console.warn('Unknown environment, defaulting to localhost:5000');
   return 'http://localhost:5000';
+=======
+  if (hostname.includes('https://super-duper-fortnight-4jvx7qp4wxwc7jjg-5174.app.github.dev')) {
+    console.log('Detected production frontend, using production backend');
+    return 'https://super-duper-fortnight-4jvx7qp4wxwc7jjg-10000.app.github.dev';
+  }
+
+  // 5. Default for unknown environments (likely local dev with custom host)
+  console.warn('Unknown environment, defaulting to localhost:10000');
+  return 'http://localhost:10000';
+>>>>>>> fixed-repo/main
 };
 
 export const API_CONFIG = {
@@ -75,6 +98,10 @@ export const API_CONFIG = {
       BASE: '/api/products',
       SEARCH: '/api/products/search',
       CATEGORIES: '/api/products/categories',
+<<<<<<< HEAD
+=======
+      CATEGORIES_WITH_COUNTS: '/api/products/categories-with-counts',
+>>>>>>> fixed-repo/main
       BY_CATEGORY: '/api/products/by-category',
       BY_ARTISAN: '/api/products/by-artisan',
       FEATURED: '/api/products/featured',

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './AuthContext';
@@ -19,6 +20,14 @@ export interface WishlistData {
   totalItems: number;
   lastUpdated: string;
 }
+=======
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-hot-toast';
+import { useAuth } from './AuthContext';
+import WishlistService, { WishlistItem, WishlistData } from '../services/wishlistService';
+
+export type { WishlistItem, WishlistData };
+>>>>>>> fixed-repo/main
 
 interface WishlistContextType {
   wishlist: WishlistData | null;
@@ -44,6 +53,10 @@ interface WishlistContextType {
   isInWishlist: (productId: string) => boolean;
   clearWishlist: () => Promise<void>;
   getWishlistItemsCount: () => number;
+<<<<<<< HEAD
+=======
+  refreshWishlist: () => Promise<void>;
+>>>>>>> fixed-repo/main
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
@@ -52,7 +65,11 @@ interface WishlistProviderProps {
   children: React.ReactNode;
 }
 
+<<<<<<< HEAD
 // Local storage utilities
+=======
+// Local storage utilities for fallback/caching
+>>>>>>> fixed-repo/main
 const getWishlistKey = (userId: string) => `wishlist_${userId}`;
 
 const loadWishlistFromStorage = (userId: string): WishlistData | null => {
@@ -61,7 +78,10 @@ const loadWishlistFromStorage = (userId: string): WishlistData | null => {
     if (!stored) return null;
     
     const parsed = JSON.parse(stored);
+<<<<<<< HEAD
     // Validate the structure
+=======
+>>>>>>> fixed-repo/main
     if (parsed && parsed.userId === userId && Array.isArray(parsed.items)) {
       return parsed;
     }
@@ -77,7 +97,10 @@ const saveWishlistToStorage = (wishlistData: WishlistData) => {
     localStorage.setItem(getWishlistKey(wishlistData.userId), JSON.stringify(wishlistData));
   } catch (error) {
     console.error('Error saving wishlist to storage:', error);
+<<<<<<< HEAD
     toast.error('Failed to save wishlist');
+=======
+>>>>>>> fixed-repo/main
   }
 };
 
@@ -94,7 +117,42 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
 
+<<<<<<< HEAD
   // Load wishlist when user logs in
+=======
+  // Load wishlist from backend when user logs in
+  const loadUserWishlist = useCallback(async () => {
+    if (!user?.id) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Try to load from backend first
+      const backendWishlist = await WishlistService.getWishlist();
+      
+      if (backendWishlist) {
+        // Use backend data
+        setWishlist(backendWishlist);
+        // Cache locally
+        saveWishlistToStorage(backendWishlist);
+      } else {
+        // Fallback to local storage
+        const localWishlist = loadWishlistFromStorage(user.id) || createEmptyWishlist(user.id);
+        setWishlist(localWishlist);
+      }
+    } catch (err) {
+      console.error('Error loading wishlist:', err);
+      setError('Failed to load wishlist');
+      // Fallback to local storage
+      const localWishlist = loadWishlistFromStorage(user.id) || createEmptyWishlist(user.id);
+      setWishlist(localWishlist);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
+
+>>>>>>> fixed-repo/main
   useEffect(() => {
     if (isAuthenticated && user?.id) {
       loadUserWishlist();
@@ -103,6 +161,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       setWishlist(null);
       setError(null);
     }
+<<<<<<< HEAD
   }, [isAuthenticated, user?.id]);
 
   const loadUserWishlist = () => {
@@ -123,11 +182,20 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   };
 
   const updateWishlist = (updatedWishlist: WishlistData) => {
+=======
+  }, [isAuthenticated, user?.id, loadUserWishlist]);
+
+  const updateLocalWishlist = useCallback((updatedWishlist: WishlistData) => {
+>>>>>>> fixed-repo/main
     updatedWishlist.lastUpdated = new Date().toISOString();
     updatedWishlist.totalItems = updatedWishlist.items.length;
     setWishlist(updatedWishlist);
     saveWishlistToStorage(updatedWishlist);
+<<<<<<< HEAD
   };
+=======
+  }, []);
+>>>>>>> fixed-repo/main
 
   const addToWishlist = async (product: {
     id: string;
@@ -147,6 +215,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       return;
     }
 
+<<<<<<< HEAD
     try {
       // Check if item already exists
       if (wishlist.items.some(item => item.productId === product.id)) {
@@ -154,6 +223,26 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         return;
       }
 
+=======
+    // Check if item already exists
+    if (wishlist.items.some(item => item.productId === product.id)) {
+      toast.error('Product is already in your wishlist');
+      return;
+    }
+
+    try {
+      // Try backend first
+      const success = await WishlistService.addToWishlist({
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        productImage: product.image,
+        productCategory: product.category,
+        artisanName: product.artisanName,
+      });
+
+      // Update local state regardless
+>>>>>>> fixed-repo/main
       const newItem: WishlistItem = {
         productId: product.id,
         productName: product.name,
@@ -169,7 +258,15 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         items: [...wishlist.items, newItem]
       };
 
+<<<<<<< HEAD
       updateWishlist(updatedWishlist);
+=======
+      updateLocalWishlist(updatedWishlist);
+
+      if (!success) {
+        console.warn('Backend sync failed, using local storage only');
+      }
+>>>>>>> fixed-repo/main
       
       toast.success('Added to wishlist!', {
         icon: '❤️',
@@ -187,12 +284,27 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
+<<<<<<< HEAD
+=======
+      // Try backend first
+      const success = await WishlistService.removeFromWishlist(productId);
+
+      // Update local state regardless
+>>>>>>> fixed-repo/main
       const updatedWishlist = {
         ...wishlist,
         items: wishlist.items.filter(item => item.productId !== productId)
       };
 
+<<<<<<< HEAD
       updateWishlist(updatedWishlist);
+=======
+      updateLocalWishlist(updatedWishlist);
+
+      if (!success) {
+        console.warn('Backend sync failed, using local storage only');
+      }
+>>>>>>> fixed-repo/main
       
       toast.success('Removed from wishlist', {
         icon: '💔',
@@ -252,8 +364,22 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
+<<<<<<< HEAD
       const emptyWishlist = createEmptyWishlist(user.id);
       updateWishlist(emptyWishlist);
+=======
+      // Try backend first
+      const success = await WishlistService.clearWishlist();
+
+      // Update local state regardless
+      const emptyWishlist = createEmptyWishlist(user.id);
+      updateLocalWishlist(emptyWishlist);
+
+      if (!success) {
+        console.warn('Backend sync failed, using local storage only');
+      }
+      
+>>>>>>> fixed-repo/main
       toast.success('Wishlist cleared');
     } catch (err) {
       console.error('Error clearing wishlist:', err);
@@ -265,6 +391,13 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     return wishlist?.totalItems || 0;
   };
 
+<<<<<<< HEAD
+=======
+  const refreshWishlist = async () => {
+    await loadUserWishlist();
+  };
+
+>>>>>>> fixed-repo/main
   const value: WishlistContextType = {
     wishlist,
     isLoading,
@@ -274,7 +407,12 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     toggleWishlistItem,
     isInWishlist,
     clearWishlist,
+<<<<<<< HEAD
     getWishlistItemsCount
+=======
+    getWishlistItemsCount,
+    refreshWishlist
+>>>>>>> fixed-repo/main
   };
 
   return (

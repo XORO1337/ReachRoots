@@ -424,6 +424,32 @@ class ProductService {
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Get product categories with counts (optimized single query)
+  static async getProductCategoriesWithCounts() {
+    try {
+      const categoriesWithCounts = await Product.aggregate([
+        { $match: { status: 'active', category: { $exists: true, $ne: null, $ne: '' } } },
+        { 
+          $group: { 
+            _id: '$category', 
+            productCount: { $sum: 1 }
+          } 
+        },
+        { $sort: { productCount: -1 } }
+      ]);
+      
+      return categoriesWithCounts.map(cat => ({
+        name: cat._id,
+        productCount: cat.productCount
+      }));
+    } catch (error) {
+      throw new Error(`Error fetching product categories with counts: ${error.message}`);
+    }
+  }
+
+>>>>>>> fixed-repo/main
   // Get featured products (top selling or recently added)
   static async getFeaturedProducts(page = 1, limit = 10) {
     try {

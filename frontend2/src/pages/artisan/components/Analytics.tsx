@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Users } from 'lucide-react';
 import { Analytics } from '../types/dashboard';
 
@@ -7,6 +11,11 @@ interface AnalyticsProps {
 }
 
 const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+  
+>>>>>>> fixed-repo/main
   const StatCard: React.FC<{
     title: string;
     value: string;
@@ -26,7 +35,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
               <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
             )}
             <span className={`text-sm font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+<<<<<<< HEAD
               {Math.abs(change)}% vs last period
+=======
+              {Math.abs(change)}% {t('artisanDashboard.vsLastPeriod')}
+>>>>>>> fixed-repo/main
             </span>
           </div>
         </div>
@@ -46,7 +59,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
+<<<<<<< HEAD
           title="Total Revenue"
+=======
+          title={t('artisanDashboard.totalRevenue')}
+>>>>>>> fixed-repo/main
           value={`₹${analytics.totalRevenue.toLocaleString()}`}
           change={analytics.revenueChange}
           icon={<IndianRupee className="w-6 h-6 text-orange-600" />}
@@ -54,7 +71,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
         />
         
         <StatCard
+<<<<<<< HEAD
           title="Total Orders"
+=======
+          title={t('artisanDashboard.totalOrders')}
+>>>>>>> fixed-repo/main
           value={analytics.totalOrders.toString()}
           change={analytics.ordersChange}
           icon={<ShoppingBag className="w-6 h-6 text-orange-600" />}
@@ -62,7 +83,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
         />
         
         <StatCard
+<<<<<<< HEAD
           title="Avg Order Value"
+=======
+          title={t('artisanDashboard.avgOrderValue')}
+>>>>>>> fixed-repo/main
           value={`₹${analytics.avgOrderValue.toFixed(2)}`}
           change={analytics.avgOrderChange}
           icon={<TrendingUp className="w-6 h-6 text-orange-600" />}
@@ -70,7 +95,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
         />
         
         <StatCard
+<<<<<<< HEAD
           title="Unique Customers"
+=======
+          title={t('artisanDashboard.uniqueCustomers')}
+>>>>>>> fixed-repo/main
           value={analytics.uniqueCustomers.toString()}
           change={analytics.customersChange}
           icon={<Users className="w-6 h-6 text-orange-600" />}
@@ -81,7 +110,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Monthly Earnings Chart */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
+<<<<<<< HEAD
           <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Monthly Earnings</h3>
+=======
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 {t('artisanDashboard.monthlyEarnings')}</h3>
+>>>>>>> fixed-repo/main
           <div className="space-y-4">
             {analytics.monthlyEarnings.map((earning, index) => (
               <div key={index} className="flex items-center">
@@ -103,7 +136,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
 
         {/* Orders Trend Chart */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
+<<<<<<< HEAD
           <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 Orders Trend</h3>
+=======
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 {t('artisanDashboard.ordersTrend')}</h3>
+>>>>>>> fixed-repo/main
           <div className="space-y-4">
             {analytics.ordersTrend.map((orders, index) => (
               <div key={index} className="flex items-center">
@@ -127,7 +164,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales by Category */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
+<<<<<<< HEAD
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Sales by Category</h3>
+=======
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('artisanDashboard.salesByCategory')}</h3>
+>>>>>>> fixed-repo/main
           <div className="space-y-4">
             {analytics.salesByCategory.map((category, index) => (
               <div key={index} className="flex items-center justify-between">
@@ -163,19 +204,31 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
         <div className="space-y-6">
           {/* Customer Types */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
+<<<<<<< HEAD
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Types</h3>
+=======
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('artisanDashboard.customerTypes')}</h3>
+>>>>>>> fixed-repo/main
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-4 h-4 bg-orange-500 rounded mr-3"></div>
+<<<<<<< HEAD
                   <span className="text-sm text-gray-900">Normal Buyers</span>
+=======
+                  <span className="text-sm text-gray-900">{t('artisanDashboard.normalBuyers')}</span>
+>>>>>>> fixed-repo/main
                 </div>
                 <span className="text-sm font-medium text-gray-900">{analytics.customerTypes.normalBuyers}%</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-4 h-4 bg-orange-300 rounded mr-3"></div>
+<<<<<<< HEAD
                   <span className="text-sm text-gray-900">Distributors</span>
+=======
+                  <span className="text-sm text-gray-900">{t('artisanDashboard.distributors')}</span>
+>>>>>>> fixed-repo/main
                 </div>
                 <span className="text-sm font-medium text-gray-900">{analytics.customerTypes.distributors}%</span>
               </div>
@@ -194,7 +247,11 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
 
           {/* Top Performing Items */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
+<<<<<<< HEAD
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Items</h3>
+=======
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('artisanDashboard.topPerformingItems')}</h3>
+>>>>>>> fixed-repo/main
             <div className="space-y-3">
               {analytics.topPerformingItems.slice(0, 5).map((item, index) => (
                 <div key={index} className="flex items-center justify-between">
@@ -204,12 +261,20 @@ const AnalyticsPage: React.FC<AnalyticsProps> = ({ analytics }) => {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-900">{item.name}</div>
+<<<<<<< HEAD
                       <div className="text-xs text-gray-500">{item.unitsSold} units sold</div>
+=======
+                      <div className="text-xs text-gray-500">{item.unitsSold} {t('artisanDashboard.unitsSold')}</div>
+>>>>>>> fixed-repo/main
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-medium text-gray-900">₹{item.revenue.toLocaleString()}</div>
+<<<<<<< HEAD
                     <div className="text-xs text-gray-500">Revenue</div>
+=======
+                    <div className="text-xs text-gray-500">{t('artisanDashboard.revenue')}</div>
+>>>>>>> fixed-repo/main
                   </div>
                 </div>
               ))}

@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Search, Truck, Package, CheckCircle, MapPin } from 'lucide-react';
 import { Delivery } from '../types/dashboard';
 
@@ -7,6 +11,10 @@ interface DeliveriesProps {
 }
 
 const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
 
@@ -51,7 +59,11 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{totalDeliveries}</div>
+<<<<<<< HEAD
               <div className="text-sm text-gray-600">Total Deliveries</div>
+=======
+              <div className="text-sm text-gray-600">{t('artisanDashboard.totalDeliveries')}</div>
+>>>>>>> fixed-repo/main
             </div>
           </div>
         </div>
@@ -63,7 +75,11 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{preparingDeliveries}</div>
+<<<<<<< HEAD
               <div className="text-sm text-gray-600">Preparing</div>
+=======
+              <div className="text-sm text-gray-600">{t('artisanDashboard.preparing')}</div>
+>>>>>>> fixed-repo/main
             </div>
           </div>
         </div>
@@ -75,7 +91,11 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{inTransitDeliveries}</div>
+<<<<<<< HEAD
               <div className="text-sm text-gray-600">In Transit</div>
+=======
+              <div className="text-sm text-gray-600">{t('artisanDashboard.inTransit')}</div>
+>>>>>>> fixed-repo/main
             </div>
           </div>
         </div>
@@ -87,7 +107,11 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-gray-900">{deliveredCount}</div>
+<<<<<<< HEAD
               <div className="text-sm text-gray-600">Delivered</div>
+=======
+              <div className="text-sm text-gray-600">{t('artisanDashboard.delivered')}</div>
+>>>>>>> fixed-repo/main
             </div>
           </div>
         </div>
@@ -96,7 +120,11 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
       {/* Delivery Tracking */}
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-6 border-b border-gray-200">
+<<<<<<< HEAD
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Delivery Tracking</h2>
+=======
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('artisanDashboard.deliveryTracking')}</h2>
+>>>>>>> fixed-repo/main
 
           {/* Filters */}
           <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
@@ -104,7 +132,11 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
+<<<<<<< HEAD
                 placeholder="Search deliveries..."
+=======
+                placeholder={t('artisanDashboard.searchDeliveries')}
+>>>>>>> fixed-repo/main
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -115,10 +147,17 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
+<<<<<<< HEAD
               <option>All Status</option>
               <option>Preparing</option>
               <option>Shipped</option>
               <option>Delivered</option>
+=======
+              <option value="All Status">{t('artisanDashboard.allStatus')}</option>
+              <option value="Preparing">{t('artisanDashboard.preparing')}</option>
+              <option value="Shipped">{t('artisanDashboard.shipped')}</option>
+              <option value="Delivered">{t('artisanDashboard.delivered')}</option>
+>>>>>>> fixed-repo/main
             </select>
           </div>
         </div>
@@ -128,6 +167,7 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
+<<<<<<< HEAD
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
@@ -137,6 +177,17 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Est. Delivery</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+=======
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.deliveryId')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.order')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.customer')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.items')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.address')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.progress')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.estimatedDelivery')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('artisanDashboard.actions')}</th>
+>>>>>>> fixed-repo/main
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -178,17 +229,29 @@ const Deliveries: React.FC<DeliveriesProps> = ({ deliveries }) => {
                     <div className="flex space-x-2">
                       {delivery.status === 'Shipped' && delivery.trackingNumber && (
                         <button className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">
+<<<<<<< HEAD
                           Mark Delivered
+=======
+                          {t('artisanDashboard.markDelivered')}
+>>>>>>> fixed-repo/main
                         </button>
                       )}
                       {delivery.status === 'Preparing' && (
                         <button className="bg-orange-500 text-white px-3 py-1 rounded text-xs hover:bg-orange-600">
+<<<<<<< HEAD
                           Ship
+=======
+                          {t('artisanDashboard.ship')}
+>>>>>>> fixed-repo/main
                         </button>
                       )}
                       {delivery.trackingNumber && (
                         <button className="text-blue-600 hover:text-blue-800 text-xs">
+<<<<<<< HEAD
                           Track: {delivery.trackingNumber}
+=======
+                          {t('artisanDashboard.track')}: {delivery.trackingNumber}
+>>>>>>> fixed-repo/main
                         </button>
                       )}
                     </div>

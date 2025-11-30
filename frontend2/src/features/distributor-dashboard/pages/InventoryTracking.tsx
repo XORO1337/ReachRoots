@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Search, Filter, Package, AlertTriangle, CheckCircle } from 'lucide-react';
 
 interface InventoryItem {
@@ -71,6 +75,10 @@ const mockInventory: InventoryItem[] = [
 ];
 
 const InventoryTracking: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState<'current' | 'movements' | 'alerts'>('current');
   const [inventory] = useState<InventoryItem[]>(mockInventory);

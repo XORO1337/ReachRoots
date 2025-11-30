@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Bell, X } from 'lucide-react';
 
 interface HeaderProps {
@@ -7,12 +11,20 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-sm text-gray-500">
+<<<<<<< HEAD
             <span>Distributor Portal</span>
+=======
+            <span>{t('distributorDashboard.distributorPortal')}</span>
+>>>>>>> fixed-repo/main
             <span>›</span>
             <span>{title}</span>
           </div>

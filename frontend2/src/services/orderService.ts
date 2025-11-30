@@ -81,7 +81,20 @@ class OrderService {
       return response.data.data;
     } catch (error: any) {
       console.error('Create order error:', error);
+<<<<<<< HEAD
       throw new Error(error.response?.data?.message || error.message || 'Failed to create order');
+=======
+      // Extract detailed validation errors if available
+      const errorData = error.response?.data;
+      let errorMessage = errorData?.message || error.message || 'Failed to create order';
+      
+      // If there are validation errors, show the first one
+      if (errorData?.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+        errorMessage = errorData.errors.map((e: any) => e.msg || e.message).join(', ');
+      }
+      
+      throw new Error(errorMessage);
+>>>>>>> fixed-repo/main
     }
   }
 

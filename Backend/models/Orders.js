@@ -1,6 +1,33 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+<<<<<<< HEAD
+=======
+// Status history sub-schema for tracking all status changes
+const statusHistorySchema = new Schema({
+  status: {
+    type: String,
+    required: true
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  updatedByRole: {
+    type: String,
+    enum: ['artisan', 'distributor', 'admin', 'system']
+  },
+  note: {
+    type: String,
+    trim: true
+  }
+}, { _id: true });
+
+>>>>>>> fixed-repo/main
 const orderSchema = new Schema({
   orderNumber: {
     type: String,
@@ -47,9 +74,100 @@ const orderSchema = new Schema({
   },
   status: {
     type: String,
+<<<<<<< HEAD
     enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   },
+=======
+    enum: ['pending', 'received', 'packed', 'pickup_requested', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  // Status history for complete audit trail
+  statusHistory: [statusHistorySchema],
+  // Track when status was last changed (for 15-minute modification window)
+  lastStatusChangeAt: {
+    type: Date
+  },
+  // Shipping method choice
+  shippingMethod: {
+    type: String,
+    enum: ['pickup_agent', 'self_ship', null],
+    default: null
+  },
+  // Extended shipping details
+  shippingDetails: {
+    carrier: {
+      type: String,
+      trim: true
+    },
+    trackingNumber: {
+      type: String,
+      trim: true
+    },
+    proofOfShipping: {
+      type: String, // URL to uploaded image
+      trim: true
+    },
+    shippedAt: Date,
+    // Pickup agent specific
+    pickupRequestedAt: Date,
+    pickupScheduledAt: Date,
+    pickupAgentName: String,
+    pickupAgentPhone: String,
+    pickupConfirmedAt: Date,
+    // Agent assignment fields
+    assignedAgentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    agentAssignedAt: Date,
+    agentAssignedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    assignmentNote: String,
+    agentAcceptedAt: Date,
+    agentAccepted: Boolean,
+    agentCommission: Number,
+    // Pickup and delivery tracking
+    pickedUpAt: Date,
+    pickedUpBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    pickupProofImage: String,
+    deliveredAt: Date,
+    deliveredBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    deliveryProofImage: String,
+    deliverySignature: String,
+    // Broadcast info for agent opportunities
+    broadcastInfo: {
+      broadcastedAt: Date,
+      broadcastedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      broadcastNote: String,
+      targetedAgentIds: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }],
+      interestedAgents: [{
+        agentId: {
+          type: Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        agentName: String,
+        agentPhone: String,
+        agentRating: Number,
+        interestedAt: Date
+      }]
+    }
+  },
+>>>>>>> fixed-repo/main
   shippingAddress: {
     street: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { 
   Search, 
   Grid, 
@@ -42,6 +46,10 @@ interface SearchResults {
 }
 
 const SearchResultsPage: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [searchParams, setSearchParams] = useSearchParams();
   const { cartItems, addToCart, updateQuantity, removeItem, getCartItemsCount } = useCart();
   
@@ -329,10 +337,17 @@ const SearchResultsPage: React.FC = () => {
         <div className="flex items-center text-sm text-gray-600 mb-6">
           <Link to="/" className="hover:text-orange-600 flex items-center">
             <ArrowLeft className="w-4 h-4 mr-1" />
+<<<<<<< HEAD
             Back to Marketplace
           </Link>
           <span className="mx-2">/</span>
           <span>Search Results</span>
+=======
+            {t('searchResults.backToMarketplace')}
+          </Link>
+          <span className="mx-2">/</span>
+          <span>{t('searchResults.searchResults')}</span>
+>>>>>>> fixed-repo/main
           {searchQuery && (
             <>
               <span className="mx-2">/</span>
@@ -346,21 +361,37 @@ const SearchResultsPage: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">
+<<<<<<< HEAD
                 {searchQuery ? `Search Results for "${searchQuery}"` : 'Browse Products'}
               </h1>
               <div className="flex items-center gap-6 mt-2">
                 <p className="text-gray-600">
                   {loading ? 'Searching...' : `${searchResults.totalCount} products found`}
+=======
+                {searchQuery ? `${t('searchResults.searchResultsFor')} "${searchQuery}"` : t('searchResults.browseProducts')}
+              </h1>
+              <div className="flex items-center gap-6 mt-2">
+                <p className="text-gray-600">
+                  {loading ? t('searchResults.searching') : `${searchResults.totalCount} ${t('searchResults.productsFound')}`}
+>>>>>>> fixed-repo/main
                 </p>
                 {searchResults.totalCount > 0 && (
                   <>
                     <div className="flex items-center text-sm text-gray-500">
                       <Users className="w-4 h-4 mr-1" />
+<<<<<<< HEAD
                       <span>{new Set(searchResults.products.map(p => p.seller.id)).size} artisans</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <Package className="w-4 h-4 mr-1" />
                       <span>{searchResults.products.filter(p => p.inStock).length} in stock</span>
+=======
+                      <span>{new Set(searchResults.products.map(p => p.seller.id)).size} {t('searchResults.artisans')}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Package className="w-4 h-4 mr-1" />
+                      <span>{searchResults.products.filter(p => p.inStock).length} {t('searchResults.inStock')}</span>
+>>>>>>> fixed-repo/main
                     </div>
                   </>
                 )}
@@ -393,7 +424,11 @@ const SearchResultsPage: React.FC = () => {
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4" />
+<<<<<<< HEAD
                 Filters
+=======
+                {t('searchResults.filters')}
+>>>>>>> fixed-repo/main
                 {hasActiveFilters && (
                   <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
                 )}
@@ -407,13 +442,21 @@ const SearchResultsPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 flex items-center">
                   <FilterX className="w-4 h-4 mr-1" />
+<<<<<<< HEAD
                   Active filters:
+=======
+                  {t('searchResults.activeFilters')}
+>>>>>>> fixed-repo/main
                 </span>
                 <button
                   onClick={clearFilters}
                   className="text-sm text-orange-600 hover:text-orange-700 font-medium underline decoration-dotted"
                 >
+<<<<<<< HEAD
                   Clear all
+=======
+                  {t('searchResults.clearAll')}
+>>>>>>> fixed-repo/main
                 </button>
               </div>
             </div>
@@ -428,7 +471,11 @@ const SearchResultsPage: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-semibold text-gray-900 flex items-center">
                     <SlidersHorizontal className="w-5 h-5 mr-2 text-orange-600" />
+<<<<<<< HEAD
                     Filters
+=======
+                    {t('searchResults.filters')}
+>>>>>>> fixed-repo/main
                   </h3>
                   <button
                     onClick={() => setShowFilters(false)}
@@ -443,14 +490,22 @@ const SearchResultsPage: React.FC = () => {
                   <div className="border-b border-gray-100 pb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                       <Package className="w-4 h-4 mr-2 text-orange-600" />
+<<<<<<< HEAD
                       Category
+=======
+                      {t('searchResults.category')}
+>>>>>>> fixed-repo/main
                     </label>
                     <select
                       value={filters.category}
                       onChange={(e) => handleFilterChange('category', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                     >
+<<<<<<< HEAD
                       <option value="">All Categories</option>
+=======
+                      <option value="">{t('searchResults.allCategories')}</option>
+>>>>>>> fixed-repo/main
                       {availableCategories.map((category: string) => (
                         <option key={category} value={category}>{category}</option>
                       ))}
@@ -461,13 +516,21 @@ const SearchResultsPage: React.FC = () => {
                   <div className="border-b border-gray-100 pb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                       <TrendingUp className="w-4 h-4 mr-2 text-green-600" />
+<<<<<<< HEAD
                       Price Range (₹)
+=======
+                      {t('searchResults.priceRange')}
+>>>>>>> fixed-repo/main
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <input
                           type="number"
+<<<<<<< HEAD
                           placeholder="Min"
+=======
+                          placeholder={t('searchResults.minPrice')}
+>>>>>>> fixed-repo/main
                           value={filters.minPrice}
                           onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
@@ -476,7 +539,11 @@ const SearchResultsPage: React.FC = () => {
                       <div>
                         <input
                           type="number"
+<<<<<<< HEAD
                           placeholder="Max"
+=======
+                          placeholder={t('searchResults.maxPrice')}
+>>>>>>> fixed-repo/main
                           value={filters.maxPrice}
                           onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
@@ -489,11 +556,19 @@ const SearchResultsPage: React.FC = () => {
                   <div className="border-b border-gray-100 pb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                       <MapPin className="w-4 h-4 mr-2 text-blue-600" />
+<<<<<<< HEAD
                       Artisan Location
                     </label>
                     <input
                       type="text"
                       placeholder="Enter city or state"
+=======
+                      {t('searchResults.artisanLocation')}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={t('searchResults.enterCityOrState')}
+>>>>>>> fixed-repo/main
                       value={filters.artisanLocation}
                       onChange={(e) => handleFilterChange('artisanLocation', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
@@ -509,7 +584,11 @@ const SearchResultsPage: React.FC = () => {
             {/* Sort Options */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-4">
+<<<<<<< HEAD
                 <span className="text-sm text-gray-600 font-medium">Sort by:</span>
+=======
+                <span className="text-sm text-gray-600 font-medium">{t('searchResults.sortBy')}</span>
+>>>>>>> fixed-repo/main
                 <select
                   value={`${filters.sortBy}-${filters.sortOrder}`}
                   onChange={(e) => {
@@ -518,12 +597,21 @@ const SearchResultsPage: React.FC = () => {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white"
                 >
+<<<<<<< HEAD
                   <option value="createdAt-desc">Newest First</option>
                   <option value="createdAt-asc">Oldest First</option>
                   <option value="price-asc">Price: Low to High</option>
                   <option value="price-desc">Price: High to Low</option>
                   <option value="name-asc">Name: A to Z</option>
                   <option value="name-desc">Name: Z to A</option>
+=======
+                  <option value="createdAt-desc">{t('searchResults.newestFirst')}</option>
+                  <option value="createdAt-asc">{t('searchResults.oldestFirst')}</option>
+                  <option value="price-asc">{t('searchResults.priceLowToHigh')}</option>
+                  <option value="price-desc">{t('searchResults.priceHighToLow')}</option>
+                  <option value="name-asc">{t('searchResults.nameAToZ')}</option>
+                  <option value="name-desc">{t('searchResults.nameZToA')}</option>
+>>>>>>> fixed-repo/main
                 </select>
               </div>
             </div>
@@ -543,7 +631,11 @@ const SearchResultsPage: React.FC = () => {
                   onClick={() => fetchSearchResults(searchQuery, currentPage, filters)}
                   className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
+<<<<<<< HEAD
                   Try Again
+=======
+                  {t('searchResults.tryAgain')}
+>>>>>>> fixed-repo/main
                 </button>
               </div>
             )}
@@ -552,15 +644,25 @@ const SearchResultsPage: React.FC = () => {
             {!loading && !error && searchResults.products.length === 0 && (
               <div className="text-center py-12">
                 <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+<<<<<<< HEAD
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
                 <p className="text-gray-500 mb-6">
                   Try adjusting your search criteria or clear some filters
+=======
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('searchResults.noProductsFound')}</h3>
+                <p className="text-gray-500 mb-6">
+                  {t('searchResults.tryAdjustingSearch')}
+>>>>>>> fixed-repo/main
                 </p>
                 <button
                   onClick={clearFilters}
                   className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
+<<<<<<< HEAD
                   Clear Filters
+=======
+                  {t('searchResults.clearFilters')}
+>>>>>>> fixed-repo/main
                 </button>
               </div>
             )}
@@ -589,7 +691,11 @@ const SearchResultsPage: React.FC = () => {
                 {searchResults.totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row justify-between items-center mt-12 gap-4">
                     <div className="text-sm text-gray-600">
+<<<<<<< HEAD
                       Showing {((currentPage - 1) * 12) + 1} to {Math.min(currentPage * 12, searchResults.totalCount)} of {searchResults.totalCount} products
+=======
+                      {t('searchResults.showing')} {((currentPage - 1) * 12) + 1} {t('searchResults.to')} {Math.min(currentPage * 12, searchResults.totalCount)} {t('searchResults.of')} {searchResults.totalCount} {t('searchResults.products')}
+>>>>>>> fixed-repo/main
                     </div>
                     
                     <div className="flex items-center space-x-2">
@@ -598,7 +704,11 @@ const SearchResultsPage: React.FC = () => {
                         disabled={currentPage === 1}
                         className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                       >
+<<<<<<< HEAD
                         ← Previous
+=======
+                        ← {t('searchResults.previous')}
+>>>>>>> fixed-repo/main
                       </button>
 
                       {(() => {
@@ -650,7 +760,11 @@ const SearchResultsPage: React.FC = () => {
                         disabled={currentPage === searchResults.totalPages}
                         className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                       >
+<<<<<<< HEAD
                         Next →
+=======
+                        {t('searchResults.next')} →
+>>>>>>> fixed-repo/main
                       </button>
                     </div>
                   </div>

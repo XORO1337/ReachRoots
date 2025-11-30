@@ -24,6 +24,27 @@ const authLimit = rateLimit({
   legacyHeaders: false,
 });
 
+<<<<<<< HEAD
+=======
+// Strict rate limit for admin authentication - Security hardened
+const adminAuthLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Only 5 attempts per 15 minutes
+  message: {
+    success: false,
+    message: 'Too many admin login attempts. Account temporarily locked for security.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful logins
+  keyGenerator: (req) => {
+    // Use both IP and email/username for tracking
+    const identifier = req.body?.email || req.body?.username || '';
+    return `${req.ip}_${identifier}`;
+  },
+});
+
+>>>>>>> fixed-repo/main
 // Lenient rate limit for OTP requests - Critical for testing
 const otpLimit = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
@@ -51,6 +72,10 @@ const passwordResetLimit = rateLimit({
 module.exports = {
   generalLimit,
   authLimit,
+<<<<<<< HEAD
+=======
+  adminAuthLimit,
+>>>>>>> fixed-repo/main
   otpLimit,
   passwordResetLimit
 };

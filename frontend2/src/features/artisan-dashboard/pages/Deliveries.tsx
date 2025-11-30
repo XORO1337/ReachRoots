@@ -1,8 +1,16 @@
 import React, { useState, useMemo } from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Search, Truck, Package, CheckCircle, MapPin } from 'lucide-react';
 import { useArtisanDeliveries } from '../../../hooks/useArtisanDeliveries';
 
 const Deliveries: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [isUpdating, setIsUpdating] = useState<string | null>(null);

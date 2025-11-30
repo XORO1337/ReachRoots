@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { TrendingUp, TrendingDown, IndianRupee, ShoppingCart, Users } from 'lucide-react';
 
 interface PerformanceMetric {
@@ -25,6 +29,10 @@ interface TopProduct {
 }
 
 const PerformanceAnalytics: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const performanceMetrics: PerformanceMetric[] = [
     {
       label: 'Total Sales',

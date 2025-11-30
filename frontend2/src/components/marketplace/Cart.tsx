@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import { CartItem } from '../../types';
 import { X, Minus, Plus, ShoppingBag, Truck } from 'lucide-react';
 import { formatWeightUnit } from '../../utils/formatters';
+=======
+import { useTranslation } from 'react-i18next';
+import { CartItem } from '../../types';
+import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { formatWeightUnit } from '../../utils/formatters';
+import { calculateDeliveryFee, DELIVERY_THRESHOLDS } from '../../utils/deliveryFee';
+import DeliveryFeeTracker from './DeliveryFeeTracker';
+>>>>>>> fixed-repo/main
 import OrderService, { Order } from '../../services/orderService';
 import CheckoutModal from './CheckoutModal';
 import OrderConfirmationModal from './OrderConfirmationModal';
@@ -25,13 +34,24 @@ const Cart: React.FC<CartProps> = ({
   onUpdateQuantity,
   onRemoveItem
 }) => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
 
+<<<<<<< HEAD
   const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+=======
+  const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const deliveryFeeInfo = calculateDeliveryFee(subtotal);
+  const total = subtotal + deliveryFeeInfo.fee;
+>>>>>>> fixed-repo/main
 
   const handleCheckout = () => {
     setShowCheckoutModal(true);
@@ -60,6 +80,11 @@ const Cart: React.FC<CartProps> = ({
         shippingAddress: checkoutData.shippingAddress,
         customerInfo: checkoutData.customerInfo,
         paymentMethod: checkoutData.paymentMethod,
+<<<<<<< HEAD
+=======
+        subtotal: subtotal,
+        deliveryFee: deliveryFeeInfo.fee,
+>>>>>>> fixed-repo/main
         totalAmount: total
       };
 
@@ -160,7 +185,11 @@ const Cart: React.FC<CartProps> = ({
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-xl font-semibold flex items-center">
               <ShoppingBag className="h-5 w-5 mr-2" />
+<<<<<<< HEAD
               Shopping Cart ({itemCount})
+=======
+              {t('cart.title')} ({itemCount})
+>>>>>>> fixed-repo/main
             </h2>
             <button
               onClick={onClose}
@@ -175,13 +204,22 @@ const Cart: React.FC<CartProps> = ({
             {items.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+<<<<<<< HEAD
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
                 <p className="text-gray-500 mb-6">Start shopping to add items to your cart</p>
+=======
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('cart.empty')}</h3>
+                <p className="text-gray-500 mb-6">{t('cart.emptyDescription')}</p>
+>>>>>>> fixed-repo/main
                 <button
                   onClick={onClose}
                   className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
                 >
+<<<<<<< HEAD
                   Continue Shopping
+=======
+                  {t('cart.continueShopping')}
+>>>>>>> fixed-repo/main
                 </button>
               </div>
             ) : (
@@ -198,7 +236,11 @@ const Cart: React.FC<CartProps> = ({
                         {item.product.name}
                       </h4>
                       <p className="text-sm text-gray-500">
+<<<<<<< HEAD
                         by {item.product.seller.name}
+=======
+                        {t('productCard.by')} {item.product.seller.name}
+>>>>>>> fixed-repo/main
                       </p>
                       <p className="text-sm font-semibold text-gray-900">
                         ₹{item.product.price.toLocaleString()}/{formatWeightUnit(item.product.weightUnit)}
@@ -236,6 +278,7 @@ const Cart: React.FC<CartProps> = ({
           {/* Footer */}
           {items.length > 0 && (
             <div className="border-t p-6 space-y-4">
+<<<<<<< HEAD
               {/* Shipping Info */}
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Truck className="h-4 w-4" />
@@ -246,6 +289,34 @@ const Cart: React.FC<CartProps> = ({
               <div className="flex items-center justify-between text-lg font-semibold">
                 <span>Total:</span>
                 <span>₹{total.toLocaleString()}</span>
+=======
+              {/* Delivery Fee Tracker */}
+              <DeliveryFeeTracker 
+                subtotal={subtotal} 
+                onBrowseProducts={onClose}
+              />
+
+              {/* Order Summary */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>{t('cart.subtotal')} ({itemCount} {t('cart.itemsInCart')})</span>
+                  <span>₹{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className={deliveryFeeInfo.tierColor}>
+                    {t('delivery.deliveryFee')}
+                  </span>
+                  <span className={deliveryFeeInfo.tierColor}>
+                    {deliveryFeeInfo.fee === 0 ? t('delivery.free') : `₹${deliveryFeeInfo.fee}`}
+                  </span>
+                </div>
+                <div className="border-t border-gray-200 pt-2 mt-2">
+                  <div className="flex items-center justify-between text-lg font-semibold">
+                    <span>{t('cart.total')}</span>
+                    <span>₹{total.toLocaleString()}</span>
+                  </div>
+                </div>
+>>>>>>> fixed-repo/main
               </div>
 
               {/* Checkout Button */}
@@ -254,11 +325,19 @@ const Cart: React.FC<CartProps> = ({
                 disabled={isCheckingOut}
                 className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors"
               >
+<<<<<<< HEAD
                 {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}
               </button>
 
               <p className="text-xs text-gray-500 text-center">
                 🔒 Secure checkout - No registration required
+=======
+                {isCheckingOut ? t('cart.processing') : t('cart.checkout')}
+              </button>
+
+              <p className="text-xs text-gray-500 text-center">
+                🔒 {t('cart.secureCheckout')}
+>>>>>>> fixed-repo/main
               </p>
             </div>
           )}
@@ -270,6 +349,11 @@ const Cart: React.FC<CartProps> = ({
         isOpen={showCheckoutModal}
         onClose={() => setShowCheckoutModal(false)}
         items={items}
+<<<<<<< HEAD
+=======
+        subtotal={subtotal}
+        deliveryFee={deliveryFeeInfo.fee}
+>>>>>>> fixed-repo/main
         totalAmount={total}
         onSubmit={handleOrderSubmit}
         isProcessing={isCheckingOut}

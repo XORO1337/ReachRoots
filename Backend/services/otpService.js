@@ -11,9 +11,15 @@ const buildOtpDeliveryError = (message) => {
 };
 
 const shouldExposeDevOtp = () => {
+<<<<<<< HEAD
   // Dev OTP codes are no longer exposed for security reasons
   // Users must check their email for the OTP
   return false;
+=======
+  // Only expose OTP in UI when using console transport (no real email available)
+  // This ensures users get the code when emails can't be sent
+  return emailService.usesConsoleTransport();
+>>>>>>> fixed-repo/main
 };class OTPService {
   constructor() {
     this.OTP_LENGTH = 6;
@@ -92,7 +98,12 @@ const shouldExposeDevOtp = () => {
         emailSent: true,
         expiresAt,
         sendCount: nextSendCount,
+<<<<<<< HEAD
         maxSendsPerDay: this.MAX_DAILY_SENDS
+=======
+        maxSendsPerDay: this.MAX_DAILY_SENDS,
+        devOtpCode: shouldExposeDevOtp() ? otp : undefined
+>>>>>>> fixed-repo/main
       };
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -179,7 +190,12 @@ const shouldExposeDevOtp = () => {
         expiresAt,
         attemptsRemaining: this.MAX_RESEND_ATTEMPTS - nextResendCount,
         dailySendCount: nextSendCount,
+<<<<<<< HEAD
         maxSendsPerDay: this.MAX_DAILY_SENDS
+=======
+        maxSendsPerDay: this.MAX_DAILY_SENDS,
+        devOtpCode: shouldExposeDevOtp() ? otp : undefined
+>>>>>>> fixed-repo/main
       };
     } catch (error) {
       console.error('Error resending OTP:', error);

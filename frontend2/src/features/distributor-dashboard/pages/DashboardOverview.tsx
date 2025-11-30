@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { IndianRupee, ShoppingCart, Users, Package, AlertTriangle, Loader2 } from 'lucide-react';
 import DistributorService, { 
   DistributorStats, 
@@ -87,6 +91,10 @@ const StockAlert: React.FC<StockAlertProps> = ({ productName, stock, alertType, 
 };
 
 const DashboardOverview: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [stats, setStats] = useState<DistributorStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [lowStockAlerts, setLowStockAlerts] = useState<LowStockAlert[]>([]);

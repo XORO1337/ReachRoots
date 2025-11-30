@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Clock, Users, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useArtisanDashboard } from '../../../hooks/useArtisanDashboard';
@@ -43,6 +47,10 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon, color }
 };
 
 const DashboardOverview: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const { dashboardStats: stats, isLoading, error, refreshData } = useArtisanDashboard();
   const { items, isLoading: itemsLoading } = useArtisanItems();
 

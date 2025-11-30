@@ -75,7 +75,19 @@ const userSchema = new Schema({
     unique: true,
     sparse: true,
     trim: true,
+<<<<<<< HEAD
     match: [/^[+]?[1-9]\d{1,14}$/, 'Please enter a valid phone number']
+=======
+    validate: {
+      validator: function(value) {
+        // Allow empty/null values (sparse index handles uniqueness)
+        if (!value || value.trim() === '') return true;
+        // Accept phone numbers: optional +, then 10-15 digits (may start with 0)
+        return /^[+]?\d{10,15}$/.test(value);
+      },
+      message: 'Please enter a valid phone number (10-15 digits)'
+    }
+>>>>>>> fixed-repo/main
   },
   location: {
     type: String,
@@ -89,10 +101,105 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
+<<<<<<< HEAD
     enum: ['customer', 'artisan', 'distributor', 'admin'],
     required: true,
     default: 'customer'
   },
+=======
+    enum: ['customer', 'artisan', 'distributor', 'admin', 'shipping_agent'],
+    required: true,
+    default: 'customer'
+  },
+  // User flags for moderation (scam, fraud, trusted, etc.)
+  userFlags: [{
+    flag: {
+      type: String,
+      enum: ['scam', 'fraud', 'suspicious', 'trusted', 'vip', 'banned', 'warning'],
+      required: true
+    },
+    reason: String,
+    addedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    },
+    expiresAt: Date // Optional expiration for temporary flags
+  }],
+  // Agent profile for shipping agents
+  agentProfile: {
+    isActive: {
+      type: Boolean,
+      default: false
+    },
+    commissionRate: {
+      type: Number,
+      default: 5, // Percentage commission on delivery
+      min: 0,
+      max: 100
+    },
+    baseDeliveryFee: {
+      type: Number,
+      default: 50 // Base fee in INR
+    },
+    walletBalance: {
+      type: Number,
+      default: 0
+    },
+    totalEarnings: {
+      type: Number,
+      default: 0
+    },
+    totalDeliveries: {
+      type: Number,
+      default: 0
+    },
+    successfulDeliveries: {
+      type: Number,
+      default: 0
+    },
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5
+    },
+    totalRatings: {
+      type: Number,
+      default: 0
+    },
+    serviceAreas: [{
+      district: String,
+      city: String,
+      pinCodes: [String]
+    }],
+    vehicleType: {
+      type: String,
+      enum: ['bike', 'scooter', 'car', 'van', 'truck', 'other']
+    },
+    vehicleNumber: String,
+    licenseNumber: String,
+    bankDetails: {
+      accountHolder: String,
+      accountNumber: String,
+      ifscCode: String,
+      bankName: String
+    },
+    payoutHistory: [{
+      amount: Number,
+      transactionId: String,
+      status: {
+        type: String,
+        enum: ['pending', 'completed', 'failed']
+      },
+      requestedAt: Date,
+      processedAt: Date
+    }]
+  },
+>>>>>>> fixed-repo/main
   addresses: [addressSchema],
   authProvider: {
     type: String,
@@ -227,6 +334,12 @@ userSchema.index({ email: 1 });
 userSchema.index({ phone: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ googleId: 1 });
+<<<<<<< HEAD
+=======
+userSchema.index({ 'userFlags.flag': 1 });
+userSchema.index({ 'agentProfile.isActive': 1 });
+userSchema.index({ 'agentProfile.serviceAreas.pinCodes': 1 });
+>>>>>>> fixed-repo/main
 
 // Virtual for account locked
 userSchema.virtual('isLocked').get(function() {

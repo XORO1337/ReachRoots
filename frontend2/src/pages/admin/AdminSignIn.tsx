@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '../../contexts';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 
 const AdminSignIn: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -50,10 +58,17 @@ const AdminSignIn: React.FC = () => {
             <span className="text-2xl font-bold text-white">R</span>
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+<<<<<<< HEAD
             Admin Panel
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to your admin account
+=======
+            {t('admin.adminPortal')}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {t('admin.accessPlatform')}
+>>>>>>> fixed-repo/main
           </p>
         </div>
 
@@ -71,7 +86,11 @@ const AdminSignIn: React.FC = () => {
               {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+<<<<<<< HEAD
                   Email Address
+=======
+                  {t('auth.emailAddress')}
+>>>>>>> fixed-repo/main
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -86,7 +105,11 @@ const AdminSignIn: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+<<<<<<< HEAD
                     placeholder="Enter your email"
+=======
+                    placeholder={t('auth.enterEmail')}
+>>>>>>> fixed-repo/main
                   />
                 </div>
               </div>
@@ -94,7 +117,11 @@ const AdminSignIn: React.FC = () => {
               {/* Password Field */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+<<<<<<< HEAD
                   Password
+=======
+                  {t('auth.password')}
+>>>>>>> fixed-repo/main
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -109,7 +136,11 @@ const AdminSignIn: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+<<<<<<< HEAD
                     placeholder="Enter your password"
+=======
+                    placeholder={t('auth.enterPassword')}
+>>>>>>> fixed-repo/main
                   />
                   <button
                     type="button"
@@ -136,10 +167,17 @@ const AdminSignIn: React.FC = () => {
                 {isLoading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+<<<<<<< HEAD
                     Signing in...
                   </div>
                 ) : (
                   'Sign In'
+=======
+                    {t('admin.signingIn')}
+                  </div>
+                ) : (
+                  t('auth.login')
+>>>>>>> fixed-repo/main
                 )}
               </button>
             </div>

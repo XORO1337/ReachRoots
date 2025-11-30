@@ -4,7 +4,11 @@ const AuthController = require('../controllers/Auth_controller');
 const AddressController = require('../controllers/Address_controller');
 const IdentityVerificationController = require('../controllers/IdentityVerification_controller');
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
+<<<<<<< HEAD
 const { authLimit, otpLimit, generalLimit } = require('../middleware/rateLimiting');
+=======
+const { authLimit, adminAuthLimit, otpLimit, generalLimit } = require('../middleware/rateLimiting');
+>>>>>>> fixed-repo/main
 const {
   validateUserRegistration,
   validateUserLogin,
@@ -28,6 +32,12 @@ router.post('/register', authLimit, validateUserRegistration, AuthController.reg
 // Login with phone/email and password
 router.post('/login', authLimit, validateUserLogin, AuthController.loginWithEmailOTP);
 
+<<<<<<< HEAD
+=======
+// Admin/Shipping Agent direct login (no OTP required) - Strict rate limiting
+router.post('/admin/login', adminAuthLimit, AuthController.adminLogin);
+
+>>>>>>> fixed-repo/main
 // Google OAuth routes
 router.get('/google', AuthController.initiateGoogleAuth);
 router.get('/google/callback', AuthController.handleGoogleCallback);

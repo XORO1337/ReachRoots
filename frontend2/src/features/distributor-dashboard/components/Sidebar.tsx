@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Link } from 'react-router-dom';
 import { 
   Home, 
@@ -17,6 +21,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
+<<<<<<< HEAD
   const navigationItems = [
     { id: 'dashboard' as NavigationPage, label: 'Dashboard', icon: Home, path: '/distributor' },
     { id: 'products' as NavigationPage, label: 'Product Management', icon: Package, path: '/distributor/products' },
@@ -24,6 +29,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
     { id: 'orders' as NavigationPage, label: 'Order Management', icon: ShoppingCart, path: '/distributor/orders' },
     { id: 'analytics' as NavigationPage, label: 'Performance Analytics', icon: TrendingUp, path: '/distributor/analytics' },
     { id: 'communications' as NavigationPage, label: 'Communications', icon: MessageCircle, path: '/distributor/communications' },
+=======
+  const { t } = useTranslation();
+  const navigationItems = [
+    { id: 'dashboard' as NavigationPage, label: t('distributorDashboard.dashboard'), icon: Home, path: '/distributor' },
+    { id: 'products' as NavigationPage, label: t('distributorDashboard.productManagement'), icon: Package, path: '/distributor/products' },
+    { id: 'inventory' as NavigationPage, label: t('distributorDashboard.inventoryTracking'), icon: BarChart3, path: '/distributor/inventory' },
+    { id: 'orders' as NavigationPage, label: t('distributorDashboard.orderManagement'), icon: ShoppingCart, path: '/distributor/orders' },
+    { id: 'analytics' as NavigationPage, label: t('distributorDashboard.performanceAnalytics'), icon: TrendingUp, path: '/distributor/analytics' },
+    { id: 'communications' as NavigationPage, label: t('distributorDashboard.communications'), icon: MessageCircle, path: '/distributor/communications' },
+>>>>>>> fixed-repo/main
   ];
 
   return (
@@ -36,7 +51,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
           </div>
           <div>
             <h1 className="font-semibold text-gray-900">RootsReach</h1>
+<<<<<<< HEAD
             <p className="text-sm text-gray-500">Distributor Portal</p>
+=======
+            <p className="text-sm text-gray-500">{t('distributorDashboard.distributorPortal')}</p>
+>>>>>>> fixed-repo/main
           </div>
         </Link>
       </div>

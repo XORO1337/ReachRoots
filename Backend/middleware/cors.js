@@ -6,7 +6,13 @@ module.exports = (req, res, next) => {
     'http://localhost:5173', // Vite dev server
     'http://localhost:3000', // React dev server
     'http://localhost:4173', // Vite preview
+<<<<<<< HEAD
     'https://reachroots.onrender.com', // Current Codespace frontend
+=======
+    'https://reachroots.onrender.com',
+    'https://super-duper-fortnight-4jvx7qp4wxwc7jjg-5174.app.github.dev',
+    'https://super-duper-fortnight-4jvx7qp4wxwc7jjg-10000.app.github.dev', // Current Codespace frontend
+>>>>>>> fixed-repo/main
     getClientURL(), // Dynamic client URL detection
     process.env.CLIENT_URL, // Explicit client URL
     process.env.FRONTEND_URL, // Alternative env variable

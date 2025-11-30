@@ -1,4 +1,8 @@
 const ArtisanProfile = require('../models/Artisan');
+<<<<<<< HEAD
+=======
+const User = require('../models/User');
+>>>>>>> fixed-repo/main
 
 class ArtisanService {
   // Create a new artisan profile
@@ -11,6 +15,7 @@ class ArtisanService {
     }
   }
 
+<<<<<<< HEAD
   // Get all artisan profiles with optional pagination
   static async getAllArtisanProfiles(page = 1, limit = 10, filters = {}) {
     try {
@@ -18,6 +23,23 @@ class ArtisanService {
       const query = {};
 
       // Apply filters
+=======
+  // Get all artisan profiles with optional pagination (only artisan role users)
+  static async getAllArtisanProfiles(page = 1, limit = 10, filters = {}) {
+    try {
+      const skip = (page - 1) * limit;
+      
+      // First, get all user IDs with artisan role only
+      const artisanUsers = await User.find({ role: 'artisan' }).select('_id');
+      const artisanUserIds = artisanUsers.map(u => u._id);
+      
+      // Build query with role filter to exclude admin and other roles
+      const query = {
+        userId: { $in: artisanUserIds }
+      };
+
+      // Apply additional filters
+>>>>>>> fixed-repo/main
       if (filters.region) {
         query.region = { $regex: filters.region, $options: 'i' };
       }
@@ -26,7 +48,11 @@ class ArtisanService {
       }
 
       const artisans = await ArtisanProfile.find(query)
+<<<<<<< HEAD
         .populate('userId', 'name email phone')
+=======
+        .populate('userId', 'name email phone role')
+>>>>>>> fixed-repo/main
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
@@ -150,22 +176,44 @@ class ArtisanService {
     }
   }
 
+<<<<<<< HEAD
   // Search artisans by skills
+=======
+  // Search artisans by skills (only artisan role users)
+>>>>>>> fixed-repo/main
   static async searchArtisansBySkills(skills, page = 1, limit = 10) {
     try {
       const skip = (page - 1) * limit;
       
+<<<<<<< HEAD
       const artisans = await ArtisanProfile.find({
         skills: { $in: skills }
       })
         .populate('userId', 'name email phone')
+=======
+      // Get all user IDs with artisan role only
+      const artisanUsers = await User.find({ role: 'artisan' }).select('_id');
+      const artisanUserIds = artisanUsers.map(u => u._id);
+      
+      const query = {
+        userId: { $in: artisanUserIds },
+        skills: { $in: skills }
+      };
+      
+      const artisans = await ArtisanProfile.find(query)
+        .populate('userId', 'name email phone role')
+>>>>>>> fixed-repo/main
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
 
+<<<<<<< HEAD
       const total = await ArtisanProfile.countDocuments({
         skills: { $in: skills }
       });
+=======
+      const total = await ArtisanProfile.countDocuments(query);
+>>>>>>> fixed-repo/main
 
       return {
         artisans,
@@ -178,22 +226,44 @@ class ArtisanService {
     }
   }
 
+<<<<<<< HEAD
   // Search artisans by region
+=======
+  // Search artisans by region (only artisan role users)
+>>>>>>> fixed-repo/main
   static async searchArtisansByRegion(region, page = 1, limit = 10) {
     try {
       const skip = (page - 1) * limit;
       
+<<<<<<< HEAD
       const artisans = await ArtisanProfile.find({
         region: { $regex: region, $options: 'i' }
       })
         .populate('userId', 'name email phone')
+=======
+      // Get all user IDs with artisan role only
+      const artisanUsers = await User.find({ role: 'artisan' }).select('_id');
+      const artisanUserIds = artisanUsers.map(u => u._id);
+      
+      const query = {
+        userId: { $in: artisanUserIds },
+        region: { $regex: region, $options: 'i' }
+      };
+      
+      const artisans = await ArtisanProfile.find(query)
+        .populate('userId', 'name email phone role')
+>>>>>>> fixed-repo/main
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
 
+<<<<<<< HEAD
       const total = await ArtisanProfile.countDocuments({
         region: { $regex: region, $options: 'i' }
       });
+=======
+      const total = await ArtisanProfile.countDocuments(query);
+>>>>>>> fixed-repo/main
 
       return {
         artisans,

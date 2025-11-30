@@ -34,6 +34,28 @@ class OrderController {
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Get current user's orders (buyer/me)
+  static async getMyOrders(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const result = await OrderService.getOrdersByBuyer(req.user.id, page, limit);
+      res.status(200).json({
+        success: true,
+        message: 'Orders retrieved successfully',
+        data: result
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+>>>>>>> fixed-repo/main
   // Get all orders
   static async getAllOrders(req, res) {
     try {

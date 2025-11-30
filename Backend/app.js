@@ -23,6 +23,11 @@ const devLogsRoutes = require('./routes/DevLogs_route');
 const adminRoutes = require('./routes/Admin_route');
 const wishlistRoutes = require('./routes/Wishlist_route');
 const paymentRoutes = require('./routes/Payment_route');
+<<<<<<< HEAD
+=======
+const shippingAgentRoutes = require('./routes/ShippingAgent_route');
+const agentApplicationRoutes = require('./routes/AgentApplication_route');
+>>>>>>> fixed-repo/main
 
 // Import middleware
 const { generalLimit } = require('./middleware/rateLimiting');
@@ -42,6 +47,53 @@ const app = express();
 const requestLogger = new RequestLogger();
 app.locals.requestLogger = requestLogger;
 
+<<<<<<< HEAD
+=======
+// Load dynamic environment config
+const env = require('./config/environment');
+
+// Trust proxy for accurate IP detection (more specific for security)
+app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
+
+// CORS configuration with multiple allowed origins - MUST BE FIRST
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:4173',
+  'https://reachroots.onrender.com',
+  'https://super-duper-fortnight-4jvx7qp4wxwc7jjg-5174.app.github.dev',
+  'https://super-duper-fortnight-4jvx7qp4wxwc7jjg-10000.app.github.dev',
+  env.CLIENT_URL,
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGIN
+].filter(Boolean);
+
+// Manual CORS headers for ALL requests (most reliable approach for Codespaces)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Allow any github.dev origin or explicitly listed origins
+  if (!origin || origin.endsWith('.app.github.dev') || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', origin); // Allow all for dev
+  }
+  
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With, Cache-Control');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  
+  next();
+});
+
+>>>>>>> fixed-repo/main
 // Security middleware with relaxed CSP for development
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -50,6 +102,7 @@ app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
 
+<<<<<<< HEAD
 // Load dynamic environment config
 const env = require('./config/environment');
 
@@ -73,6 +126,8 @@ const corsOptions = {
 // Apply CORS middleware
 app.use(cors(corsOptions));
 
+=======
+>>>>>>> fixed-repo/main
 // Request logging middleware
 app.use(requestLogger.middleware());
 
@@ -160,6 +215,15 @@ app.use('/api/admin', adminRoutes);
 console.log('Defining wishlist routes...');
 app.use('/api/wishlist', wishlistRoutes);
 
+<<<<<<< HEAD
+=======
+console.log('Defining shipping agent routes...');
+app.use('/api/agent', shippingAgentRoutes);
+
+console.log('Defining agent application routes...');
+app.use('/api/agent-applications', agentApplicationRoutes);
+
+>>>>>>> fixed-repo/main
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({

@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -12,6 +16,10 @@ import Communications from './pages/Communications';
 type NavigationPage = 'dashboard' | 'products' | 'inventory' | 'orders' | 'analytics' | 'communications';
 
 const DistributorDashboard: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const location = useLocation();
   
   // Extract current page from URL path
@@ -31,6 +39,7 @@ const DistributorDashboard: React.FC = () => {
 
   const getPageTitle = (page: NavigationPage) => {
     switch (page) {
+<<<<<<< HEAD
       case 'dashboard': return 'Dashboard Overview';
       case 'products': return 'Product Management';
       case 'inventory': return 'Inventory Tracking';
@@ -38,11 +47,21 @@ const DistributorDashboard: React.FC = () => {
       case 'analytics': return 'Performance Analytics';
       case 'communications': return 'Communication Hub';
       default: return 'Dashboard Overview';
+=======
+      case 'dashboard': return t('distributorDashboard.dashboardOverview');
+      case 'products': return t('distributorDashboard.productManagement');
+      case 'inventory': return t('distributorDashboard.inventoryTracking');
+      case 'orders': return t('distributorDashboard.orderManagement');
+      case 'analytics': return t('distributorDashboard.performanceAnalytics');
+      case 'communications': return t('distributorDashboard.communicationHub');
+      default: return t('distributorDashboard.dashboardOverview');
+>>>>>>> fixed-repo/main
     }
   };
 
   const getPageSubtitle = (page: NavigationPage) => {
     switch (page) {
+<<<<<<< HEAD
       case 'dashboard': return 'Welcome to your distributor portal';
       case 'products': return 'Manage your assigned products and inventory';
       case 'inventory': return 'Monitor stock levels and manage inventory across all locations';
@@ -50,6 +69,15 @@ const DistributorDashboard: React.FC = () => {
       case 'analytics': return 'Track your sales performance and business metrics';
       case 'communications': return 'Stay updated with announcements, notifications, and messages';
       default: return 'Welcome to your distributor portal';
+=======
+      case 'dashboard': return t('distributorDashboard.dashboardSubtitle');
+      case 'products': return t('distributorDashboard.productsSubtitle');
+      case 'inventory': return t('distributorDashboard.inventorySubtitle');
+      case 'orders': return t('distributorDashboard.ordersSubtitle');
+      case 'analytics': return t('distributorDashboard.analyticsSubtitle');
+      case 'communications': return t('distributorDashboard.communicationsSubtitle');
+      default: return t('distributorDashboard.dashboardSubtitle');
+>>>>>>> fixed-repo/main
     }
   };
 

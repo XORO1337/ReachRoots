@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Link } from 'react-router-dom';
 import { 
   Home, 
@@ -16,6 +20,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
+<<<<<<< HEAD
   const navigationItems = [
     { id: 'dashboard' as NavigationPage, label: 'Dashboard', icon: Home, path: '/artisan' },
     { id: 'items' as NavigationPage, label: 'My Items', icon: Package, path: '/artisan/items' },
@@ -23,6 +28,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
     { id: 'deliveries' as NavigationPage, label: 'Deliveries', icon: Truck, path: '/artisan/deliveries' },
     { id: 'analytics' as NavigationPage, label: 'Analytics', icon: BarChart3, path: '/artisan/analytics' },
     { id: 'settings' as NavigationPage, label: 'Settings', icon: Settings, path: '/artisan/settings' },
+=======
+  const { t } = useTranslation();
+  const navigationItems = [
+    { id: 'dashboard' as NavigationPage, label: t('artisanDashboard.dashboard'), icon: Home, path: '/artisan' },
+    { id: 'items' as NavigationPage, label: t('artisanDashboard.myItems'), icon: Package, path: '/artisan/items' },
+    { id: 'orders' as NavigationPage, label: t('artisanDashboard.orders'), icon: ShoppingCart, path: '/artisan/orders' },
+    { id: 'deliveries' as NavigationPage, label: t('artisanDashboard.deliveries'), icon: Truck, path: '/artisan/deliveries' },
+    { id: 'analytics' as NavigationPage, label: t('artisanDashboard.analytics'), icon: BarChart3, path: '/artisan/analytics' },
+    { id: 'settings' as NavigationPage, label: t('artisanDashboard.settings'), icon: Settings, path: '/artisan/settings' },
+>>>>>>> fixed-repo/main
   ];
 
   return (
@@ -34,8 +49,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage }) => {
             <span className="text-white font-bold text-sm">AH</span>
           </div>
           <div>
+<<<<<<< HEAD
             <h1 className="font-semibold text-gray-900">Artisan Hub</h1>
             <p className="text-sm text-gray-500">Dashboard</p>
+=======
+            <h1 className="font-semibold text-gray-900">{t('artisanDashboard.artisanHub')}</h1>
+            <p className="text-sm text-gray-500">{t('artisanDashboard.dashboard')}</p>
+>>>>>>> fixed-repo/main
           </div>
         </Link>
       </div>

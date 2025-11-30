@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { useTranslation } from 'react-i18next';
+>>>>>>> fixed-repo/main
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -11,6 +15,10 @@ import Settings from './pages/Settings';
 import { NavigationPage } from '../../types/dashboard';
 
 const ArtisanDashboard: React.FC = () => {
+<<<<<<< HEAD
+=======
+  const { t } = useTranslation();
+>>>>>>> fixed-repo/main
   const location = useLocation();
   
   // Extract current page from URL path
@@ -30,6 +38,7 @@ const ArtisanDashboard: React.FC = () => {
 
   const getPageTitle = (page: NavigationPage) => {
     switch (page) {
+<<<<<<< HEAD
       case 'dashboard': return 'Dashboard';
       case 'items': return 'My Items';
       case 'orders': return 'Orders';
@@ -37,17 +46,35 @@ const ArtisanDashboard: React.FC = () => {
       case 'analytics': return 'Analytics';
       case 'settings': return 'Settings';
       default: return 'Dashboard';
+=======
+      case 'dashboard': return t('artisanDashboard.dashboard');
+      case 'items': return t('artisanDashboard.myItems');
+      case 'orders': return t('artisanDashboard.orders');
+      case 'deliveries': return t('artisanDashboard.deliveries');
+      case 'analytics': return t('artisanDashboard.analytics');
+      case 'settings': return t('artisanDashboard.settings');
+      default: return t('artisanDashboard.dashboard');
+>>>>>>> fixed-repo/main
     }
   };
 
   const getPageSubtitle = (page: NavigationPage) => {
     switch (page) {
+<<<<<<< HEAD
       case 'dashboard': return "Welcome back! Here's an overview of your artisan business.";
       case 'items': return 'Manage your handcrafted items and inventory';
       case 'orders': return 'Manage and track all your customer orders';
       case 'deliveries': return 'Track and manage all your delivery shipments';
       case 'analytics': return 'Detailed insights into your artisan business performance';
       case 'settings': return 'Manage your account and business preferences';
+=======
+      case 'dashboard': return t('artisanDashboard.dashboardSubtitle');
+      case 'items': return t('artisanDashboard.itemsSubtitle');
+      case 'orders': return t('artisanDashboard.ordersSubtitle');
+      case 'deliveries': return t('artisanDashboard.deliveriesSubtitle');
+      case 'analytics': return t('artisanDashboard.analyticsSubtitle');
+      case 'settings': return t('artisanDashboard.settingsSubtitle');
+>>>>>>> fixed-repo/main
       default: return "Welcome back! Here's an overview of your artisan business.";
     }
   };
